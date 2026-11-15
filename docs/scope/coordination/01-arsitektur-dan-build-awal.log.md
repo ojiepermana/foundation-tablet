@@ -5,7 +5,7 @@
 - **Mode keputusan:** `auto` · **Ketentuan tambahan:** tidak ada
 - **Aturan umum brief:** `01-arsitektur-dan-build-awal.brief-umum.md` · **Langkah manual:** `01-arsitektur-dan-build-awal.manual.md`
 - **Wave aktif:** 1, mulai 2026-11-15
-- **Diperbarui:** 2026-11-16 01:50
+- **Diperbarui:** 2026-11-16 02:10
 
 ## Sub sesi wave 1
 
@@ -130,4 +130,16 @@ Keputusan spec yang diambil dari opsi rekomendasi atas nama user (SKILL.md bagia
 
 ## Penutupan
 
-- Belum ditutup.
+- **Semua branch koordinasi:** keempat branch sudah di-merge ke `main`; `git branch --no-merged main` kosong.
+- **Merge:** `claude/arc-f1-spec-983432` → `27f1283` (spec), `3c80a91` (K29), `f13f456` (K30), `8bc5c59` (K31 sampai K40)
+- **Merge:** `claude/dev-f1-m1-ee7069` → `578e3b7` (milestone 1), `0868e45` (milestone 2), `610cefb` (milestone 3), `065ed88` (milestone 4), `62ac087` (perbaikan panduan), `ce54d4e` (perapian teks, spec `Accepted`)
+- **Merge:** `claude/chk-f1-verify-4078a9` → `bd8f2ca` (verify M1), `542db58` (M2), `495e931` (M3), `99f2b9d` (M4 dan verify penuh), `75b463f` (verify ulang akhir)
+- **Merge:** `claude/tst-f1-test-949ed6` → `00a55b9` (suite tes, milestone 5)
+- **Document:** tidak berlaku (tier Beta, tidak ada kotak `Document it`)
+- **/sync:** 2026-11-16, rentang `46afb12..HEAD`, `AGENTS.md` akar (tambahan `## Build approach`, `## Stack` tanpa angka versi, `## Perintah`). Tidak ada centang atau status scope maupun spec yang diubah `/sync`, jadi tidak ada yang ditolak. Celah konteks: `crates/`, `apps/ipados/`, `apps/android-tablet/`, `scripts/`, `tests/` belum punya `AGENTS.md` bersarang; diserahkan ke fitur 02 (`/audit`). Penawaran pencarian Agent Skill dan MCP untuk alat baru (UniFFI, cargo-ndk, SwiftUI, Jetpack Compose) belum dijalankan; menunggu user.
+- **Kotak yang dicentang:** fitur 01 seluruhnya: desain, `Build it` dengan milestone 1 sampai 4, `Verify it`, `Test it` dengan milestone 5; status `done`; spec 0001 `Accepted`.
+- **Commit penutup:** lihat `git log -1` sesudah log ini di-commit (`docs(sync): ...`).
+- **Push:** belum; menunggu izin user. `origin/main` di `46afb12`, `main` lokal di depan, tidak tertinggal.
+- **Dibersihkan:** belum; menunggu push dan izin user.
+- **Disimpan:** keempat branch dan worktree di `/Users/ojiepermana/worktrees/tablet/` sampai push selesai.
+- **Blocker tersisa:** tidak ada untuk fitur 01. Menunggu user dan diwarisi fitur 04, 11, 12: F01-1 sampai F01-3 (perangkat fisik) dan N1 sampai N4 (bundle ID, `applicationId`, Team ID, lisensi). Rekomendasi yang belum dijadwalkan: penolakan lebih awal di `scripts/build-android-tablet.sh` bila `JAVA_HOME` bukan JDK nyata.
