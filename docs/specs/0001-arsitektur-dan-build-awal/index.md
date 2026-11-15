@@ -5,7 +5,7 @@
 
 ## Summary
 
-Spec ini menetapkan kerangka repo: satu workspace Rust berisi dua crate (inti dan lapisan ekspor UniFFI), satu proyek iPad, dan satu proyek Android tablet, semuanya dengan versi alat yang dikunci. Kombinasi versi dipilih dari yang tercatat saling cocok di dokumentasi resmi pada 15 November 2026, bukan yang paling baru. Hasil fitur 01 adalah repo yang bisa dikompilasi dari clone bersih dengan perintah repo yang sama untuk lokal dan CI, ditambah catatan arsitektur dan panduan mulai singkat. Salam `hello`, binding, dan penautan pustaka Rust ke aplikasi dibangun di fitur 03 dan 04 dengan mengikuti keputusan pengemasan yang dicatat di sini.
+Spec ini menetapkan kerangka repo: satu workspace Rust berisi dua crate (inti dan lapisan ekspor UniFFI), satu proyek iPad, dan satu proyek Android tablet, semuanya dengan versi alat yang dikunci. Kombinasi versi dipilih dari yang tercatat saling cocok di dokumentasi resmi pada 15 November 2026, bukan yang paling baru. Hasil fitur 01 adalah repo yang bisa dikompilasi dari clone bersih dengan perintah repo yang sama untuk lokal dan CI, ditambah catatan arsitektur dan panduan mulai singkat. Salam `hello`, binding, dan penautan pustaka Rust ke aplikasi dibangun di fitur 03 dan 04 dengan mengikuti keputusan pengemasan yang dicatat di sini. Tes fitur 01 adalah satu suite bash kecil di `tests/` yang dijalankan `scripts/test.sh`. Suite itu mengunci batas crate, kunci versi, aturan commit, dan kontrak kedua skrip build, tanpa menambah tes Rust atau target tes native.
 
 ## Requirements
 
@@ -41,9 +41,9 @@ Spec ini menetapkan kerangka repo: satu workspace Rust berisi dua crate (inti da
 
 **Chosen option**: Opsi 1, kombinasi versi yang terdokumentasi saling cocok, skrip repo sebagai pintu build, pustaka Rust dikemas sebagai XCFramework statis dan `jniLibs`.
 
-Repo memakai Rust 1.99.1, UniFFI 0.32.2, Xcode 27.1, AGP 9.3.3, Gradle 9.5.1, Kotlin 2.4.21, dan NDK 28.2.13676358; dua crate memisahkan inti dari ekspor UniFFI; `scripts/` adalah satu satunya tempat yang menyeberang dari Rust ke proyek native; hasil generasi dan biner tidak pernah di-commit.
+Repo memakai Rust 1.99.1, UniFFI 0.32.2, Xcode 27.1, AGP 9.3.3, Gradle 9.5.1, Kotlin 2.4.21, dan NDK 28.2.13676358; dua crate memisahkan inti dari ekspor UniFFI; `scripts/` adalah satu satunya tempat yang menyeberang dari Rust ke proyek native; hasil generasi dan biner tidak pernah di-commit. Tes tingkat repo ditulis dengan bash polos di `tests/` dan dijalankan `scripts/test.sh`; suite itu tidak pernah membangun apa pun sendiri (lihat "Rancangan tes fitur 01").
 
-Tanda `biasa` atau `berat` tiap keputusan ada di tabel "Keputusan diambil" pada [rationale.md](rationale.md). Tidak ada keputusan `berat` di spec ini.
+Tanda `biasa` atau `berat` tiap keputusan ada di tabel "Keputusan diambil" pada [rationale.md](rationale.md). Satu keputusan bertanda `berat`: K32 (alat tes), karena dua opsinya hampir setara dan fitur berikutnya akan mengikuti konvensi ini.
 
 ## Rationale
 
@@ -101,7 +101,7 @@ Belum ada fitur yang meluncurkan aplikasi pada OS minimum (runtime iOS 26.5, emu
 
 ## Struktur repo fitur 01
 
-Hanya path berikut yang dibuat. Folder lain pada README bagian 5 dibuat oleh fitur pemiliknya.
+Hanya path berikut yang dibuat. Folder lain pada README bagian 5 dibuat oleh fitur pemiliknya. Path tes (`scripts/test.sh`, `tests/`, `test-preferences.json`) dibuat tester pada milestone 5; isinya ditetapkan di "Rancangan tes fitur 01".
 
 ```
 Cargo.toml                         workspace: members, [workspace.package], [workspace.dependencies]
@@ -127,6 +127,12 @@ apps/android-tablet/
   app/src/main/res/values/strings.xml
 scripts/build-ipados.sh            mode 100755
 scripts/build-android-tablet.sh    mode 100755
+scripts/test.sh                    mode 100755, menjalankan tes tingkat repo
+tests/lib/harness.sh               helper tes: asersi, sandbox, alat tiruan
+tests/repo/                        crate-boundary.test.sh, version-locks.test.sh, commit-policy.test.sh
+tests/build-scripts/               build-ipados.test.sh, build-android-tablet.test.sh
+tests/artifacts/                   ipados.test.sh, android-tablet.test.sh
+test-preferences.json              pilihan alat untuk skill /test, di-commit
 docs/getting-started.md
 docs/architecture/overview.md
 docs/architecture/support-matrix.md
@@ -141,6 +147,7 @@ docs/architecture/repository-structure.md
 - `crates/core`: nama paket `tablet-core` (nama `core` bentrok dengan crate `core` bawaan Rust). Tanpa dependensi. `src/lib.rs` hanya berisi komentar dokumentasi crate yang menyebut tanggung jawabnya. Fungsi `hello` ditambahkan fitur 03.
 - `crates/tablet-ffi`: `[lib] crate-type = ["lib", "staticlib", "cdylib"]`, dependensi `tablet-core.workspace = true` dan `uniffi.workspace = true`. `src/lib.rs` berisi komentar dokumentasi dan `uniffi::setup_scaffolding!();` tanpa ekspor. Bentuk ini sudah dicoba terkompilasi di host dengan Rust 1.99.1 dan UniFFI 0.32.2 pada 2026-11-15. Ekspor ditambahkan fitur 03.
 - Tidak ada pengaturan `[profile.*]`, lint workspace, atau binary `uniffi-bindgen` di fitur 01.
+- Tidak ada tes Rust (`#[test]`, folder `tests/` di dalam crate, atau dev-dependency) di fitur 01. Tes Rust pertama milik fitur 03. Tes fitur 01 ada di `tests/` akar repo dan tidak menjadi bagian workspace Cargo.
 
 ### Proyek iPad
 
@@ -180,7 +187,7 @@ INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = UIInterfaceOrientationPort
 - `ALWAYS_SEARCH_USER_PATHS = NO` ada karena blok `buildSettings` di `project.pbxproj` kosong, sehingga nilai bawaan Xcode (`YES`) berlaku dan Xcode 27.1 mencetak peringatan "Traditional headermap style is no longer supported" pada tiap build. Nilai `NO` sama dengan yang ditulis templat proyek Xcode, dan target ini tidak punya header C, jadi hasil build tidak berubah (K29 di `rationale.md`).
 - `SWIFT_DEFAULT_ACTOR_ISOLATION` dan `SWIFT_APPROACHABLE_CONCURRENCY` mengikuti bawaan templat Xcode untuk aplikasi; nilainya hanya berlaku untuk target aplikasi, bukan untuk modul binding.
 - `Config/Local.xcconfig` tidak di-commit. Isinya nilai milik user (`DEVELOPMENT_TEAM`, dan `PRODUCT_BUNDLE_IDENTIFIER` asli bila sudah ada). File itu tidak boleh menimpa `IPHONEOS_DEPLOYMENT_TARGET`.
-- Tidak ada asset catalog, target tes, atau paket Swift di fitur 01.
+- Tidak ada asset catalog, target tes, atau paket Swift di fitur 01. Tes fitur 01 ada di `tests/` akar repo, di luar proyek Xcode; target tes native milik fitur 04.
 
 ### Proyek Android
 
@@ -242,7 +249,7 @@ org.gradle.jvmargs=-Xmx2g -Dfile.encoding=UTF-8
 - `MainActivity` turunan `ComponentActivity`: `enableEdgeToEdge()`, lalu `setContent` dengan `MaterialTheme` dan satu `Text` statis. Manifest: satu activity `exported` dengan filter LAUNCHER, tema `@android:style/Theme.Material.Light.NoActionBar`, tanpa `screenOrientation`, tanpa `resizeableActivity`. `strings.xml` hanya berisi `app_name` bernilai `Tablet`.
 - Wrapper: `distributionUrl` menunjuk `gradle-9.5.1-bin.zip`, `distributionSha256Sum=bafc141b619ad6350fd975fc903156dd5c151998cc8b058e8c1044ab5f7b031f`. Cara membuatnya tanpa memasang Gradle: unduh `gradle-9.5.1-bin.zip` ke folder sementara, cocokkan SHA-256 dengan halaman checksum Gradle (bila berbeda dari nilai di atas, berhenti dan lapor), ekstrak, lalu di folder kosong jalankan `JAVA_HOME=<JBR> <dist>/bin/gradle wrapper --gradle-version 9.5.1 --distribution-type bin --gradle-distribution-sha256-sum <nilai>` dan salin `gradlew`, `gradlew.bat`, dan `gradle/wrapper/` ke `apps/android-tablet/`. Cocokkan juga SHA-256 `gradle-wrapper.jar` dengan checksum wrapper yang diterbitkan Gradle. `gradlew` di-commit dengan mode `100755`.
 - `gradle/gradle-daemon-jvm.properties` berisi `toolchainVersion=25`. Tidak ada plugin unduh JDK otomatis. Kriteria ini hanya terpenuhi bila `JAVA_HOME` menunjuk JDK 25, karena JBR di dalam Android Studio bukan lokasi yang dicari Gradle sendiri; skrip mengekspor `JAVA_HOME`, dan CI serta IDE harus menyetelnya juga.
-- Tidak ada modul lain, `jniLibs`, dependensi JNA, tes, atau lint khusus di fitur 01.
+- Tidak ada modul lain, `jniLibs`, dependensi JNA, tes di dalam proyek Gradle (`app/src/test`, `app/src/androidTest`), atau lint khusus di fitur 01. Tes fitur 01 ada di `tests/` akar repo; tes aplikasi milik fitur 04.
 
 ### Sumber nilai
 
@@ -260,6 +267,8 @@ Setiap nilai punya satu sumber. Pemakai lain membacanya, tidak menyalinnya.
 | Versi Xcode yang diverifikasi | `.xcode-version` | `build-ipados.sh` |
 | Nama pustaka | `tablet_ffi` (dari nama paket `tablet-ffi`) | Skrip, XCFramework dan `jniLibs` fitur 04 |
 | Nama modul binding | Bagian "Pengemasan pustaka Rust" spec ini; ditulis ke `uniffi.toml` oleh fitur 03 | Generator binding, `Package.swift`, kode aplikasi |
+| Daftar biner yang boleh di-commit | `tests/repo/commit-policy.test.sh` (satu daftar izin) | Kasus C2 pada suite tes |
+| Pilihan alat tes | `test-preferences.json` di akar repo | Skill `/test` di setiap fitur |
 
 Skrip membaca nilai dengan pola baris: `^IPHONEOS_DEPLOYMENT_TARGET *= *` di xcconfig, `^minSdk *= *"` dan `^ndk *= *"` di katalog, `^tablet.abis=` di `gradle.properties`.
 
@@ -284,7 +293,9 @@ scripts/build-ipados.sh
 scripts/build-android-tablet.sh
 ```
 
-Aturan untuk kedua skrip: `set -euo pipefail`; pindah ke akar repo lebih dulu sehingga bisa dipanggil dari folder mana pun; di dalam repo hanya menulis ke `target/`, `apps/ipados/build/`, dan folder `build/`, `.gradle/`, serta `.kotlin/` milik Gradle; di-commit dengan mode `100755`. Di fitur 01 skrip belum menyalin pustaka Rust ke proyek native.
+Perintah tes tingkat repo (`scripts/test.sh`) bukan bagian dari enam perintah ini; kontraknya ada di "Rancangan tes fitur 01".
+
+Aturan untuk kedua skrip build: `set -euo pipefail`; pindah ke akar repo lebih dulu sehingga bisa dipanggil dari folder mana pun; di dalam repo hanya menulis ke `target/`, `apps/ipados/build/`, dan folder `build/`, `.gradle/`, serta `.kotlin/` milik Gradle; di-commit dengan mode `100755`. Di fitur 01 skrip belum menyalin pustaka Rust ke proyek native.
 
 **Kontrak `scripts/build-ipados.sh [--simulator] [--device]`** (tanpa argumen: keduanya):
 
@@ -343,13 +354,278 @@ Aturan untuk kedua skrip: `set -euo pipefail`; pindah ke akar repo lebih dulu se
 - Tidak pernah di-commit: `target/`, `apps/ipados/build/`, `xcuserdata/`, `apps/ipados/Tablet.xcodeproj/project.xcworkspace/`, `apps/ipados/Config/Local.xcconfig`, `.build/`, `.swiftpm/`, `apps/android-tablet/**/build/`, `apps/android-tablet/.gradle/`, `apps/android-tablet/.kotlin/`, `apps/android-tablet/local.properties`, `apps/android-tablet/app/.cxx/`, `apps/android-tablet/captures/`, `apps/android-tablet/app/src/main/jniLibs/`, `bindings/swift/TabletFFI.xcframework/`, `bindings/swift/Sources/`, `bindings/kotlin/`, `.DS_Store`, `.idea/`, `*.iml`. `.gitignore` akar memuat semuanya sejak milestone 1 supaya milestone lain tidak perlu menyentuhnya.
 - Di-commit: `Cargo.lock`, `Tablet.xcodeproj` beserta skema bersama, wrapper Gradle termasuk `gradle-wrapper.jar`, dan kelak `bindings/swift/Package.swift`.
 
+## Rancangan tes fitur 01
+
+Kotak `Test it` fitur 01 ditutup oleh satu suite bash kecil di `tests/`, dijalankan lewat `scripts/test.sh`. Suite ini mengunci hal yang tetap benar sesudah fitur berikutnya masuk, bukan potret fitur 01. Tester yang membangunnya pada milestone 5, dan kode produksi tidak berubah. ID dan teks AC-1 sampai AC-11 tidak berubah.
+
+### Yang dikunci dan yang tidak
+
+| Hal | Dikunci suite fitur 01 | Catatan |
+|---|---|---|
+| Batas crate (AC-2) | Ya, dalam bentuk yang tahan lama | `tablet-core` tidak pernah menarik `uniffi`, hanya `tablet-ffi` di `crates/` yang memuat `uniffi`, dan `tablet-ffi` tetap `staticlib` serta `cdylib` |
+| Kunci versi dan satu sumber nilai (AC-8) | Ya, tanpa menyalin angka versi ke tes | Tes membaca nilai dari sumbernya, lalu memeriksa bentuk kunci, pemakai, dan dokumen |
+| Aturan commit (AC-9 bagian mode, AC-11) | Ya | Tanpa hasil build, biner hanya dari daftar izin, `.gitignore` lengkap, mode `100755`, tanpa file penanda |
+| Prasyarat hilang dan bentuk perintah kedua skrip (AC-8; AC-3, AC-5, AC-6, AC-7 pada sisi perintah) | Ya, di sandbox dengan alat tiruan | Satu satunya logika bercabang di fitur 01 |
+| Hasil build (AC-3 sampai AC-7, AC-11 bagian pohon kerja bersih) | Ya, pada grup `artifacts` yang hanya membaca | Butuh kedua skrip build dijalankan lebih dulu |
+| "Tepat dua crate" dan "`tablet-core` tanpa dependensi sama sekali" (AC-2) | Tidak | Potret fitur 01. K24 dan fitur 03 mengubahnya dengan sengaja. Tetap bukti verify |
+| Aplikasi minimal dan belum menautkan Rust (AC-11) | Tidak | Potret fitur 01. Fitur 04 membaliknya dengan sengaja |
+| Tes Rust (`#[test]`) | Tidak | Milik fitur 03. `cargo test` tetap lulus dengan nol tes |
+| Target tes native dan peluncuran aplikasi | Tidak | Milik fitur 04 |
+| Aturan arah dependensi umum, contoh pelanggaran, hasil generasi yang menyimpang, keberadaan dokumen wajib | Tidak | Milik fitur 10 (`scripts/validate-architecture.sh`) |
+| CI, `zipalign`, emulator 16 KB, pustaka Rust di APK akhir, tautan Release iPad | Tidak | Milik fitur 11, yang memanggil suite ini |
+| Pengulangan clone bersih (AC-9), isi dokumen (AC-10), isi log build | Tidak | Tetap bukti verify; pengulangan otomatis milik fitur 11 |
+
+### Alat dan aturan suite
+
+- **Alat**: bash polos, tanpa framework dan tanpa alat baru. File tes dan helper harus berjalan di bash 3.2 (bash bawaan macOS di `/bin/bash`), jadi tanpa array asosiatif, `mapfile`, `readarray`, `${var,,}`, `${var^^}`, dan `&>>`.
+- **Alat yang boleh dipanggil tes**: `git` dan alat dasar sistem (`sed`, `awk`, `grep`, `sort`, `head`, `tr`, `cp`, `mkdir`, `mktemp`, `chmod`, `find`, `wc`). Hanya kasus V2 yang memanggil `rustc`. Grup `artifacts` juga memakai `lipo`, `plutil`, `codesign`, `unzip`, serta `llvm-objdump` dan `aapt2` dari Android SDK. Tidak boleh memakai `jq`, Python, atau jaringan.
+- **Hanya bentuk perintah yang sama di macOS dan Linux**: tanpa `sed -i`, `stat`, dan `find -printf`. Berkas sandbox diubah dengan `sed` ke berkas sementara lalu `mv`. Ukuran berkas diperiksa dengan `test -s`. Path sementara dibandingkan sesudah dinormalkan dengan `pwd -P`, karena `mktemp` di macOS berada di balik tautan `/var` ke `/private/var`.
+- **Tidak pernah membangun**: suite tidak memanggil `cargo build`, `cargo test`, `cargo ndk`, `xcodebuild`, atau `gradlew` yang asli. Pintu build tetap kedua skrip build.
+- **Tidak menulis ke dalam repo**: semua file sementara dibuat di folder `mktemp -d` di luar repo dan dihapus lewat `trap` saat file tes selesai. Karena itu `.gitignore` tidak berubah.
+- **Nilai dibaca dari sumbernya**: tes tidak menyalin angka versi. Nilai harapan dibaca dari file pada tabel "Sumber nilai" dengan pola baris yang sama seperti skrip. Pengecualian yang dinyatakan: janji matriks pada kasus V9 dan daftar path pada kasus C2 dan C3.
+- **Pesan diperiksa lewat token**: kasus prasyarat memeriksa kode keluar dan kata kunci (nama variabel, nama alat, perintah perbaikan), bukan kalimat utuh, supaya kata kata pesan boleh dirapikan.
+- **Tanpa SKIP**: tidak ada kasus yang dilewati. Bila alat atau hasil build yang dibutuhkan tidak ada, kasus itu gagal dengan pesan yang menyebut cara memperbaikinya.
+- **Format keluaran**: tiap baris tabel kasus menjadi tepat satu baris `ok <n> - <ID> <AC> <nama>` atau `not ok <n> - <ID> <AC> <nama>`, contoh `ok 3 - B3 AC-2 tablet-core tidak menarik uniffi`. Kasus dengan beberapa percobaan (misalnya I9, I10, A6, A10) tetap satu baris, dan baris `# ` menyebut percobaan yang gagal. Beberapa AC ditulis dengan koma tanpa spasi, contoh `AC-1,AC-8`. Kasus yang gagal disusul baris `# ` yang memuat nilai harapan dan nilai nyata. Baris terakhir file adalah `1..<jumlah kasus>`. File tes keluar `0` bila semua kasus `ok`, selain itu `1`.
+- **Jejak ke AC**: ID kasus dan AC di nama kasus adalah jejak ke kontrak. Satu kasus boleh menyebut lebih dari satu AC.
+
+### Perintah tes dan kontrak `scripts/test.sh`
+
+```bash
+scripts/test.sh                              # grup repo dan build-scripts: cepat, tanpa build, tanpa jaringan
+scripts/test.sh artifacts                    # hasil build kedua platform; jalankan sesudah kedua skrip build
+scripts/test.sh artifacts/ipados             # satu file tes
+scripts/test.sh repo build-scripts artifacts # semuanya
+```
+
+1. `set -uo pipefail`; pindah ke akar repo lebih dulu sehingga bisa dipanggil dari folder mana pun; di-commit dengan mode `100755`.
+2. Tanpa argumen: grup `repo` lalu `build-scripts`. Grup `artifacts` hanya berjalan bila disebut.
+3. Tiap argumen adalah nama grup (folder di `tests/` selain `lib`) atau `<grup>/<nama>` untuk file `tests/<grup>/<nama>.test.sh`. Semua argumen diperiksa lebih dulu: bila ada satu saja yang tidak cocok, runner mencetak pemakaian ke stderr dan keluar `2` tanpa menjalankan tes apa pun. `-h` atau `--help`: cetak pemakaian dan keluar `0`.
+4. Grup dijalankan menurut urutan argumen, file di dalam grup menurut urutan nama. File yang terpilih lebih dari sekali hanya dijalankan sekali, pada kemunculan pertamanya.
+5. Tiap file tes dijalankan sebagai proses terpisah dengan `/bin/bash <file>` bila `/bin/bash` ada, selain itu dengan `bash <file>`. Di macOS `/bin/bash` adalah bash 3.2, jadi aturan bash 3.2 ikut terbukti tiap kali suite berjalan, juga di mesin yang punya bash lebih baru di `PATH`. Runner sendiri juga harus berjalan di bash 3.2. Stdout dan stderr file tes diteruskan apa adanya di bawah satu baris judul `# tests/<grup>/<nama>.test.sh`.
+6. Baris terakhir: `test: <jumlah file> file, <lulus> lulus, <gagal> gagal`. Kode keluar `0` bila semua file lulus, `1` bila ada yang gagal.
+7. Runner tidak menjalankan `cargo test`. Perintah tes Rust tetap `cargo test --workspace --locked` pada "Perintah repo" (AC-1). Fitur 03 memutuskan apakah runner mendapat grup untuk tes Rust.
+8. Enam perintah pada "Perintah repo" tidak berubah. `docs/getting-started.md` mendapat bagian baru "Menjalankan tes" yang memuat empat perintah di atas (tugas 15).
+
+Cara fitur 11 memanggilnya di CI: job pemeriksaan cepat menjalankan `scripts/test.sh`; job iPad (runner macOS) menjalankan `scripts/build-ipados.sh` lalu `scripts/test.sh artifacts/ipados`; job Android menjalankan `scripts/build-android-tablet.sh` lalu `scripts/test.sh artifacts/android-tablet`. Grup `repo` dan `build-scripts` dirancang berjalan di macOS dan Linux, tetapi di fitur 01 hanya dibuktikan di macOS.
+
+### Helper `tests/lib/harness.sh`
+
+Satu file yang di-`source` tiap file tes. Nama fungsinya bebas; yang wajib ada:
+
+- Pencatat kasus yang mencetak baris `ok` atau `not ok` beserta baris `# `, menghitung nomor, mencetak `1..<n>`, dan menentukan kode keluar.
+- Pembaca nilai dari sumber tunggal dengan pola baris pada bagian "Sumber nilai": `channel` dan `targets` di `rust-toolchain.toml`, pin `uniffi` di `Cargo.toml`, isi `.xcode-version`, `IPHONEOS_DEPLOYMENT_TARGET` di `Base.xcconfig`, tiap kunci `[versions]` di katalog, `tablet.abis` di `gradle.properties`, versi Gradle dari `distributionUrl`, `toolchainVersion`, dan versi cargo-ndk dari baris `cargo install cargo-ndk --version <v> --locked` di `docs/getting-started.md`.
+- Pemetaan ABI ke triple Rust: `arm64-v8a` ke `aarch64-linux-android`, `x86_64` ke `x86_64-linux-android`.
+- Pembuat sandbox dan alat tiruan (lihat "Grup `build-scripts`").
+
+### Grup `repo`: keadaan repo yang di-commit
+
+Membaca file terlacak dan indeks Git. Tanpa build, tanpa jaringan. Waktu yang diharapkan di mesin lead: beberapa detik.
+
+**`tests/repo/crate-boundary.test.sh`**
+
+| ID | AC | Yang ditegaskan |
+|---|---|---|
+| B1 | AC-1 | `git ls-files --error-unmatch Cargo.lock` keluar `0` |
+| B2 | AC-2 | `members` di `Cargo.toml` akar memuat `crates/core` dan `crates/tablet-ffi`; nama paket di manifest masing masing adalah `tablet-core` dan `tablet-ffi` |
+| B3 | AC-2 | Di `Cargo.lock`, tutup transitif dependensi paket `tablet-core` tidak memuat paket yang namanya diawali `uniffi`. Tes menelusuri blok `[[package]]` dan daftar `dependencies` tanpa memanggil Cargo. Entri berbentuk `"nama"`, `"nama versi"`, atau `"nama versi (sumber)"`; kata pertama adalah nama paket, dan bila satu nama punya beberapa versi, semua bloknya ikut ditelusuri. Kasus gagal bila blok `tablet-core` tidak ditemukan, supaya tidak lulus hanya karena pembacaan kosong. Ini lebih ketat daripada `cargo tree -e normal` karena lockfile juga memuat dependensi build dan dev |
+| B4 | AC-2 | Di `Cargo.lock`, daftar `dependencies` paket `tablet-ffi` memuat `tablet-core` dan `uniffi` |
+| B5 | AC-2 | Baris `crate-type` di `crates/tablet-ffi/Cargo.toml` memuat `"staticlib"` dan `"cdylib"` |
+| B6 | AC-2 | Di antara `crates/*/Cargo.toml`, hanya `crates/tablet-ffi/Cargo.toml` yang memuat kata `uniffi` (aturan arah dependensi 2) |
+
+**`tests/repo/version-locks.test.sh`**
+
+| ID | AC | Yang ditegaskan |
+|---|---|---|
+| V1 | AC-8 | `channel` di `rust-toolchain.toml` berbentuk `X.Y.Z`. Daftar `targets` memuat `aarch64-apple-ios`, `aarch64-apple-ios-sim`, dan triple untuk tiap ABI di `tablet.abis` |
+| V2 | AC-1, AC-8 | `rustc --version` dari akar repo diawali `rustc <channel>`. `rust-version` di `Cargo.toml` sama dengan `X.Y` dari `channel`. `rustc` dipanggil dengan `RUSTUP_AUTO_INSTALL=0` supaya rustup tidak mengunduh toolchain. Bila `rustc` atau toolchain itu tidak ada, kasus gagal dengan pesan `rustup toolchain install` |
+| V3 | AC-2, AC-8 | Nilai `uniffi` di `[workspace.dependencies]` diawali `=`. `Cargo.lock` memuat tepat satu paket bernama `uniffi`, dan versinya sama dengan pin itu tanpa `=` |
+| V4 | AC-8 | Di `gradle-wrapper.properties`, `distributionUrl` berakhir `gradle-<X.Y.Z>-bin.zip` dan `distributionSha256Sum` berisi tepat 64 karakter heksadesimal |
+| V5 | AC-8 | Katalog `[versions]` memuat kunci `agp`, `kotlin`, `composeBom`, `activityCompose`, `compileSdk`, `minSdk`, `targetSdk`, `ndk`, dan nilai kedelapan kunci itu hanya berisi angka dan titik (kunci lain yang kelak ditambahkan tidak diperiksa). Baris `kotlin-gradle-plugin` dan `compose-compiler` memuat `version.ref = "kotlin"`. Baris `androidx-compose-material3` tidak memuat `version` |
+| V6 | AC-8 | Di `app/build.gradle.kts`, tiap baris yang memuat `compileSdk`, `minSdk`, `targetSdk`, atau `ndkVersion` juga memuat `libs.versions.`; baris `applicationId` dan `abiFilters` memuat `gradleProperty("tablet.` |
+| V7 | AC-8 | Di `project.pbxproj` ada minimal satu blok `buildSettings = {`, dan tiap blok langsung ditutup `};` pada baris berikutnya (semua nilai hanya di xcconfig) |
+| V8 | AC-9, AC-10 | Dokumen mengikuti sumber. Nilai dicari sebagai token berlabel, bukan angka lepas, supaya angka pendek tidak cocok secara kebetulan. Di tabel "Versi alat" `docs/architecture/support-matrix.md`, baris yang sel pertamanya sama persis dengan label berikut memuat token ini: `Rust` memuat channel; `UniFFI` memuat pin tanpa `=`; `cargo-ndk` memuat `--version <versi cargo-ndk>`; `Xcode dan Swift` memuat `Xcode <isi .xcode-version>`; `iPadOS minimum` memuat `IPHONEOS_DEPLOYMENT_TARGET = <nilai>`; `Android Gradle Plugin` memuat `agp`; `Gradle` memuat versi wrapper; `Kotlin` memuat `kotlin`; `Compose` memuat `BOM <composeBom>` dan `` `activity-compose` <activityCompose> ``; `Android SDK` memuat `` `compileSdk` <nilai> ``, `` `targetSdk` <nilai> ``, dan `` `minSdk` <nilai> ``; `NDK` memuat `ndk`; `JDK` memuat `toolchainVersion=<nilai>`. Di tabel "Prasyarat" `docs/getting-started.md`: sel kedua baris `Xcode` diawali isi `.xcode-version`; baris `` `rustup` `` memuat `toolchain <channel>`; baris `Android SDK` memuat `platforms;android-<compileSdk>.0` dan `ndk;<ndk>`; sel kedua baris `JDK` sama persis dengan `toolchainVersion`; sel kedua baris `` `cargo-ndk` `` sama persis dengan versi cargo-ndk. Tiap label harus cocok dengan tepat satu baris; nol atau lebih dari satu baris berarti gagal |
+| V9 | AC-5, AC-6, AC-7 | Janji matriks ada di konfigurasi: `Base.xcconfig` memuat baris `TARGETED_DEVICE_FAMILY = 2` dan `ARCHS[sdk=iphonesimulator*] = arm64`; tiap ABI di `tablet.abis` adalah `arm64-v8a` atau `x86_64` |
+
+**`tests/repo/commit-policy.test.sh`**
+
+| ID | AC | Yang ditegaskan |
+|---|---|---|
+| C1 | AC-11 | `git ls-files \| grep -E '\.(a\|so\|apk)$\|xcframework\|/build/\|^target/'` kosong |
+| C2 | AC-11 | Himpunan file biner terlacak (baris yang diawali `i/-text` pada `git ls-files --eol`) sama persis dengan daftar izin di file tes ini. Daftar izin fitur 01 berisi satu path: `apps/android-tablet/gradle/wrapper/gradle-wrapper.jar`. Fitur yang kelak meng-commit biner yang sah (misalnya aset gambar) menambah path itu ke daftar izin di commit yang sama |
+| C3 | AC-11 | `git check-ignore -v` mencetak aturan yang sumbernya `.gitignore` akar repo (keluaran diawali `.gitignore:`) untuk tiap path berikut. Aturan dari berkas abaikan global milik user atau dari `.git/info/exclude` tidak dihitung: `target/x`, `apps/ipados/build/x`, `a/xcuserdata/x`, `apps/ipados/Tablet.xcodeproj/project.xcworkspace/x`, `apps/ipados/Config/Local.xcconfig`, `.build/x`, `.swiftpm/x`, `apps/android-tablet/app/build/x`, `apps/android-tablet/build/x`, `apps/android-tablet/.gradle/x`, `apps/android-tablet/.kotlin/x`, `apps/android-tablet/local.properties`, `apps/android-tablet/app/.cxx/x`, `apps/android-tablet/captures/x`, `apps/android-tablet/app/src/main/jniLibs/x`, `bindings/swift/TabletFFI.xcframework/x`, `bindings/swift/Sources/x`, `bindings/kotlin/x`, `.DS_Store`, `.idea/x`, `a.iml` |
+| C4 | AC-9 | Pada `git ls-files -s scripts apps/android-tablet/gradlew`, setiap baris bermode `100755` |
+| C5 | AC-11 | Tidak ada file terlacak berukuran 0 byte (diperiksa dengan `test -s`), dan tidak ada file terlacak bernama `.gitkeep` atau `.keep` |
+
+### Grup `build-scripts`: kontrak kedua skrip build di sandbox
+
+Kedua skrip pindah ke `$(dirname "${BASH_SOURCE[0]}")/..`, jadi salinan skrip di folder lain memperlakukan folder itu sebagai akar repo. Tes memanfaatkannya: skrip dijalankan dari salinan di sandbox dengan alat tiruan, sehingga tidak ada build nyata, tidak butuh Xcode atau Android SDK, dan file sumber nilai bisa diubah di sandbox tanpa menyentuh repo.
+
+**Sandbox** (folder `mktemp -d` baru untuk tiap kasus) berisi:
+
+- `repo/scripts/build-ipados.sh` dan `repo/scripts/build-android-tablet.sh`, disalin dari repo dengan mode yang sama.
+- `repo/.xcode-version`, `repo/apps/ipados/Config/Base.xcconfig`, `repo/apps/android-tablet/gradle/libs.versions.toml`, `repo/apps/android-tablet/gradle.properties`, disalin dari repo.
+- `repo/apps/android-tablet/gradlew` tiruan (mode `755`).
+- `bin/` berisi alat tiruan `cargo`, `rustup`, `xcode-select`, dan `xcodebuild`.
+- `sdk/platforms/android-<compileSdk>.0/` dan `sdk/ndk/<ndk>/` (folder kosong, nama dari katalog) sebagai Android SDK tiruan.
+- `jdk/bin/java` dan `jdk21/bin/java` tiruan, `xcode/Contents/Developer/` dan `CommandLineTools/` (folder kosong), `home/`, dan `calls.log`.
+
+**Cara menjalankan**: `env -i PATH="<sandbox>/bin:/usr/bin:/bin" HOME="<sandbox>/home" STUB_LOG="<sandbox>/calls.log" <variabel STUB lain> <variabel kasus> <sandbox>/repo/scripts/<skrip> <argumen>`, dari folder kerja selain akar sandbox. Lingkungan dikosongkan supaya `ANDROID_HOME`, `JAVA_HOME`, dan `DEVELOPER_DIR` milik mesin tidak ikut. Skrip dijalankan lewat shebang-nya, jadi di macOS ia berjalan di bash 3.2 bawaan. Bila skrip gagal di sana karena hal lain selain yang diuji, itu temuan untuk developer, bukan alasan mengubah tes.
+
+**Alat tiruan**. Tiap alat tiruan menambah satu baris ke berkas pada `STUB_LOG`: nama alat, folder kerja mutlak dari `pwd -P`, semua argumen, dan nilai `IPHONEOS_DEPLOYMENT_TARGET`, `CARGO_NDK_PLATFORM`, `ANDROID_HOME`, `ANDROID_NDK_HOME`, serta `JAVA_HOME` saat dipanggil. Alat tiruan tidak membaca berkas repo. Semua perilakunya diatur variabel `STUB_*` yang selalu diisi harness dan ikut diwariskan ke proses anak skrip. Perilaku bawaannya (jalur lulus) dan sakelarnya:
+
+| Alat tiruan | Perilaku bawaan | Sakelar untuk kasus gagal |
+|---|---|---|
+| `cargo` | `cargo ndk --version` mencetak `cargo-ndk $STUB_CARGO_NDK_VERSION` (bawaan: versi cargo-ndk dari getting-started); panggilan lain hanya dicatat; keluar `0` | `STUB_CARGO_NDK_VERSION` berisi versi lain; nilai `none` membuat `cargo ndk --version` keluar `1`; untuk I6 berkas `bin/cargo` dihapus dari sandbox kasus itu |
+| `rustup` | `rustup target list --installed` mencetak isi `STUB_RUST_TARGETS` (dipisah spasi), satu per baris (bawaan: keempat target dari `rust-toolchain.toml`) | Satu target dihilangkan dari `STUB_RUST_TARGETS` |
+| `xcode-select` | `xcode-select -p` mencetak `STUB_DEVELOPER_DIR` (bawaan: `<sandbox>/xcode/Contents/Developer`) | `STUB_DEVELOPER_DIR=<sandbox>/CommandLineTools`, folder yang ada |
+| `xcodebuild` | `xcodebuild -version` mencetak `Xcode $STUB_XCODE_VERSION` (bawaan: isi `.xcode-version`) lalu satu baris `Build version`; panggilan lain hanya dicatat; keluar `0` | `STUB_XCODE_VERSION=26.4`; `STUB_XCODE_VERSION=27.2` |
+| `jdk/bin/java` | `-version` mencetak `openjdk version "$STUB_JAVA_VERSION"` ke stderr (bawaan: `<toolchainVersion>.0.2`) | `JAVA_HOME=<sandbox>/jdk21`, yang `java` tiruannya mencetak `openjdk version "21.0.5"` |
+| `gradlew` | Hanya dicatat; keluar `0` | Tidak ada |
+
+Nilai bawaan alat tiruan dibaca dari file sumber, bukan ditulis tetap. Dengan begitu jalur lulus sekaligus membuktikan bahwa angka di dalam skrip (`JDK 25`, `cargo-ndk 4.1.2`) sama dengan `gradle-daemon-jvm.properties` dan `docs/getting-started.md`.
+
+Folder kerja pada log dibandingkan dengan path `repo/` sandbox sesudah `pwd -P`. Pada kasus gagal, "tanpa build" berarti `calls.log` tidak memuat baris `cargo build`, `cargo ndk` yang diikuti `build`, `xcodebuild` selain `-version`, atau `gradlew`.
+
+**`tests/build-scripts/build-ipados.test.sh`**
+
+| ID | AC | Keadaan | Yang ditegaskan |
+|---|---|---|---|
+| I1 | AC-8 | `DEVELOPER_DIR=/tidak/ada` | Keluar bukan `0`; stderr memuat `DEVELOPER_DIR` dan `unset DEVELOPER_DIR`; tanpa build |
+| I2 | AC-8 | `STUB_DEVELOPER_DIR=<sandbox>/CommandLineTools` | Keluar bukan `0`; stderr memuat `Command Line Tools` dan `xcode-select -s`; tanpa build |
+| I3 | AC-8 | `xcodebuild -version` melaporkan `Xcode 26.4` | Keluar bukan `0`; stderr memuat `Xcode 27` dan `26.4`; tanpa build |
+| I4 | AC-8 | `xcodebuild -version` melaporkan `Xcode 27.2` | Keluar `0`; stderr memuat `peringatan`, isi `.xcode-version`, dan `27.2` |
+| I5 | AC-8 | Target `aarch64-apple-ios-sim` tidak terpasang | Keluar bukan `0`; stderr memuat `rustup target add aarch64-apple-ios-sim`; tanpa build |
+| I6 | AC-8 | `cargo` tidak ada di `PATH` | Keluar bukan `0`; stderr memuat `cargo` dan `rustup.rs`; tanpa build |
+| I7 | AC-3, AC-5, AC-6 | Jalur lulus tanpa argumen | Keluar `0`. `calls.log` memuat, berurutan: `cargo build -p tablet-ffi --release --locked --target aarch64-apple-ios-sim`; perintah yang sama untuk `aarch64-apple-ios`; `xcodebuild` dengan `-project apps/ipados/Tablet.xcodeproj`, `-scheme Tablet`, `-configuration Debug`, `generic/platform=iOS Simulator`, `-derivedDataPath apps/ipados/build/DerivedData`, dan `build`; `xcodebuild` dengan `-configuration Release`, `generic/platform=iOS`, `CODE_SIGNING_ALLOWED=NO`, dan `build`. Semua panggilan memakai folder kerja akar `repo/`. Baris terakhir stdout `build-ipados: selesai` |
+| I8 | AC-8 | Jalur lulus | Nilai `IPHONEOS_DEPLOYMENT_TARGET` yang dicatat pada kedua panggilan `cargo build` sama dengan nilai di `Base.xcconfig` sandbox. Sesudah baris itu di sandbox diubah menjadi `27.0`, nilai yang dicatat `27.0` |
+| I9 | AC-5, AC-6 | `--simulator` saja, lalu `--device` saja | `--simulator`: hanya triple `aarch64-apple-ios-sim` dan `xcodebuild` Debug. `--device`: hanya triple `aarch64-apple-ios` dan `xcodebuild` Release dengan `CODE_SIGNING_ALLOWED=NO` |
+| I10 | AC-8 | Argumen `--salah`, lalu `--help` | `--salah`: keluar bukan `0`, stderr memuat `--salah`, tanpa build. `--help`: keluar `0`, stdout memuat `--simulator` dan `--device`, `calls.log` kosong |
+| I11 | AC-11 | Jalur lulus | Sesudah skrip selesai, daftar file di `repo/` sama dengan sebelum dijalankan (skrip sendiri tidak membuat file di dalam repo) |
+
+**`tests/build-scripts/build-android-tablet.test.sh`**
+
+Kecuali disebut lain, tiap kasus menyetel `ANDROID_HOME=<sandbox>/sdk` dan `JAVA_HOME=<sandbox>/jdk`.
+
+| ID | AC | Keadaan | Yang ditegaskan |
+|---|---|---|---|
+| A1 | AC-8 | `ANDROID_HOME` menunjuk folder kosong | Keluar bukan `0`; stderr memuat `sdkmanager` dan `platforms;android-<compileSdk>.0`; tanpa build |
+| A2 | AC-8 | `ANDROID_HOME=/tidak/ada` | Keluar bukan `0`; stderr memuat `ANDROID_HOME` dan `/tidak/ada`; tanpa build |
+| A3 | AC-8 | Folder `ndk/<ndk>` dihapus dari SDK tiruan | Keluar bukan `0`; stderr memuat `ndk;<ndk>`; tanpa build |
+| A4 | AC-8 | `JAVA_HOME=/tidak/ada` | Keluar bukan `0`; stderr memuat `JAVA_HOME` dan `JDK <toolchainVersion>`; tanpa build |
+| A5 | AC-8 | `JAVA_HOME=<sandbox>/jdk21` | Keluar bukan `0`; stderr memuat `JDK <toolchainVersion>` dan `21`; tanpa build |
+| A6 | AC-8 | cargo-ndk versi lain, lalu cargo-ndk tidak ada | Keduanya keluar bukan `0`; stderr memuat `cargo install cargo-ndk --version <versi cargo-ndk> --locked`; tanpa build |
+| A7 | AC-8 | Target `x86_64-linux-android` tidak terpasang | Keluar bukan `0`; stderr memuat `rustup target add x86_64-linux-android`; tanpa build |
+| A8 | AC-7, AC-8 | `tablet.abis=arm64-v8a,armeabi-v7a` di sandbox | Keluar bukan `0`; stderr memuat `armeabi-v7a` dan `matriks`; tanpa build |
+| A9 | AC-3, AC-7 | Jalur lulus | Keluar `0`. `calls.log` memuat, berurutan: `cargo ndk` dengan `-t <ABI>` untuk tiap ABI di `tablet.abis` menurut urutannya, lalu `build -p tablet-ffi --release --locked`, dari folder kerja akar `repo/`; lalu `gradlew :app:assembleDebug` dari folder kerja `apps/android-tablet`. Baris terakhir stdout `build-android-tablet: selesai` |
+| A10 | AC-8 | Jalur lulus | Pada panggilan `cargo ndk`: `CARGO_NDK_PLATFORM` sama dengan `minSdk` katalog sandbox dan `ANDROID_NDK_HOME` sama dengan `<ANDROID_HOME>/ndk/<ndk>`. Pada panggilan `gradlew`: `JAVA_HOME` dan `ANDROID_HOME` terisi dengan nilai sandbox. Sesudah `minSdk` di sandbox diubah menjadi `31`, `CARGO_NDK_PLATFORM` yang dicatat `31`. Sesudah `tablet.abis` diubah menjadi `arm64-v8a`, hanya ada satu `-t` |
+| A11 | AC-8 | `ANDROID_HOME` tidak diset, SDK tiruan ada di `<sandbox>/home/Library/Android/sdk` | Keluar `0`; `ANDROID_HOME` yang dicatat sama dengan path itu |
+| A12 | AC-8 | Argumen `--salah` | Keluar bukan `0`; stderr memuat `--salah`; tanpa build |
+
+Yang tidak bisa diuji di sandbox dan tetap menjadi bukti verify: lokasi bawaan `JAVA_HOME` (path mutlak ke Android Studio).
+
+### Grup `artifacts`: hasil build yang nyata
+
+Hanya membaca hasil di `target/`, `apps/ipados/build/`, dan `apps/android-tablet/app/build/`. Jalankan sesudah skrip build yang bersangkutan. Hasil yang tidak ada membuat kasusnya gagal dengan pesan yang menyebut skrip yang harus dijalankan. `ANDROID_HOME` dipakai bila diset; bila tidak, `~/Library/Android/sdk`, sama dengan aturan skrip.
+
+**`tests/artifacts/ipados.test.sh`** (butuh macOS dan `scripts/build-ipados.sh` tanpa argumen)
+
+| ID | AC | Yang ditegaskan |
+|---|---|---|
+| HI1 | AC-3 | `target/aarch64-apple-ios/release/libtablet_ffi.a` dan `target/aarch64-apple-ios-sim/release/libtablet_ffi.a` ada dan tidak kosong |
+| HI2 | AC-5 | Pada `apps/ipados/build/DerivedData/Build/Products/Debug-iphonesimulator/Tablet.app`: `lipo -archs Tablet.app/Tablet` mencetak `arm64` saja; `plutil -extract MinimumOSVersion raw Tablet.app/Info.plist` sama dengan `IPHONEOS_DEPLOYMENT_TARGET` di `Base.xcconfig`; `plutil -extract UIDeviceFamily json -o - Tablet.app/Info.plist` mencetak `[2]` |
+| HI3 | AC-6 | Tiga pemeriksaan yang sama pada `.../Release-iphoneos/Tablet.app`, dan `codesign -dv` pada app itu keluar bukan `0` dengan keluaran yang memuat `not signed` |
+| HI4 | AC-11 | `git status --short` kosong |
+
+**`tests/artifacts/android-tablet.test.sh`** (butuh `scripts/build-android-tablet.sh`)
+
+| ID | AC | Yang ditegaskan |
+|---|---|---|
+| HA1 | AC-3 | Untuk tiap ABI di `tablet.abis`, `target/<triple>/release/libtablet_ffi.so` ada dan tidak kosong |
+| HA2 | AC-4 | Untuk tiap file itu, `llvm-objdump -p <file> \| grep LOAD` mencetak minimal satu baris dan setiap barisnya berakhir `align 2**14`. Alat diambil dari `<ANDROID_HOME>/ndk/<ndk>/toolchains/llvm/prebuilt/*/bin/llvm-objdump` |
+| HA3 | AC-7 | `aapt2 dump badging apps/android-tablet/app/build/outputs/apk/debug/app-debug.apk` memuat `minSdkVersion:'<minSdk>'`, `targetSdkVersion:'<targetSdk>'`, dan `compileSdkVersion='<compileSdk>'`, dengan nilai dari katalog. `aapt2` diambil dari folder `<ANDROID_HOME>/build-tools/*/` yang urutannya terakhir |
+| HA4 | AC-7 | Pada `unzip -l <apk>`, setiap path yang diawali `lib/` berada di bawah `lib/<ABI>/` untuk ABI yang ada di `tablet.abis` |
+| HA5 | AC-11 | `git status --short` kosong. Sengaja sama dengan HI4, karena di CI tiap platform dibangun di job yang berbeda |
+
+### `test-preferences.json`
+
+File ini di-commit di akar repo dengan isi persis berikut. Tester menulisnya sebelum memanggil skill `/test`, supaya skill menemukan `tool` yang sudah terisi dan melewati panel pemilihan framework serta panel pemasangan, di fitur ini dan fitur berikutnya.
+
+```json
+{
+  "tool": "cargo test",
+  "gate": null,
+  "additionalTools": ["bash"],
+  "e2eTool": "none",
+  "testDir": "Rust: di dalam crate (#[cfg(test)] atau crates/<crate>/tests/). Tes tingkat repo: tests/<grup>/",
+  "filePattern": "Rust: *.rs. Tes tingkat repo: *.test.sh",
+  "packageManager": "cargo"
+}
+```
+
+| Kunci | Nilai | Alasan |
+|---|---|---|
+| `tool` | `cargo test` | Sama dengan yang dipilih skill `/test` sendiri untuk repo ber-`Cargo.toml`, tanpa bertanya. Dipakai mulai fitur 03 |
+| `gate` | `null` | Repo ini memakai tes, bukan hanya typecheck |
+| `additionalTools` | `["bash"]` | Tes tingkat repo di `tests/`. Tidak ada yang perlu dipasang |
+| `e2eTool` | `none` | Belum ada alur layar. Fitur 04 menetapkan alat tes native dan menambahkannya di sini |
+| `testDir`, `filePattern` | Dua area dalam satu kalimat | Format file hanya punya satu tempat untuk tiap kunci, sedangkan repo punya dua area tes |
+| `packageManager` | `cargo` | Satu satunya pengelola paket yang dipakai tes |
+
+Perintah menjalankan tes tidak disimpan di file ini. Perintahnya ada di "Perintah tes dan kontrak `scripts/test.sh`" dan di `docs/getting-started.md`.
+
+Skill `/test` tidak mengenal repo tanpa `package.json`, jadi empat hal berikut ditetapkan di sini dan disalin lead ke brief tester:
+
+- **Lingkup**: skill menyaring `tests/`, `*.json`, dan dokumen, dan kode fitur 01 sudah ter-commit, jadi panel "No changes" muncul. Jawabannya `Specific files`: `scripts/build-ipados.sh` dan `scripts/build-android-tablet.sh` (kelas `cli`), ditambah file konfigurasi pada tabel "Sumber nilai" sebagai bahan bacaan.
+- **Perintah menjalankan**: `scripts/test.sh` untuk suite cepat dan `scripts/test.sh artifacts` sesudah kedua skrip build. Bukan `cargo test`, yang akan lulus dengan nol tes dan tidak membuktikan apa pun.
+- **Tanpa tes Rust**: nilai `tool` adalah `cargo test`, tetapi di fitur 01 tester tidak menulis `#[test]` atau file `.rs`. Semua kasus ada di tabel bagian ini.
+- **Langkah penutup skill dilewati**: skill ingin mencentang `Test it` di `docs/scope/` dan mengubah status spec menjadi `Accepted`. Keduanya dikerjakan lead, bukan tester.
+
+### Pemilik dan batas tester
+
+- **Boleh dibuat tester**: `test-preferences.json`, `scripts/test.sh`, `tests/lib/harness.sh`, dan tujuh file tes di `tests/repo/`, `tests/build-scripts/`, dan `tests/artifacts/`. Bukti tes disimpan di `docs/reviews/` dengan nama `<tanggal>-test-f01.md`.
+- **Boleh diubah tester untuk tugas 15, hanya sebagai tambahan**: bagian baru "Menjalankan tes" di `docs/getting-started.md` (blok enam perintah "Perintah repo" tidak disentuh), serta baris yang berubah pada tabel "Pemilik tiap bagian" dan "Penyimpangan dari README bagian 5" berikut blok struktur di `docs/architecture/ownership-matrix.md` dan `docs/architecture/repository-structure.md`. Lead boleh menyerahkan tugas 15 ke developer; isinya sama.
+- **Dilarang**: `crates/**`, `apps/**`, `scripts/build-ipados.sh`, `scripts/build-android-tablet.sh`, `Cargo.toml`, `Cargo.lock`, `rust-toolchain.toml`, `.xcode-version`, `.gitignore`, spec ini, `verify.md`, `docs/scope/**`, dan `AGENTS.md`.
+- **Urutan commit**: tester meng-commit di branch-nya sendiri (`test(repo): ...`). Tugas 12, 13, dan 15 di-commit lebih dulu, karena `git clone` pada tugas 14 hanya berisi file yang ter-commit dan kasus HI4 serta HA5 menuntut `git status --short` kosong. Clone tugas 14 dibuat dari commit itu.
+- **Bila tes merah karena kode produksi**: tester tidak melunakkan tes dan tidak mengubah kode. Ia mengirim perintah dan keluaran persis ke developer pemilik file dan mencatatnya di laporan.
+- **Bila perilaku skrip berbeda dari tabel kasus di atas**: tabel kasus diturunkan dari kontrak skrip di "Perintah repo" dan dari skrip pada `main` saat spec ini diperbarui. Selisih kata kunci pesan boleh disesuaikan tester ke pesan nyata dan dicatat di laporan sebagai tafsiran. Selisih perilaku (kode keluar, urutan, nilai yang diteruskan) adalah temuan untuk developer.
+
+### Cakupan AC
+
+| AC | Kasus yang mengunci | Yang tetap hanya bukti verify |
+|---|---|---|
+| AC-1 | B1, V2 | `cargo build` dan `cargo test` keluar `0` (perintah repo; dijalankan CI fitur 11) |
+| AC-2 | B2 sampai B6, V3 | "Tepat dua crate", `tablet-core` tanpa dependensi sama sekali, pustaka host di `target/debug/` |
+| AC-3 | I7, A9, HI1, HA1 | Tidak ada |
+| AC-4 | HA2 | Perangkat 16 KB (MAN-3) |
+| AC-5 | I7, I9, V9, HI2 | Tidak ada |
+| AC-6 | I7, I9, V9, HI3 | iPad fisik (MAN-1) |
+| AC-7 | A8, A9, V9, HA3, HA4 | Tablet fisik (MAN-2) |
+| AC-8 | V1 sampai V7, I1 sampai I6, I8, I10, A1 sampai A8, A10 sampai A12 | Nilai sama dengan tabel "Proposed stack" spec; `./gradlew buildEnvironment`; lokasi bawaan `JAVA_HOME` |
+| AC-9 | C4, V8 | Pengulangan panduan pada clone baru |
+| AC-10 | V8 | Kelengkapan isi lima dokumen arsitektur |
+| AC-11 | C1, C2, C3, C5, I11, HI4, HA5 | Aplikasi tetap minimal dan belum menautkan pustaka Rust |
+
+### Bukti bahwa tes menggigit
+
+Tes shell mudah lulus tanpa memeriksa apa pun. Karena itu tester menjalankan lima perubahan sengaja berikut, masing masing pada `git clone` sekali pakai di luar repo, dan mencatat kasus yang menjadi merah. Tidak ada perubahan ini yang di-commit.
+
+| Perubahan sengaja | Kasus yang harus merah |
+|---|---|
+| Tambah `uniffi.workspace = true` di bawah `[dependencies]` pada `crates/core/Cargo.toml` | B6 |
+| Ubah `agp` di katalog menjadi `9.3.4` tanpa mengubah dokumen | V8 |
+| `git add -f` satu file biner `x.so` (misalnya salinan `gradle-wrapper.jar`) | C1 dan C2 |
+| Ubah `EXPECTED_JAVA_MAJOR` menjadi `21` pada `scripts/build-android-tablet.sh` di clone itu | Minimal A4, A5, dan A9 (kasus Android lain yang melewati pemeriksaan JDK ikut merah) |
+| Jalankan `scripts/test.sh artifacts` pada clone yang belum pernah dibangun | Semua kasus HI dan HA selain HI4 dan HA5 |
+
+Selain itu `scripts/test.sh tidak-ada` harus keluar `2`.
+
 ## Catatan arsitektur yang ditulis developer
 
 Semua dokumen ditulis dalam bahasa Indonesia, mengikuti `AGENTS.md` dan `docs/scope/`. Isinya menggambarkan keadaan repo yang nyata; hal yang baru ditetapkan diberi tanda "ditetapkan, belum dibangun".
 
 | Dokumen | Isi wajib |
 |---|---|
-| `docs/getting-started.md` | Prasyarat dan versi, cara memasang, perintah pada "Perintah repo", lokasi hasil build, masalah umum (JDK, `ANDROID_HOME`, target Rust) |
+| `docs/getting-started.md` | Prasyarat dan versi, cara memasang, perintah pada "Perintah repo", lokasi hasil build, masalah umum (JDK, `ANDROID_HOME`, target Rust), dan bagian "Menjalankan tes" dengan empat perintah `scripts/test.sh` (tugas 15) |
 | `docs/architecture/overview.md` | Gambaran lapisan A sampai E pada tingkat yang sudah dibangun, tautan ke dokumen lain, daftar hal yang ditetapkan tetapi belum dibangun |
 | `docs/architecture/support-matrix.md` | Tabel "Proposed stack" dan "Matriks dukungan" spec ini beserta alasan, target yang tidak didukung, tanggal pemeriksaan, dan tautan sumber dari `rationale.md` |
 | `docs/architecture/ownership-matrix.md` | Tabel "Pemilik tiap bagian" di bawah |
@@ -365,11 +641,13 @@ Semua dokumen ditulis dalam bahasa Indonesia, mengikuti `AGENTS.md` dan `docs/sc
 | `bindings/swift`, `bindings/kotlin` | Tooling (E) | Binding hasil generasi dan pustaka terkemas | Ya, kecuali `Package.swift` |
 | `apps/ipados` | Presentasi dan integrasi iPad (A, B) | SwiftUI, scene, API Apple | Tidak |
 | `apps/android-tablet` | Presentasi dan integrasi Android (A, B) | Compose, Activity, API Android | Tidak, kecuali `jniLibs` |
-| `scripts/` | Tooling (E) | Pintu build yang sama untuk lokal dan CI | Tidak |
+| `scripts/` | Tooling (E) | Pintu build dan tes yang sama untuk lokal dan CI | Tidak |
+| `tests/lib`, `tests/repo`, `tests/build-scripts`, `tests/artifacts` | Tooling (E) | Tes tingkat repo: hal yang tidak dimiliki satu crate atau satu aplikasi | Tidak |
+| `test-preferences.json` | Tooling (E) | Pilihan alat tes untuk skill `/test` | Tidak |
 | `rust-toolchain.toml`, `Cargo.toml`, `.xcode-version`, `libs.versions.toml`, wrapper Gradle | Tooling (E) | Kunci versi | Tidak |
 | `docs/architecture` | Tata kelola | Catatan arsitektur | Tidak |
 | `docs/specs`, `docs/scope` | Tata kelola | Catatan keputusan dan rencana | Tidak |
-| `design-system/`, `shared/`, `tooling/`, `tests/`, `.github/` | Pemilik fitur 03, 08, 09, 10, 11 | Belum ada | Belum ada |
+| `design-system/`, `shared/`, `tooling/`, `tests/fixtures`, `tests/contracts`, `.github/` | Pemilik fitur 03, 08, 09, 10, 11 | Belum ada | Belum ada |
 
 ### Arah dependensi
 
@@ -401,11 +679,14 @@ scripts ──> cargo, xcodebuild, gradle (hanya saat build)
 | Lima file `docs/architecture/` | Empat dari lima, ditambah `support-matrix.md`; `boundaries.md` belum ditulis | Matriks dirujuk fitur 03 dan 11 sehingga perlu alamat sendiri; batas lapisan di luar yang sudah dibangun belum punya isi |
 | Panduan di `README.md` | `docs/getting-started.md` | `README.md` adalah dokumen kebutuhan produk |
 | Tidak ada | `.xcode-version`, `Cargo.lock` di akar | Kunci versi |
-| `design-system/`, `shared/`, `tooling/`, `tests/`, `.github/`, skrip lain | Belum dibuat | README melarang folder penanda tempat; dibuat oleh fitur pemiliknya |
+| `tests/fixtures`, `tests/contracts` | `tests/lib`, `tests/repo`, `tests/build-scripts`, `tests/artifacts`; dua folder README belum dibuat | Fitur 01 hanya punya tes tingkat repo; fixture dan tes kontrak dibuat oleh fitur pemiliknya |
+| `scripts/test.sh` | Ada sejak fitur 01, menjalankan tes tingkat repo saja | `cargo test` tetap perintah tes Rust; fitur 03 memutuskan apakah runner mendapat grup Rust |
+| Tidak ada | `test-preferences.json` di akar | Skill `/test` membaca pilihan alat dari file ini, jadi tidak bertanya di tiap fitur |
+| `design-system/`, `shared/`, `tooling/`, `.github/`, skrip lain | Belum dibuat | README melarang folder penanda tempat; dibuat oleh fitur pemiliknya |
 
 ## Build plan
 
-Pendekatan Tracer Bullet: milestone 1 sampai 3 menarik satu benang tipis dari Cargo ke kedua build native, milestone 4 mengulang semuanya dari clone bersih dan mendokumentasikannya. File tiap milestone tidak beririsan, dengan satu pengecualian: milestone 4 menambah satu baris ke `apps/ipados/Config/Base.xcconfig` milik milestone 2 (tugas 11). Hanya satu build native penuh yang boleh berjalan pada satu waktu, jadi milestone 2 dan 3 dijalankan berurutan.
+Pendekatan Tracer Bullet: milestone 1 sampai 3 menarik satu benang tipis dari Cargo ke kedua build native, milestone 4 mengulang semuanya dari clone bersih dan mendokumentasikannya, milestone 5 mengunci hasilnya dengan tes. File tiap milestone tidak beririsan, dengan satu pengecualian: milestone 4 menambah satu baris ke `apps/ipados/Config/Base.xcconfig` milik milestone 2 (tugas 11). Hanya satu build native penuh yang boleh berjalan pada satu waktu, jadi milestone 2 dan 3 dijalankan berurutan.
 
 **Milestone 1: Workspace Rust dan batas crate** (tanpa build native)
 
@@ -438,12 +719,25 @@ File: `docs/getting-started.md`, `docs/architecture/**`, dan `apps/ipados/Config
 10. Tulis lima dokumen `docs/architecture/` sesuai "Catatan arsitektur yang ditulis developer", satisfies **AC-10**
 11. Tambahkan baris `ALWAYS_SEARCH_USER_PATHS = NO` ke `apps/ipados/Config/Base.xcconfig` di posisi yang sama dengan blok pada "Proyek iPad", dan pastikan `scripts/build-ipados.sh` tidak lagi mencetak peringatan headermap (`grep -c 'Traditional headermap'` pada log build menampilkan `0`). Kerjakan sebelum pengulangan clone bersih pada tugas 9 supaya build itu sekaligus menjadi buktinya, satisfies **AC-5**, **AC-6**, **AC-8**
 
+**Milestone 5: Tes tingkat repo** (dikerjakan tester untuk kotak `Test it`; needs milestone 1 sampai 4; tugas 14 butuh build Xcode lalu Gradle, berurutan)
+
+File: `test-preferences.json`, `scripts/test.sh`, `tests/**`, serta tambahan pada `docs/getting-started.md`, `docs/architecture/ownership-matrix.md`, dan `docs/architecture/repository-structure.md` (tugas 15). Tidak ada file produksi yang berubah.
+
+12. Tulis `test-preferences.json` dengan isi pada "Rancangan tes fitur 01", lalu `scripts/test.sh`, `tests/lib/harness.sh`, dan tiga file grup `repo` (kasus B1 sampai B6, V1 sampai V9, C1 sampai C5). `scripts/test.sh repo` keluar `0`, locks **AC-1**, **AC-2**, **AC-8**, **AC-9**, **AC-10**, **AC-11**
+13. Tulis dua file grup `build-scripts` dengan sandbox dan alat tiruan (kasus I1 sampai I11, A1 sampai A12). `scripts/test.sh` tanpa argumen keluar `0` tanpa memanggil build apa pun, dan `/bin/bash scripts/test.sh` memberi hasil yang sama, locks **AC-8**, dan sisi perintah **AC-3**, **AC-5**, **AC-6**, **AC-7**
+14. Tulis dua file grup `artifacts` (kasus HI1 sampai HI4, HA1 sampai HA5) dan commit bersama tugas 12, 13, dan 15. Pada `git clone` baru dari commit itu, di luar repo, jalankan `scripts/build-ipados.sh`, lalu `scripts/build-android-tablet.sh`, lalu `scripts/test.sh repo build-scripts artifacts`; semuanya keluar `0`, locks **AC-3**, **AC-4**, **AC-5**, **AC-6**, **AC-7**, **AC-11**
+15. Tambahkan bagian "Menjalankan tes" ke `docs/getting-started.md`, dan selaraskan `docs/architecture/ownership-matrix.md` serta `docs/architecture/repository-structure.md` dengan tabel "Pemilik tiap bagian", tabel "Penyimpangan dari README bagian 5", dan blok "Struktur repo fitur 01" spec ini. Kerjakan sebelum pengulangan pada tugas 14 supaya kasus V8 berjalan pada dokumen akhir, keeps **AC-9**, **AC-10**
+16. Jalankan lima perubahan sengaja pada "Bukti bahwa tes menggigit" dan catat kasus yang merah, lalu simpan bukti tes (perintah, keluaran, SHA, target) di `docs/reviews/`, locks **AC-2**, **AC-8**, **AC-11**
+
 **Skenario uji penting**:
 
 - Clone bersih: `git clone` ke folder sementara lalu enam perintah pada "Perintah repo", verifies **AC-1**, **AC-3**, **AC-5**, **AC-6**, **AC-7**, **AC-9**
 - Batas crate: dua perintah `cargo tree` pada AC-2, verifies **AC-2**
 - Prasyarat hilang: tiga percobaan pada AC-8 (`ANDROID_HOME`, `JAVA_HOME`, `DEVELOPER_DIR`), masing masing harus keluar bukan 0 dan menyebut cara memperbaikinya, verifies **AC-8**
 - Tidak ada biner ter-commit dan pohon kerja tetap bersih sesudah build: perintah pada AC-11, verifies **AC-11**
+- Suite cepat: `scripts/test.sh` tanpa argumen pada clone yang belum pernah dibangun keluar `0` dan tidak membuat file di dalam repo (`git status --short --ignored` kosong sesudahnya), verifies **AC-1**, **AC-2**, **AC-8**, **AC-9**, **AC-10**, **AC-11**
+- Suite hasil build: `scripts/test.sh artifacts` sesudah kedua skrip build keluar `0`; pada clone yang belum dibangun keluar `1` dengan pesan yang menyebut skrip build, verifies **AC-3**, **AC-4**, **AC-5**, **AC-6**, **AC-7**
+- Tes menggigit: lima perubahan sengaja pada "Bukti bahwa tes menggigit" masing masing membuat kasus yang disebut menjadi merah, verifies **AC-2**, **AC-8**, **AC-11**
 
 ## Consequences
 
@@ -453,6 +747,8 @@ File: `docs/getting-started.md`, `docs/architecture/**`, dan `apps/ipados/Config
 - Binding tidak mungkin basi: selalu dihasilkan dari revisi yang sama dengan pustaka.
 - Tidak ada yang perlu diunduh ke SDK Android dan Xcode di mesin lead; yang dipasang hanya target Rust, `cargo-ndk`, dan distribusi Gradle.
 - Matriks kecil (dua target per platform) membuat tiap janji bisa diuji.
+- Kenaikan versi yang hanya mengubah satu tempat (file sumber tanpa dokumen, atau sebaliknya) tertangkap `scripts/test.sh` dalam beberapa detik, tanpa build.
+- Cabang prasyarat kedua skrip build teruji tanpa Xcode, Android SDK, atau JDK yang asli, jadi bisa dijalankan di runner mana pun.
 
 **Negative / tradeoffs**:
 
@@ -463,10 +759,14 @@ File: `docs/getting-started.md`, `docs/architecture/**`, dan `apps/ipados/Config
 - `targetSdk` 36 memicu peringatan lint "bukan target terbaru" sampai dinaikkan.
 - Identitas aplikasi masih `com.example.tablet`; tidak bisa dipakai untuk distribusi atau perangkat fisik iPad.
 - iPadOS minimum tertulis di dua tempat sesudah fitur 04 (`Base.xcconfig` dan `Package.swift`).
+- Tes bash polos memakai helper buatan sendiri (`tests/lib/harness.sh`) yang harus dirawat, dan harus tetap berjalan di bash 3.2.
+- Tes sandbox bergantung pada cara skrip menemukan akar repo dan pada kata kunci pesannya. Mengubah salah satunya berarti menyesuaikan tes di commit yang sama.
+- Fitur yang meng-commit biner yang sah atau menambah path hasil build harus memperbarui daftar izin (C2) atau daftar path (C3).
 
 **Neutral**:
 
-- `tablet-core` dan `tablet-ffi` belum punya fungsi; `cargo test` lulus dengan nol tes sampai fitur 03.
+- `tablet-core` dan `tablet-ffi` belum punya fungsi; `cargo test` lulus dengan nol tes Rust sampai fitur 03. Tes fitur 01 adalah tes tingkat repo di `tests/` dan dijalankan `scripts/test.sh`, bukan `cargo test`.
+- Grup `artifacts` tidak membangun; ia gagal bila hasil build belum ada. Urutan build lalu tes adalah tanggung jawab pemanggil (kontributor, tester, atau CI fitur 11).
 - Fitur 01 membangun pustaka Rust untuk tiap target tetapi belum menautkannya ke aplikasi.
 - Tiap build Rust menghasilkan `staticlib` dan `cdylib` untuk semua target, walau tiap platform hanya memakai satu.
 - JDK 25 dipakai untuk menjalankan Gradle, sedangkan AGP menyebut JDK 17 sebagai minimum; cadangan JDK 21 sudah disetujui.
@@ -476,9 +776,12 @@ File: `docs/getting-started.md`, `docs/architecture/**`, dan `apps/ipados/Config
 - [ ] Nilai dari user: bundle ID dan `applicationId` asli, Team ID Apple, dan lisensi repo. Sampai ada, pakai `com.example.tablet` dan jangan isi field `license`.
 - [ ] Fitur 03: tulis `scripts/generate-bindings.sh` dan `uniffi.toml` dengan nama pada bagian pengemasan, tetapkan bentuk generator binding (mode pustaka, crate tooling), versi JNA, mode bahasa Swift untuk modul `TabletBindings` (UniFFI 0.32 baru mendukung Swift 6 sebagian), dan tambahkan `hello`.
 - [ ] Fitur 04: buat AVD tablet dari image `google_apis` `android-36` `arm64-v8a` yang terpasang, tambahkan urutan pengemasan ke kedua skrip, tulis `bindings/swift/Package.swift`, dan lengkapi panduan dengan cara menjalankan. Peluncuran Android di CI memakai emulator `x86_64` di runner Linux.
+- [ ] Fitur 03: tes Rust pertama (`#[test]` di `tablet-core`, uji asap ekspor UniFFI) memakai `cargo test`. Putuskan apakah `scripts/test.sh` mendapat grup yang memanggil `cargo test --workspace --locked`. Bila fitur 03 menambah dependensi ke `tablet-core`, kasus B3 harus tetap lulus tanpa diubah. Crate tooling generator binding ditaruh di luar `crates/` (kandidat `tooling/uniffi-bindgen`) supaya kasus B6 tetap lulus tanpa diubah.
+- [ ] Fitur 04: tetapkan alat tes native (kandidat: target tes di proyek Xcode, serta `app/src/test` dan `app/src/androidTest` di modul `:app`) dan tambahkan ke `additionalTools` atau `e2eTool` pada `test-preferences.json`. Saat urutan pengemasan masuk ke kedua skrip, perbarui daftar file sandbox, alat tiruan (`scripts/generate-bindings.sh`, `xcodebuild -create-xcframework`), dan kasus I7, I11, A9, HA4, serta daftar path C3. Kasus I11 berubah dari "tidak membuat file" menjadi "hanya membuat file di path yang diabaikan Git". Bila target tes native menaruh build setting di `project.pbxproj`, sesuaikan kasus V7 atau pindahkan nilainya ke xcconfig.
 - [ ] Fitur 06: konfirmasi versi Material 3 adaptive (kandidat 1.3.0) terhadap BOM saat itu.
 - [ ] Fitur 11: periksa `zipalign -P 16` pada APK, jalankan salam di emulator 16 KB (image `google_apis_ps16k`, belum terpasang), tautkan pustaka di build Release iPad, dan luncurkan pada OS minimum (runtime iOS 26.5 dan emulator API 29). File scope fitur 11 belum menyebut uji OS minimum.
-- [ ] Fitur 10: periksa bahwa `platforms` di `Package.swift` sama dengan `IPHONEOS_DEPLOYMENT_TARGET`.
+- [ ] Fitur 10: periksa bahwa `platforms` di `Package.swift` sama dengan `IPHONEOS_DEPLOYMENT_TARGET`. Saat `scripts/validate-architecture.sh` ada, putuskan apakah kasus batas crate (B2 sampai B6) dan aturan commit (C1 sampai C5) dipanggil dari sana atau dipindahkan, supaya tiap aturan punya satu rumah.
+- [ ] Fitur 11: panggil `scripts/test.sh` dan `scripts/test.sh artifacts/<platform>` di CI sesudah skrip build, dan buktikan grup `repo` serta `build-scripts` berjalan di runner Linux (di fitur 01 hanya dibuktikan di macOS). Pemeriksaan keselarasan ELF di CI memakai ulang kasus HA2, bukan menulis yang baru; `zipalign` dan pustaka di dalam APK akhir ditambahkan sebagai kasus baru di `tests/artifacts/android-tablet.test.sh`.
 - [ ] Naikkan `targetSdk` ke 37 saat emulator tablet API 37 masuk matriks uji.
 - [ ] Android Studio di mesin lead adalah 2026.1; periksa apakah versi itu bisa menyinkronkan AGP 9.3 sebelum mengandalkan IDE. Build lewat skrip tidak terpengaruh.
 - [ ] `docs/architecture/boundaries.md` ditulis oleh fitur pertama yang menambah isi batas lapisan (kandidat: fitur 10).

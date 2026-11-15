@@ -149,6 +149,37 @@ Keputusan tambahan dari hasil build milestone 3 (pembaruan spec 2026-11-15, saat
 - **Yang berubah**: hanya nama field pada teks bukti AC-7. ID AC, nilai `minSdk` 29 (K8), `targetSdk` 36 dan `compileSdk` 37 (K9), katalog versi, dan tugas Build plan tetap.
 - **Ikut dirapikan**: kalimat pembuka "Build plan" kini menyebut satu irisan file yang sudah tertulis di baris File milestone 4 sejak K29 (`apps/ipados/Config/Base.xcconfig`, tugas 11). Isi milestone dan tugas tidak berubah.
 
+Keputusan tambahan untuk rancangan tes (pembaruan spec 2026-11-15, saat spec berstatus `In Progress` dan kotak `Test it` masih terbuka; mode `auto`, opsi rekomendasi diambil):
+
+| # | Pertanyaan | Diambil | Runner up | Tanda | Yang berubah bila runner up dipilih |
+|---|---|---|---|---|---|
+| K31 | Apa yang dikunci tes fitur 01 | Hal yang tahan lama: batas crate, kunci versi dan satu sumber, aturan commit, kontrak skrip, hasil build. Bukan potret fitur 01 | Tidak ada tes otomatis di fitur 01; `Test it` diganti gerbang verify (`"tool": null`, `"gate": "verify"` di `test-preferences.json`) | biasa | Bagian "Rancangan tes" dan milestone 5 hilang; kotak `Test it` berubah arti; fitur 10 dan 11 mulai dari nol |
+| K32 | Alat tes tingkat repo | bash polos tanpa framework, berjalan di bash 3.2 | Python `unittest` dengan `python3` bawaan Xcode (3.9) | **berat** | File tes menjadi `tests/**/test_*.py`, runner memanggil `python3 -m unittest`, alat tiruan tetap skrip shell; `python3` masuk daftar prasyarat tes; `additionalTools` menjadi `["unittest"]` |
+| K33 | Lokasi tes | `tests/<grup>/*.test.sh` di akar repo dan runner `scripts/test.sh` | Tes integrasi Rust di `crates/*/tests/` yang dijalankan `cargo test` | biasa | Struktur repo, tabel pemilik, tabel penyimpangan; `tablet-core` atau `tablet-ffi` mendapat tes yang bukan tentang perilakunya; Consequences "nol tes Rust" hilang |
+| K34 | Apakah suite boleh butuh build native | Dua tingkat: bawaan cepat tanpa build dan tanpa jaringan; grup `artifacts` hanya membaca hasil build dan harus disebut | Cepat saja; pemeriksaan hasil build ditunda ke fitur 11 | biasa | Grup `artifacts`, tugas 14, dan kasus HI serta HA hilang; AC-3 sampai AC-7 hanya dikunci pada sisi perintah |
+| K35 | Cara menguji kedua skrip build | Salinan skrip di sandbox dengan alat tiruan di `PATH` | Tiga percobaan AC-8 terhadap lingkungan nyata (`ANDROID_HOME`, `JAVA_HOME`, `DEVELOPER_DIR`) | biasa | Kasus I dan A menyusut menjadi tiga; tes butuh Xcode dan Android SDK asli; bentuk perintah dan cabang lain tidak dikunci |
+| K36 | Cara mengunci versi | Tes membaca nilai dari sumbernya lalu memeriksa bentuk kunci, pemakai, dan dokumen | Tabel nilai harapan di dalam tes (salinan tabel "Proposed stack") | biasa | Kasus V menjadi perbandingan literal; tiap kenaikan versi wajib mengubah tes juga; tes menjadi salinan keempat tiap angka |
+| K37 | Isi `test-preferences.json` | `"tool": "cargo test"`, `"additionalTools": ["bash"]`, di-commit di akar | `"tool": "bash"`, `"testDir": "tests"`, `"filePattern": "*.test.sh"`, `"additionalTools": ["cargo test"]` | biasa | Tiga nilai JSON; fitur 03 harus membalik `tool` saat menulis tes Rust pertama |
+| K38 | Biner yang di-commit | Daftar izin di `tests/repo/commit-policy.test.sh`; kini berisi `gradle-wrapper.jar` saja | Tes menegaskan "hanya `gradle-wrapper.jar`" tanpa daftar | biasa | Kasus C2; fitur yang meng-commit aset biner harus menulis ulang kasus itu, bukan menambah satu baris |
+| K39 | Pemilik tugas dokumen (tugas 15) | Tester, di branch yang sama dengan suite, hanya tambahan yang disebut | Developer di branch terpisah | biasa | Ownership brief; kasus V8 baru hijau sesudah dua branch digabung |
+| K40 | Apakah `scripts/test.sh` membungkus `cargo test` | Tidak, sampai ada tes Rust (fitur 03) | Ya, sebagai grup bawaan | biasa | Runner butuh kompilasi dan jaringan pada clone baru; jalur cepat tidak lagi tanpa build |
+
+Catatan tambahan untuk rancangan tes:
+
+- **K31, kenapa bukan "tidak ada tes"**: fitur 01 memang tidak punya perilaku aplikasi, tetapi punya dua hal yang bisa rusak diam diam. Pertama, kedua skrip build berisi lebih dari dua puluh cabang prasyarat, dan verify hanya menjalankan tiga di antaranya. Kedua, tiap angka versi tertulis di file sumber dan di dua dokumen, dan fitur 03 sampai 11 akan menyentuh semuanya. Suite ini murah (beberapa detik, tanpa build) dan langsung dipakai fitur 10 dan 11.
+- **K31, kenapa bukan potret**: AC-2 menyebut "tepat dua crate" dan "tanpa dependensi sama sekali" untuk fitur 01 saja (K24 mengizinkan crate tooling di fitur 03). AC-11 menyebut aplikasi belum menautkan Rust, yang dibalik fitur 04. Tes yang mengunci potret itu akan merah karena pekerjaan yang benar, lalu dilunakkan. Potret tetap dibuktikan verify pada `f3992db`.
+- **K31, batas dengan fitur 10**: fitur 10 menjanjikan satu perintah yang mendeteksi contoh pelanggaran aturan umum, lengkap dengan contoh negatif, selisih hasil generasi, skema, dan keberadaan dokumen. Suite fitur 01 hanya mengunci bukti AC-2 dan AC-11 untuk dua crate dan aturan commit yang sudah ada. Follow-up meminta fitur 10 memutuskan apakah kasus itu dipanggil atau dipindahkan.
+- **K31, batas dengan fitur 11**: fitur 11 memegang CI, `zipalign`, emulator 16 KB, pustaka Rust di APK akhir, dan tautan Release. Grup `artifacts` hanya memeriksa bukti AC fitur 01 pada hasil yang sudah ada dan tidak membangun, jadi fitur 11 cukup memanggilnya sesudah skrip build.
+- **K32, kenapa bertanda `berat`**: kedua opsi hampir setara dan sama murahnya dibalik hari ini (sekitar lima puluh kasus). Tanda `berat` dipasang karena fitur 10 dan 11 akan mengikuti konvensi ini, sehingga harga membaliknya naik tiap fitur. bash dipilih karena skrip yang diuji adalah bash, langkah `verify.md` sudah berupa perintah shell sehingga tes adalah salinan langsungnya, README bagian 5 menamai semua alat repo sebagai skrip `.sh`, dan tidak ada bahasa atau prasyarat baru. Python lebih kuat untuk isolasi, pesan gagal, dan membaca JSON, dan `python3` 3.9 sudah ikut Xcode; harganya adalah bahasa kelima di repo produk. bats-core ditolak karena menambah prasyarat yang harus dipasang dan dikunci untuk kebutuhan sekecil ini.
+- **K32, bash 3.2**: `env bash` pada macOS tanpa Homebrew adalah `/bin/bash` 3.2.57. Mesin lead punya bash 5.3 di `/opt/homebrew/bin`, jadi tanpa aturan ini tes bisa lulus di sini dan gagal di mesin kontributor.
+- **K33**: akar workspace adalah manifest virtual, jadi folder `tests/` di akar tidak dibaca Cargo dan tidak menambah crate. Tes repo di dalam `crates/core/tests/` akan membuat `cargo test` bergantung pada `git` dan `bash`, dan menaruh pemeriksaan Gradle serta Xcode di lapisan inti Rust. README bagian 5 sudah punya `tests/` di akar dan `scripts/test.sh`; dua subfolder README (`fixtures`, `contracts`) dibiarkan untuk fitur pemiliknya.
+- **K35**: kedua skrip pindah ke `$(dirname "${BASH_SOURCE[0]}")/..`, jadi salinan di folder lain bekerja tanpa perubahan kode produksi. Dibaca dari skrip pada `main` (`610cefb` dan sesudahnya): urutan pemeriksaan, kata kunci pesan, dan argumen `cargo`, `xcodebuild`, serta `gradlew` pada tabel kasus diambil dari sana. `PATH` sandbox adalah `<sandbox>/bin:/usr/bin:/bin`, sehingga `xcode-select` dan `xcodebuild` asli di `/usr/bin` tertutup alat tiruan.
+- **K36**: tabel "Proposed stack" spec, `support-matrix.md`, dan `getting-started.md` sudah tiga tempat. Tes yang menyalin angka menjadi tempat keempat dan hanya mendeteksi "ada yang berubah". Tes yang membandingkan sumber dengan dokumen mendeteksi "berubah setengah jalan", dan kenaikan versi yang benar lulus tanpa menyentuh tes. Kesamaan nilai dengan tabel spec tetap bukti verify (AC-8).
+- **K37**: format `test-preferences.json` dibaca dari `~/.claude/skills/test/SKILL.md` langkah 2 dan `modes/setup.md` langkah 6. Skill bercabang pada `tool`: bila terisi, ia melewati pertanyaan framework. Untuk repo ber-`Cargo.toml`, setup skill itu sendiri memilih `cargo test` tanpa bertanya, jadi nilai ini sama dengan yang akan ditulis skill. Format hanya punya satu `tool`, satu `testDir`, dan satu `filePattern`, sedangkan repo punya dua area tes, sehingga dua kunci terakhir berisi satu kalimat untuk tiap area. Panel yang tersisa pada skill (`No changes`, `Run tests?`) dijawab dari file aturan umum brief.
+- **K38**: pemeriksaan biner memakai `git ls-files --eol`; baris `i/-text` adalah file yang isi indeksnya dinilai biner oleh Git. Pada `main` saat ini hanya `gradle-wrapper.jar` yang demikian (`gradlew.bat` tercatat `i/crlf`).
+
+Yang diperiksa di mesin lead untuk rancangan tes (2026-11-15): `/bin/bash` 3.2.57 dan `/opt/homebrew/bin/bash` 5.3.15; `python3` 3.9.6 dari Xcode; `shellcheck` dan `bats` tidak terpasang; tidak ada file terlacak berukuran 0 byte; `Cargo.lock` memuat blok `tablet-core` tanpa `dependencies` dan blok `tablet-ffi` dengan `tablet-core` serta `uniffi`; label sel pertama tabel "Versi alat" di `support-matrix.md` dan tabel "Prasyarat" di `getting-started.md` sama dengan yang dipakai kasus V8.
+
 ## Catatan cross check
 
 Dijalankan 2026-11-15 oleh model lain (`claude-opus-5-5`, hanya membaca) terhadap draf pertama. Vonisnya: arah desain kokoh, tetapi draf belum bisa dibangun tanpa bertanya. Semua perbaikan yang direkomendasikan diterapkan (mode `auto`).
@@ -166,6 +197,24 @@ Dua saran yang tidak diambil, dengan alasan:
 
 - `cargo rustc --crate-type` per platform untuk memangkas waktu tautan: menambah cabang di skrip demi penghematan kecil; dicatat di Consequences sebagai sifat netral.
 - `cargo ndk --platform` sebagai pengganti `CARGO_NDK_PLATFORM`: hanya variabel lingkungan yang tertulis di README cargo-ndk yang terbaca saat pemeriksaan.
+
+### Cross check rancangan tes
+
+Dijalankan 2026-11-15 oleh model lain (`claude-opus-5-5`, hanya membaca) terhadap draf "Rancangan tes fitur 01". Vonisnya: rancangan bisa dibangun, dan setiap kasus I dan A lulus terhadap skrip yang tidak diubah di bash 3.2 (urutan cabang, kode keluar, dan kata kunci stderr ditelusuri satu per satu). Sebelas celah ditemukan, sebagian besar risiko lulus kosong. Semua perbaikan yang direkomendasikan diterapkan (mode `auto`).
+
+1. Runner memanggil `bash`, yang di mesin lead adalah bash 5, jadi aturan bash 3.2 tidak pernah terbukti. Runner kini memakai `/bin/bash` bila ada.
+2. C3 bisa lulus karena berkas abaikan global milik user (`~/.config/git/ignore` ada di mesin lead). Kasus kini menuntut aturan yang sumbernya `.gitignore` repo. Kedua puluh satu path sudah diperiksa cocok dengan `.gitignore` saat ini.
+3. V8 mencocokkan angka pendek (`25`, `37`) yang bisa cocok secara kebetulan, dan baris `cargo-ndk` pada tabel "Prasyarat" tidak diperiksa. Kasus kini memakai token berlabel dan tiap label harus cocok dengan tepat satu baris.
+4. B3 lulus kosong bila blok `tablet-core` tidak terbaca. Kasus kini gagal bila blok itu tidak ditemukan, dan bentuk entri ketiga (`"nama versi (sumber)"`) ditetapkan.
+5. Tabel "tes menggigit": mengubah `EXPECTED_JAVA_MAJOR` memerahkan lebih banyak kasus Android daripada yang tertulis. Diubah menjadi "minimal".
+6. Urutan commit tidak tertulis, padahal clone tugas 14 hanya berisi file ter-commit. Ditambahkan ke "Pemilik dan batas tester" dan tugas 14.
+7. Skill `/test` tanpa `package.json` akan menampilkan panel "No changes", memilih `cargo test` sebagai perintah, bisa menulis `#[test]`, dan ingin mencentang scope. Empat ketetapan untuk brief tester ditambahkan di bawah `test-preferences.json`.
+8. Rincian alat tiruan yang harus dikarang tester: cara menyalakan sakelar di bawah `env -i`, lokasi log, folder Command Line Tools, bentuk folder kerja di log, dan perintah yang berbeda antara BSD dan GNU. Ditetapkan lewat variabel `STUB_*`, `STUB_LOG`, folder sandbox, `pwd -P`, dan larangan `sed -i`, `stat`, serta `find -printf`.
+9. Kontrak runner yang belum tertulis: argumen campuran, argumen ganda, urutan, stderr, penulisan beberapa AC, dan satu baris per baris tabel. Semuanya ditetapkan.
+10. V2 bisa memicu rustup mengunduh toolchain. Kasus kini menyetel `RUSTUP_AUTO_INSTALL=0` (nama variabel itu ada di biner rustup 1.29.3 di mesin lead).
+11. V5 tidak jelas mencakup kunci mana. Dibatasi pada delapan kunci yang disebut.
+
+Catatan kelayakan yang diterapkan sebagai Follow-up: I11, daftar file sandbox, dan V7 berubah saat fitur 04 menambah pengemasan dan target tes; crate tooling fitur 03 harus di luar `crates/` supaya B6 tetap lulus; fitur 11 memakai ulang HA2. Dua catatan yang tidak mengubah rancangan: HI4 dan HA5 sengaja kembar karena tiap platform dibangun di job CI yang berbeda, dan V6 serta V7 dekat dengan pendeteksi perubahan tetapi dipertahankan karena mengunci aturan "nilai hanya di satu sumber". Pemeriksa menilai tanda `berat` pada K32 wajar dan pilihan bash bisa dipertahankan.
 
 ## Bukti pemeriksaan
 
@@ -220,6 +269,10 @@ Penawaran pencarian Agent Skill dan server MCP untuk alat baru (langkah wajib ta
 - `docs/scope/03-kontrak-rust-untuk-kedua-aplikasi.md`, `04-salam-rust-pada-dua-tablet.md`, `11-build-dan-pengujian-otomatis.md` (pemakai matriks)
 - `docs/quality/audit-scaffold.md`, baris "Pertama"
 - `docs/scope/coordination/01-arsitektur-dan-build-awal.brief-umum.md` (keadaan mesin lead)
+- `README.md` bagian 5 (`tests/`, `scripts/test.sh`), 17, 21, dan 22 (strategi tes dan perintah yang bisa diulang)
+- `docs/scope/10-pemeriksaan-batas-arsitektur.md` dan `docs/scope/11-build-dan-pengujian-otomatis.md` (batas lingkup suite fitur 01)
+- `docs/specs/0001-arsitektur-dan-build-awal/verify.md` dan `docs/reviews/2026-11-15-verify-f01.md` (langkah yang dikunci)
+- `scripts/build-ipados.sh` dan `scripts/build-android-tablet.sh` pada `main` (sumber tabel kasus I dan A)
 
 **Practices & standards**:
 
