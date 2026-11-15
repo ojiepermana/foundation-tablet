@@ -5,7 +5,7 @@
 - **Mode keputusan:** `auto` · **Ketentuan tambahan:** tidak ada
 - **Aturan umum brief:** `01-arsitektur-dan-build-awal.brief-umum.md` · **Langkah manual:** `01-arsitektur-dan-build-awal.manual.md`
 - **Wave aktif:** 1, mulai 2026-11-15
-- **Diperbarui:** 2026-11-16 00:40
+- **Diperbarui:** 2026-11-16 00:50
 
 ## Sub sesi wave 1
 
@@ -24,6 +24,7 @@
 | `chk-f1-verify` | checker (verify) | Fitur 01, verify milestone 2 pada `main` `0868e45`: PASS 17 dari 17 | `01-arsitektur-dan-build-awal.md` | centang `verify.md` bagian Milestone 2, `docs/reviews/2026-11-15-verify-f01-m2.md` | `claude/chk-f1-verify-4078a9` | `claude-fable-5-2 · high` | dipakai ulang, merged (`542db58`) |
 | `chk-f1-verify` | checker (verify) | Fitur 01, verify milestone 3 pada `main` `610cefb`: PASS 21 dari 21 | `01-arsitektur-dan-build-awal.md` | centang `verify.md` bagian Milestone 3, `docs/reviews/2026-11-15-verify-f01-m3.md` | `claude/chk-f1-verify-4078a9` | `claude-fable-5-2 · high` | dipakai ulang, merged (`495e931`), siaga |
 | `chk-f1-verify` | checker (verify) | Fitur 01, verify milestone 4 dan verify penuh (`Verify it`) pada `main` `065ed88` | `01-arsitektur-dan-build-awal.md` | centang `verify.md` bagian Milestone 4, `docs/reviews/2026-11-15-verify-f01.md` | `claude/chk-f1-verify-4078a9` | `claude-fable-5-2 · high` | dipakai ulang, merged (`99f2b9d`), siaga |
+| `chk-f1-verify` | checker (verify) | Fitur 01, verify ulang akhir pada `main` `d057965` untuk Range `f3992db..d057965` (dokumen, spec, suite tes) | `01-arsitektur-dan-build-awal.md` | `docs/reviews/2026-11-16-verify-f01-akhir.md` | `claude/chk-f1-verify-4078a9` | `claude-fable-5-2 · high` | dipakai ulang, aktif |
 | `tst-f1-test` | tester | Fitur 01, `Test it`, milestone 5 (Build plan 12 sampai 16) | `01-arsitektur-dan-build-awal.md` | `test-preferences.json`, `scripts/test.sh`, `tests/**`, tambahan pada `docs/getting-started.md`, `docs/architecture/ownership-matrix.md`, `docs/architecture/repository-structure.md`, `docs/reviews/2026-11-15-test-f01.md` | `claude/tst-f1-test-949ed6` | `claude-opus-5-5 · high` | merged (`00a55b9`) |
 
 ## Keputusan
@@ -53,6 +54,7 @@
 | 2026-11-15 | Rekomendasi developer yang belum dijadwalkan: `scripts/build-android-tablet.sh` menolak lebih awal bila `$JAVA_HOME/release` tidak ada, supaya stub `java` macOS tidak menggantung. Bukan syarat AC-8; ditimbang sesudah verify penuh. | lead |
 | 2026-11-15 | `Test it` TERBLOKIR keputusan: spec 0001 menutup jalur tes yang lazim (tanpa target tes native, nol tes Rust sampai fitur 03, "hanya path berikut yang dibuat") dan skill `/test` butuh `test-preferences.json` yang tanpa itu bertanya lewat panel. Dibuka lewat item `architect (update)`; tester tetap standby sampai rancangan diterima. | lead |
 | 2026-11-15 | Pembaruan spec 0001 "Rancangan tes fitur 01" diterima lead (`accept`) pada draf di worktree architect. Tiga cek gerbang lulus: sebelas temuan cross check (`claude-opus-5-5`) diterapkan, ID dan teks AC-1 sampai AC-11 tidak berubah, tidak ada spec `Accepted` lain. K32 bertanda `berat` oleh architect; mode `auto` mengambil opsi rekomendasi dan lead tidak mengubah tanda itu. | lead |
+| 2026-11-16 | Semua kotak fitur 01 dicentang pada `d057965`, tetapi status tetap `in-progress`: jalur yang dibuktikan verify penuh (`f3992db`) berubah sesudahnya (dokumen, tabel spec, file terlacak baru dari suite tes), jadi checker mengulang langkah yang tersentuh pada SHA akhir sebelum `done`. Langkah `verify.md` yang teksnya usang karena potret lama dilaporkan terpisah dari FAIL AC. | lead |
 | 2026-11-15 | Satu build native penuh pada satu waktu: disk bebas sekitar 37 GiB (92% terpakai) dan sesi repo lain sedang membangun di mesin yang sama. | lead |
 
 ## Keputusan delegasi
