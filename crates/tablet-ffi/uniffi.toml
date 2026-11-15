@@ -1,0 +1,12 @@
+# Konfigurasi generator binding UniFFI untuk tablet-ffi.
+# Dibaca scripts/generate-bindings.sh (mode pustaka). Nama mengikuti tabel nama
+# pada spec 0001 bagian "Pengemasan pustaka Rust"; aturan lain ada di spec 0002.
+
+[bindings.swift]
+module_name = "TabletBindings"
+ffi_module_name = "TabletFFI"
+ffi_module_filename = "TabletFFI"
+
+[bindings.kotlin]
+package_name = "foundation.tablet.bindings"
+cdylib_name = "tablet_ffi"

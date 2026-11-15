@@ -2,7 +2,7 @@
 
 Panduan ini membawa kamu dari clone baru sampai workspace Rust, aplikasi iPad, dan aplikasi Android tablet selesai dikompilasi. Semua perintah dijalankan dari akar repo. Keputusan di baliknya ada di [spec 0001](specs/0001-arsitektur-dan-build-awal/index.md); versi tiap alat dan alasannya ada di [matriks dukungan](architecture/support-matrix.md).
 
-Pada fitur 01 kedua aplikasi baru menampilkan satu layar statis. Pustaka Rust sudah dibangun untuk tiap target, tetapi belum ditautkan ke aplikasi (itu milik fitur 03 dan 04).
+Sampai fitur 03 kedua aplikasi baru menampilkan satu layar statis. Pustaka Rust sudah dibangun untuk tiap target dan binding Swift serta Kotlin bisa dihasilkan darinya (bagian "Menghasilkan binding"), tetapi keduanya belum ditautkan ke aplikasi (itu milik fitur 04).
 
 ## Prasyarat
 
@@ -60,12 +60,25 @@ Yang terjadi pada tiap baris:
 
 1. `rustup toolchain install` memasang toolchain 1.99.1, komponen, dan keempat target dari `rust-toolchain.toml`. Sesudahnya `rustc --version` di akar repo menampilkan `rustc 1.99.1`.
 2. `cargo install cargo-ndk --version 4.1.2 --locked` memasang `cargo-ndk`, yang menyiapkan linker NDK untuk Cargo.
-3. `cargo build --workspace --locked` mengompilasi `tablet-core` dan `tablet-ffi` untuk Mac.
-4. `cargo test --workspace --locked` menjalankan tes workspace. Pada fitur 01 belum ada tes Rust, jadi hasilnya `test result: ok` dengan nol tes. Tes tingkat repo ada di bagian "Menjalankan tes".
+3. `cargo build --workspace --locked` mengompilasi `tablet-core`, `tablet-ffi`, dan generator binding `tablet-uniffi-bindgen` untuk Mac.
+4. `cargo test --workspace --locked` menjalankan tes Rust: tes unit `hello` di `tablet-core` dan tes asap ekspor di `tablet-ffi`. Tes tingkat repo ada di bagian "Menjalankan tes".
 5. `scripts/build-ipados.sh` membangun `tablet-ffi` untuk `aarch64-apple-ios-sim` dan `aarch64-apple-ios`, lalu `Tablet.app` Debug untuk simulator iPad generik dan `Tablet.app` Release untuk iPad generik tanpa tanda tangan kode. Kamu bisa membangun salah satunya saja dengan `--simulator` atau `--device`.
 6. `scripts/build-android-tablet.sh` membangun `tablet-ffi` untuk `arm64-v8a` dan `x86_64` lewat `cargo-ndk`, lalu `app-debug.apk` lewat `./gradlew :app:assembleDebug`. Build pertama mengunduh Gradle 9.5.1 (sekitar 151 MB) ke `~/.gradle/wrapper/dists` dan dependensi Maven ke `~/.gradle/caches`.
 
 Kedua skrip bisa dipanggil dari folder mana pun karena pindah ke akar repo lebih dulu. Bila prasyarat kurang, skrip berhenti sebelum build dengan pesan yang menyebut apa yang hilang dan cara memasangnya.
+
+## Menghasilkan binding
+
+Binding Swift dan Kotlin dihasilkan dari pustaka `tablet-ffi` yang sudah dibangun, jadi jalankan skrip build platform itu lebih dulu:
+
+```bash
+scripts/generate-bindings.sh swift target/aarch64-apple-ios/release/libtablet_ffi.a target/aarch64-apple-ios-sim/release/libtablet_ffi.a
+scripts/generate-bindings.sh kotlin target/aarch64-linux-android/release/libtablet_ffi.so target/x86_64-linux-android/release/libtablet_ffi.so
+```
+
+Perintah `swift` menulis `bindings/swift/Sources/TabletBindings/TabletBindings.swift`, serta `TabletFFI.h` dan `module.modulemap` di `target/bindings/swift/headers/TabletFFI/`. Perintah `kotlin` menulis `bindings/kotlin/foundation/tablet/bindings/tablet_ffi.kt`. Tidak ada yang di-commit, dan tidak ada yang boleh disunting tangan.
+
+Skrip menghasilkan binding dari tiap pustaka dan hanya menulis bila semuanya identik. Kamu boleh menyebut satu pustaka saja, misalnya sesudah `scripts/build-ipados.sh --simulator`. Bila skrip menyebut `pustaka basi`, ada file sumber Rust yang lebih baru dari pustakanya; jalankan skrip build platform itu lagi. Build pertama generatornya butuh sekitar 20 detik. Aturan kontraknya ada di [konvensi kontrak FFI](contracts/ffi-conventions.md).
 
 ## Menjalankan tes
 
