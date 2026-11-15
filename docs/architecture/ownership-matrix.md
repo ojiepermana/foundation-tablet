@@ -17,4 +17,4 @@ Tabel ini menyebut lapisan README (bagian 3) yang memegang tiap path, tanggung j
 | `docs/specs`, `docs/scope` | Tata kelola | Catatan keputusan dan rencana | Tidak | Ya |
 | `design-system/`, `shared/`, `tooling/`, `tests/fixtures`, `tests/contracts`, `.github/` | Pemilik fitur 03, 08, 09, 10, 11 | Belum ada | Belum ada | Belum |
 
-`Cargo.lock` ikut kunci versi (lapisan E) dan di-commit. `docs/getting-started.md` ikut tata kelola. Hasil build (`target/`, `apps/ipados/build/`, folder `build/` Gradle) tidak punya pemilik karena tidak pernah di-commit; daftar lengkapnya ada di spec bagian "Aturan commit" dan di `.gitignore` akar.
+`Cargo.lock` ikut kunci versi (lapisan E) dan di-commit. `docs/getting-started.md` dan `docs/contributing.md` ikut tata kelola. Hasil build (`target/`, `apps/ipados/build/`, folder `build/` Gradle) tidak punya pemilik karena tidak pernah di-commit; daftar lengkapnya ada di spec bagian "Aturan commit" dan di `.gitignore` akar.

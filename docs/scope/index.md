@@ -15,7 +15,7 @@ Pilih nama fitur untuk melihat tujuan, kriteria selesai, dan langkah pertamanya.
 | No. | Fitur | Fase | Status |
 |---|---------|-------|--------|
 | 01 | [Arsitektur dan build awal](01-arsitektur-dan-build-awal.md) | Fondasi | done |
-| 02 | [Aturan kontribusi](02-aturan-kontribusi.md) | Fondasi | planned |
+| 02 | [Aturan kontribusi](02-aturan-kontribusi.md) | Fondasi | done |
 | 03 | [Kontrak Rust untuk kedua aplikasi](03-kontrak-rust-untuk-kedua-aplikasi.md) | Fondasi | planned |
 | 04 | [Salam Rust pada dua tablet](04-salam-rust-pada-dua-tablet.md) | Alur pertama | planned |
 | 05 | [Navigasi dan jendela iPad](05-navigasi-dan-jendela-ipad.md) | Ruang kerja tablet | planned |

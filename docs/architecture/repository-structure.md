@@ -38,12 +38,14 @@ scripts/
   test.sh                          mode 100755, menjalankan tes tingkat repo
 tests/
   lib/harness.sh                   helper tes: asersi, sandbox, alat tiruan
-  repo/                            crate-boundary.test.sh, version-locks.test.sh, commit-policy.test.sh
+  repo/                            crate-boundary.test.sh, version-locks.test.sh, commit-policy.test.sh,
+                                   agent-rules.test.sh (fitur 02)
   build-scripts/                   build-ipados.test.sh, build-android-tablet.test.sh
   artifacts/                       ipados.test.sh, android-tablet.test.sh
 test-preferences.json              pilihan alat untuk skill /test, di-commit
 docs/
   getting-started.md               panduan mulai singkat
+  contributing.md                  panduan kontribusi (fitur 02)
   architecture/                    lima dokumen ini
   specs/                           spec keputusan (0001 dan seterusnya)
   scope/                           rencana fitur, termasuk coordination/
