@@ -61,7 +61,7 @@ Yang terjadi pada tiap baris:
 1. `rustup toolchain install` memasang toolchain 1.99.1, komponen, dan keempat target dari `rust-toolchain.toml`. Sesudahnya `rustc --version` di akar repo menampilkan `rustc 1.99.1`.
 2. `cargo install cargo-ndk --version 4.1.2 --locked` memasang `cargo-ndk`, yang menyiapkan linker NDK untuk Cargo.
 3. `cargo build --workspace --locked` mengompilasi `tablet-core` dan `tablet-ffi` untuk Mac.
-4. `cargo test --workspace --locked` menjalankan tes workspace. Pada fitur 01 belum ada tes, jadi hasilnya `test result: ok` dengan nol tes.
+4. `cargo test --workspace --locked` menjalankan tes workspace. Pada fitur 01 belum ada tes Rust, jadi hasilnya `test result: ok` dengan nol tes. Tes tingkat repo ada di bagian "Menjalankan tes".
 5. `scripts/build-ipados.sh` membangun `tablet-ffi` untuk `aarch64-apple-ios-sim` dan `aarch64-apple-ios`, lalu `Tablet.app` Debug untuk simulator iPad generik dan `Tablet.app` Release untuk iPad generik tanpa tanda tangan kode. Kamu bisa membangun salah satunya saja dengan `--simulator` atau `--device`.
 6. `scripts/build-android-tablet.sh` membangun `tablet-ffi` untuk `arm64-v8a` dan `x86_64` lewat `cargo-ndk`, lalu `app-debug.apk` lewat `./gradlew :app:assembleDebug`. Build pertama mengunduh Gradle 9.5.1 (sekitar 151 MB) ke `~/.gradle/wrapper/dists` dan dependensi Maven ke `~/.gradle/caches`.
 

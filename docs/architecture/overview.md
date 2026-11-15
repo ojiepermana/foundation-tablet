@@ -10,7 +10,7 @@ Dokumen ini menggambarkan repo seperti yang sudah dibangun sampai fitur 01, mema
 | B. Integrasi platform native | API Apple di Swift, API Android di Kotlin | Belum ada isi. Konfigurasi platform saja: `apps/ipados/Config/Base.xcconfig` (iPadOS 26.0, hanya iPad) dan katalog versi Android (`minSdk` 29, `targetSdk` 36, `compileSdk` 37) |
 | C. Inti Rust bersama | Perilaku dan aturan bersama, ekspor lewat UniFFI | `crates/core` (paket `tablet-core`, tanpa dependensi, tanpa fungsi) dan `crates/tablet-ffi` (memuat `uniffi` 0.32.2 dan `uniffi::setup_scaffolding!()`, tanpa ekspor). Pustaka dibangun untuk keempat target matriks, belum ditautkan ke aplikasi |
 | D. Sistem desain bersama | Token kanonis dan pemetaan tema native | Belum ada. Dibuat fitur 08 |
-| E. Sumber daya dan tooling bersama | Generasi, validasi, kunci versi | Kunci versi (`rust-toolchain.toml`, `Cargo.toml`, `Cargo.lock`, `.xcode-version`, katalog dan wrapper Gradle) dan dua skrip build di `scripts/`. Generator binding dan validasi belum ada |
+| E. Sumber daya dan tooling bersama | Generasi, validasi, kunci versi | Kunci versi (`rust-toolchain.toml`, `Cargo.toml`, `Cargo.lock`, `.xcode-version`, katalog dan wrapper Gradle), dua skrip build dan `scripts/test.sh` di `scripts/`, serta tes tingkat repo di `tests/`. Generator binding dan validasi arsitektur (fitur 10) belum ada |
 
 Tata kelola (`AGENTS.md`, `docs/`) ada di luar kelima lapisan. Fitur 01 menambah dokumen ini, panduan mulai singkat, dan empat dokumen arsitektur lain.
 

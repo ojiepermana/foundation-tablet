@@ -66,7 +66,7 @@ P=apps/ipados/build/DerivedData/Build/Products
 - [x] Perangkat: tiga perintah yang sama pada `$P/Release-iphoneos/Tablet.app` → `arm64`, `26.0`, `[2]`; `codesign -dv $P/Release-iphoneos/Tablet.app` → `code object is not signed at all` → AC-6
 - [x] `nm $P/Release-iphoneos/Tablet.app/Tablet | grep -ci uniffi` → `0` (pustaka Rust belum ditautkan) → AC-11
 - [x] `cat apps/ipados/Tablet/App/TabletApp.swift` → satu `@main` `App` dengan `WindowGroup` berisi satu `Text` statis, tanpa navigasi, token, atau lokalisasi → AC-11
-- [x] `git ls-files apps/ipados scripts .xcode-version` → tepat enam file: `.xcode-version`, `apps/ipados/Config/Base.xcconfig`, `apps/ipados/Tablet.xcodeproj/project.pbxproj`, `apps/ipados/Tablet.xcodeproj/xcshareddata/xcschemes/Tablet.xcscheme`, `apps/ipados/Tablet/App/TabletApp.swift`, `scripts/build-ipados.sh` (tanpa folder atau file penanda) → AC-11
+- [x] `git ls-files apps/ipados .xcode-version scripts/build-ipados.sh` → tepat enam file: `.xcode-version`, `apps/ipados/Config/Base.xcconfig`, `apps/ipados/Tablet.xcodeproj/project.pbxproj`, `apps/ipados/Tablet.xcodeproj/xcshareddata/xcschemes/Tablet.xcscheme`, `apps/ipados/Tablet/App/TabletApp.swift`, `scripts/build-ipados.sh` (tanpa folder atau file penanda) → AC-11
 - [x] `git ls-files -s scripts/build-ipados.sh` → mode `100755` → AC-9 (bagian skrip iPad)
 - [x] `git ls-files | grep -E '\.(a|so|apk)$|xcframework|/build/|^target/'` → kosong → AC-11
 - [x] `git status --short` sesudah skrip → kosong → AC-11
@@ -117,7 +117,7 @@ JBR="/Applications/Android Studio.app/Contents/jbr/Contents/Home"
 - [x] `(cd apps/android-tablet && JAVA_HOME="$JBR" ./gradlew -q buildEnvironment | grep 'kotlin-gradle-plugin:2.4.21')` → minimal satu baris `org.jetbrains.kotlin:kotlin-gradle-plugin:2.4.21`; tidak ada versi Kotlin lain yang menang (baris `2.2.10 -> 2.4.21` berarti dinaikkan ke versi katalog) → AC-8 (baris Kotlin)
 - [x] `cat apps/android-tablet/app/src/main/kotlin/foundation/tablet/MainActivity.kt apps/android-tablet/app/src/main/AndroidManifest.xml apps/android-tablet/app/src/main/res/values/strings.xml` → `ComponentActivity` dengan `enableEdgeToEdge()` lalu `setContent { MaterialTheme { Text(...) } }`; satu activity `exported` dengan filter LAUNCHER, tema `@android:style/Theme.Material.Light.NoActionBar`, tanpa `screenOrientation` atau `resizeableActivity`; `strings.xml` hanya `app_name` = `Tablet`; tanpa navigasi, token, atau lokalisasi → AC-11
 - [x] `git ls-files apps/android-tablet scripts/build-android-tablet.sh` → tepat 14 file yang tercantum di spec bagian "Struktur repo fitur 01" untuk Android dan skripnya, tanpa folder atau file penanda → AC-11
-- [x] `git ls-files -s scripts apps/android-tablet/gradlew` → mode `100755` untuk `scripts/build-android-tablet.sh`, `scripts/build-ipados.sh`, dan `apps/android-tablet/gradlew` → AC-9 (bagian mode berkas)
+- [x] `git ls-files -s scripts apps/android-tablet/gradlew` → setiap baris bermode `100755`: `apps/android-tablet/gradlew`, `scripts/build-android-tablet.sh`, `scripts/build-ipados.sh`, dan `scripts/test.sh` → AC-9 (bagian mode berkas)
 - [x] `git ls-files | grep -E '\.(a|so|apk)$|xcframework|/build/|^target/'` → kosong; `git ls-files -z | xargs -0 file --mime-encoding | grep -w binary` → hanya `gradle-wrapper.jar` → AC-11
 - [x] `git status --short` sesudah skrip → kosong → AC-11
 - [x] Sesudah selesai: `(cd apps/android-tablet && JAVA_HOME="$JBR" ./gradlew --stop)`, lalu `cd / && rm -rf "$(dirname "$CLONE")"` → daemon mati, clone beserta `target/` dan folder `build/` di dalamnya terhapus
@@ -170,13 +170,13 @@ Tugas 9, perintah panduan pada clone baru (perintah persis dari `docs/getting-st
 - [x] `scripts/build-android-tablet.sh; echo $?` (sesudah build iPad selesai, tidak bersamaan) → `BUILD SUCCESSFUL`, baris terakhir `build-android-tablet: selesai`, kode keluar `0` → AC-7, AC-9
 - [x] `ls target/aarch64-apple-ios/release/libtablet_ffi.a target/aarch64-apple-ios-sim/release/libtablet_ffi.a target/aarch64-linux-android/release/libtablet_ffi.so target/x86_64-linux-android/release/libtablet_ffi.so` → keempat file ada → AC-3
 - [x] `"$SDK/build-tools/36.0.0/aapt2" dump badging "$APK" | grep -E 'SdkVersion|compileSdkVersion='` → `minSdkVersion:'29'`, `targetSdkVersion:'36'`, `compileSdkVersion='37'`; `unzip -l "$APK" | grep 'lib/'` → hanya `lib/arm64-v8a/` dan `lib/x86_64/` → AC-7
-- [x] `git ls-files -s scripts apps/android-tablet/gradlew` → mode `100755` untuk `apps/android-tablet/gradlew`, `scripts/build-android-tablet.sh`, dan `scripts/build-ipados.sh` → AC-9
+- [x] `git ls-files -s scripts apps/android-tablet/gradlew` → setiap baris bermode `100755`: `apps/android-tablet/gradlew`, `scripts/build-android-tablet.sh`, `scripts/build-ipados.sh`, dan `scripts/test.sh` → AC-9
 - [x] `git status --short` sesudah kedua skrip → kosong → AC-9, AC-11
 - [x] Tidak ada langkah di luar panduan yang ternyata diperlukan (catat di bukti bila ada; itu berarti panduan harus diperbaiki) → AC-9
 
 Tugas 9 dan 10, isi dokumen terhadap tabel spec bagian "Catatan arsitektur yang ditulis developer":
 
-- [x] `docs/getting-started.md` memuat: prasyarat dan versinya (macOS 26.6, Xcode 27.1, rustup dengan `rust-toolchain.toml`, Android SDK `platforms;android-37.0` `build-tools;36.0.0` `platform-tools` `ndk;28.2.13676358`, JDK 25, `cargo-ndk` 4.1.2), cara memasang tiap prasyarat, enam perintah "Perintah repo", lokasi hasil build, dan masalah umum (JDK, `ANDROID_HOME`, target Rust) → AC-9
+- [x] `docs/getting-started.md` memuat: prasyarat dan versinya (macOS 26.6, Xcode 27.1, rustup dengan `rust-toolchain.toml`, Android SDK `platforms;android-37.0` `build-tools;36.0.0` `platform-tools` `ndk;28.2.13676358`, JDK 25, `cargo-ndk` 4.1.2), cara memasang tiap prasyarat, enam perintah "Perintah repo", lokasi hasil build, masalah umum (JDK, `ANDROID_HOME`, target Rust), dan bagian "Menjalankan tes" dengan empat perintah `scripts/test.sh` yang sama dengan spec bagian "Perintah tes dan kontrak `scripts/test.sh`" → AC-9
 - [x] `docs/architecture/overview.md` memuat: lapisan A sampai E README bagian 3 dengan keadaan yang sudah dibangun, tautan ke empat dokumen lain, dan daftar "Ditetapkan, belum dibangun" (pengemasan pustaka iPad dan Android, lokasi binding, nama modul) → AC-10
 - [x] `docs/architecture/support-matrix.md` memuat: tabel "Proposed stack" dan "Matriks dukungan" spec dengan nilai yang sama, target yang tidak didukung beserta alasan, alasan OS minimum, status 16 KB, tanggal pemeriksaan `2026-11-15`, dan tautan sumber dari `rationale.md` bagian References → AC-10
 - [x] `docs/architecture/ownership-matrix.md` memuat: setiap baris tabel spec "Pemilik tiap bagian" → AC-10
@@ -198,3 +198,12 @@ Tugas 9 dan 10, isi dokumen terhadap tabel spec bagian "Catatan arsitektur yang 
 - AC-10: lima dokumen `docs/architecture/` dengan isi wajib tabel spec, tanda "ditetapkan, belum dibangun", tautan valid
 
 Bukti pengulangan clone bersih oleh developer: [docs/reviews/2026-11-15-build-f01-m4.md](../../reviews/2026-11-15-build-f01-m4.md).
+
+## Milestone 5: Tes tingkat repo
+
+Suite tes `scripts/test.sh` dari spec bagian "Rancangan tes fitur 01". Jalankan dari akar clone bersih seperti di milestone 4. Bukti: [docs/reviews/2026-11-16-verify-f01-akhir.md](../../reviews/2026-11-16-verify-f01-akhir.md) bagian "Perintah baru: suite tes", pada `ba1d3c9`.
+
+- [x] `scripts/test.sh; echo $?` sebelum build apa pun → `test: 5 file, 5 lulus, 0 gagal`, kode keluar `0` → AC-1, AC-2, AC-8, AC-9, AC-10, AC-11 (Build plan 12, 13)
+- [x] `scripts/test.sh artifacts; echo $?` pada clone yang belum dibangun → kode keluar `1`, pesan kasus yang gagal menyebut skrip build yang harus dijalankan → AC-3, AC-7 (Build plan 14)
+- [x] `scripts/test.sh repo build-scripts artifacts; echo $?` sesudah `scripts/build-ipados.sh` dan `scripts/build-android-tablet.sh` → `test: 7 file, 7 lulus, 0 gagal`, kode keluar `0` → AC-3, AC-4, AC-5, AC-6, AC-7, AC-11 (Build plan 14)
+- [x] `scripts/test.sh tidak-ada; echo $?` → kode keluar `2`, stderr `test: argumen tidak dikenal: tidak-ada` lalu pemakaian (kontrak `scripts/test.sh`) → AC-9
