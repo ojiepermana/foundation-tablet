@@ -158,7 +158,7 @@ Tugas 11, satu baris `Base.xcconfig`:
 
 Tugas 9, perintah panduan pada clone baru (perintah persis dari `docs/getting-started.md` bagian "Perintah repo", berurutan):
 
-- [ ] `grep -A8 '^## Perintah repo' docs/getting-started.md` → blok `bash` berisi tepat enam baris yang sama dengan spec bagian "Perintah repo": `rustup toolchain install`, `cargo install cargo-ndk --version 4.1.2 --locked`, `cargo build --workspace --locked`, `cargo test --workspace --locked`, `scripts/build-ipados.sh`, `scripts/build-android-tablet.sh` → AC-9
+- [ ] `grep -A11 '^## Perintah repo' docs/getting-started.md` → blok `bash` berisi tepat enam baris yang sama dengan spec bagian "Perintah repo": `rustup toolchain install`, `cargo install cargo-ndk --version 4.1.2 --locked`, `cargo build --workspace --locked`, `cargo test --workspace --locked`, `scripts/build-ipados.sh`, `scripts/build-android-tablet.sh` → AC-9
 - [ ] `rustup toolchain install; echo $?` → kode keluar `0`; lalu `rustc --version` → diawali `rustc 1.99.1` → AC-1, AC-9
 - [ ] `cargo install cargo-ndk --version 4.1.2 --locked; echo $?` → kode keluar `0` (bila sudah terpasang, Cargo mencetak bahwa paket sudah terpasang dan tetap keluar `0`) → AC-9
 - [ ] `cargo build --workspace --locked; echo $?` → kode keluar `0` → AC-1, AC-9
