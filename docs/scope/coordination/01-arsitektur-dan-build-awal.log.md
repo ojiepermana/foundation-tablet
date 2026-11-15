@@ -5,15 +5,16 @@
 - **Mode keputusan:** `auto` · **Ketentuan tambahan:** tidak ada
 - **Aturan umum brief:** `01-arsitektur-dan-build-awal.brief-umum.md` · **Langkah manual:** `01-arsitektur-dan-build-awal.manual.md`
 - **Wave aktif:** 1, mulai 2026-11-15
-- **Diperbarui:** 2026-11-15 18:25
+- **Diperbarui:** 2026-11-15 19:00
 
 ## Sub sesi wave 1
 
 | Nama | Peran | Item | Scope | Ownership | Branch | Model | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | `arc-f1-spec` | architect | Fitur 01, "Putuskan arsitektur awal (spec)" | `01-arsitektur-dan-build-awal.md` | `docs/specs/0001-arsitektur-dan-build-awal/` | `claude/arc-f1-spec-983432` | `claude-fable-5-2 · high` | merged (`27f1283`) |
-| `dev-f1-m1` | developer | Fitur 01, milestone 1 (Build plan 1 sampai 3) | `01-arsitektur-dan-build-awal.md` | `Cargo.toml`, `Cargo.lock`, `rust-toolchain.toml`, `.gitignore`, `crates/core/**`, `crates/tablet-ffi/**`, `docs/specs/0001-arsitektur-dan-build-awal/verify.md` dan baris Status `index.md` | `claude/dev-f1-m1-ee7069` | `claude-opus-5-5 · medium` | aktif |
-| `chk-f1-verify` | checker (verify) | Fitur 01, verify milestone lalu verify penuh | `01-arsitektur-dan-build-awal.md` | `docs/specs/0001-arsitektur-dan-build-awal/verify.md` (centang saja) | `claude/chk-f1-verify-4078a9` | `claude-fable-5-2 · high` | standby |
+| `dev-f1-m1` | developer | Fitur 01, milestone 1. Build plan 1, 2, 3 selesai. Pointer code in: `crates/` (plus `Cargo.toml`, `rust-toolchain.toml`). Commit `b869eab` | `01-arsitektur-dan-build-awal.md` | `Cargo.toml`, `Cargo.lock`, `rust-toolchain.toml`, `.gitignore`, `crates/core/**`, `crates/tablet-ffi/**`, `verify.md` bagian Milestone 1, baris Status spec | `claude/dev-f1-m1-ee7069` | `claude-opus-5-5 · medium` | merged (`578e3b7`) |
+| `dev-f1-m1` | developer | Fitur 01, milestone 2 (Build plan 4, 5) | `01-arsitektur-dan-build-awal.md` | `apps/ipados/**`, `scripts/build-ipados.sh`, `.xcode-version`, `verify.md` bagian Milestone 2, `docs/reviews/2026-11-15-build-f01-m2.md` | `claude/dev-f1-m1-ee7069` | `claude-opus-5-5 · medium` | dipakai ulang, aktif |
+| `chk-f1-verify` | checker (verify) | Fitur 01, verify milestone 1 pada `main` `578e3b7` | `01-arsitektur-dan-build-awal.md` | centang `verify.md` bagian Milestone 1, `docs/reviews/2026-11-15-verify-f01-m1.md` | `claude/chk-f1-verify-4078a9` | `claude-fable-5-2 · high` | aktif |
 | `tst-f1-test` | tester | Fitur 01, `Test it` | `01-arsitektur-dan-build-awal.md` | ditetapkan setelah build di-merge | `claude/tst-f1-test-949ed6` | `claude-opus-5-5 · high` | standby |
 
 ## Keputusan
@@ -29,6 +30,9 @@
 | 2026-11-15 | Sesi `dev-f1-m1`, `chk-f1-verify`, dan `tst-f1-test` dimulai `standby` pada giliran user karena `start_session` dapat ditolak pada giliran yang dipicu sesi lain. Debugger dimulai saat gerbang merah. | lead |
 | 2026-11-15 | Worktree sub sesi dibuat aplikasi di `/Users/ojiepermana/worktrees/tablet/<branch tanpa claude/>`, bukan di `.claude/worktrees/`; pembersihan langkah 9 memakai path itu. | lead |
 | 2026-11-15 | Spec 0001 diterima lead (`accept`) pada commit `69d40da` branch `claude/arc-f1-spec-983432`. Tiga cek gerbang lulus: temuan cross check (`claude-opus-5-5`, 4 pemblokir dan 15 perbaikan) sudah diterapkan, setiap kalimat **Done when** dan README AC 1 dan 2 tercakup AC-1 sampai AC-11, dan tidak ada spec `Accepted` lain. Tidak ada keputusan `berat`; lead tidak menaikkan tanda apa pun. | lead |
+| 2026-11-15 | Milestone 1 di-merge (`578e3b7`, main sebelumnya `984ffb5`) sesudah pemeriksaan lead pada hasil merge: `cargo build --workspace --locked` dan `cargo test --workspace --locked` keluar 0 dengan `rustc 1.99.1`, dua `cargo tree` sesuai AC-2, `libtablet_ffi.a` dan `.dylib` ada, `git ls-files` tanpa biner, diff hanya 10 file di ownership. Kotak milestone 1 belum dicentang; menunggu verify checker. Milestone 2 dibuka karena prasyaratnya sudah di `main` dan pemeriksaan `main` hijau. | lead |
+| 2026-11-15 | `dev-f1-m1` dipakai ulang untuk milestone 2 sesudah `clear_session`; judul sesi diperbarui, nama dan branch tetap. | lead |
+| 2026-11-15 | Bukti yang bisa dibaca checkout lain disimpan di `docs/reviews/2026-11-15-<verify atau build>-f01-m<k>.md`; laporan developer milestone 1 menyebut log di "shared notes folder" yang tidak bisa dibaca lead. | lead |
 | 2026-11-15 | Satu build native penuh pada satu waktu: disk bebas sekitar 37 GiB (92% terpakai) dan sesi repo lain sedang membangun di mesin yang sama. | lead |
 
 ## Keputusan delegasi
