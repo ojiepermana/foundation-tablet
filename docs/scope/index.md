@@ -38,6 +38,12 @@ Empat kelompok berikut memerlukan kebutuhan dan rencana tersendiri. Tidak ada la
 
 ## Cara memakai scope
 
+Untuk melihat antrean dari root repo, jalankan `python3 .claude/skills/coordinate/scripts/scope.py`. Tambahkan `04` atau `F04` untuk mendapatkan path fitur salam. Urutan pada tabel di atas menjadi acuan bagi [alat koordinasi](../../.claude/skills/coordinate/SKILL.md).
+
 Kotak kosong pertama menunjukkan langkah yang disarankan. Tanda `needs a decision` berarti ada keputusan yang layak dicatat sebelum implementasi. Setelah spesifikasi tersedia, bagian fitur dapat memuat tautan spesifikasi, tonggak build, pemeriksaan, dan tes. Pekerjaan rinci tetap berada di spesifikasi.
 
 Status `planned` berarti direncanakan, `in-progress` berarti sedang dirancang atau dibangun, dan `done` berarti pekerjaan telah diselesaikan dengan bukti. Status `existing` menandai pekerjaan yang sudah ada sebelum alur ini, sedangkan `dropped` menyimpan riwayat pekerjaan yang dikeluarkan. Anda dapat menjalankan `/scope` lagi untuk menyelaraskan rencana dengan keadaan repo.
+
+Saat setiap fitur diuji, simpan satu hasil per kriteria dan target memakai [contoh bukti di fitur 02](02-aturan-kontribusi.md). Jika pemeriksaan wajib gagal atau belum dijalankan, kotaknya tetap terbuka dan fitur tetap `in-progress`. Sertakan alasan dan langkah berikutnya agar sesi lain dapat melanjutkan. Fitur 12 merujuk bukti yang dikumpulkan sejak awal.
+
+[Laporan audit kesiapan scaffold](../quality/audit-scaffold.md) mencatat alasan di balik tambahan kriteria build, pemulihan navigasi, dan pengujian pada kedua platform.
