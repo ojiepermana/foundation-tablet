@@ -23,7 +23,7 @@ Pada fitur 01 baru bagian kanan diagram yang ada: `crates/tablet-ffi` bergantung
 
 ## Cara memeriksa sekarang
 
-Belum ada pemeriksaan otomatis (fitur 10). Sampai ada, kamu bisa memeriksa aturan 1 dan 2 dengan:
+`scripts/test.sh` memeriksa aturan 1, 2, dan 7 pada sisi yang bisa dibaca dari file terlacak (kasus B3, B4, B6, C1). Pemeriksaan arah dependensi yang lengkap milik fitur 10. Kamu juga bisa memeriksa aturan 1 dan 2 dengan:
 
 ```bash
 cargo tree -p tablet-core -e normal
