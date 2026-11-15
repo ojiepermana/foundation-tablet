@@ -5,7 +5,7 @@
 - **Mode keputusan:** `auto` · **Ketentuan tambahan:** tidak ada
 - **Aturan umum brief:** `01-arsitektur-dan-build-awal.brief-umum.md` · **Langkah manual:** `01-arsitektur-dan-build-awal.manual.md`
 - **Wave aktif:** 1, mulai 2026-11-15
-- **Diperbarui:** 2026-11-16 01:20
+- **Diperbarui:** 2026-11-16 01:25
 
 ## Sub sesi wave 1
 
@@ -20,6 +20,7 @@
 | `dev-f1-m1` | developer | Fitur 01, milestone 3. Build plan 6, 7, 8 selesai. Pointer code in: `apps/android-tablet/`, `scripts/build-android-tablet.sh`. Commit `5472d3a`, bukti `31e40e4`. Tidak ada cadangan spec yang dipakai | `01-arsitektur-dan-build-awal.md` | `apps/android-tablet/**`, `scripts/build-android-tablet.sh`, `verify.md` bagian Milestone 3, `docs/reviews/2026-11-15-build-f01-m3.md` | `claude/dev-f1-m1-ee7069` | `claude-opus-5-5 · medium` | merged (`610cefb`) |
 | `dev-f1-m1` | developer | Fitur 01, milestone 4. Build plan 9, 10, 11 selesai. Pointer code in: `docs/getting-started.md`, `docs/architecture/`. Commit `bfe3ebb`, `7c687cc`, `54afc21`, tambahan `5f654a4` | `01-arsitektur-dan-build-awal.md` | `docs/getting-started.md`, `docs/architecture/**`, satu baris `apps/ipados/Config/Base.xcconfig`, `verify.md` bagian Milestone 4 (plus satu kurung di Milestone 3 atas izin lead), `docs/reviews/2026-11-15-build-f01-m4.md` | `claude/dev-f1-m1-ee7069` | `claude-opus-5-5 · medium` | dipakai ulang, merged (`065ed88`) |
 | `dev-f1-m1` | developer | Fitur 01, perbaikan panduan: perintah `./gradlew --stop` dengan `JAVA_HOME` tidak diset (temuan verify penuh di luar AC) | `01-arsitektur-dan-build-awal.md` | `docs/getting-started.md` | `claude/dev-f1-m1-ee7069` | `claude-opus-5-5 · medium` | dipakai ulang, merged (`62ac087`) |
+| `dev-f1-m1` | developer | Fitur 01, perapian teks akhir: empat langkah `verify.md` usang, bagian Milestone 5 di `verify.md`, tiga kalimat dokumen, status spec `Accepted` | `01-arsitektur-dan-build-awal.md` | `verify.md`, `docs/architecture/dependency-rules.md`, `docs/architecture/overview.md`, `docs/getting-started.md`, baris Status `index.md` | `claude/dev-f1-m1-ee7069` | `claude-opus-5-5 · medium` | dipakai ulang, aktif |
 | `chk-f1-verify` | checker (verify) | Fitur 01, verify milestone 1 pada `main` `578e3b7`: PASS 15 dari 15 | `01-arsitektur-dan-build-awal.md` | centang `verify.md` bagian Milestone 1, `docs/reviews/2026-11-15-verify-f01-m1.md` | `claude/chk-f1-verify-4078a9` | `claude-fable-5-2 · high` | merged (`bd8f2ca`) |
 | `chk-f1-verify` | checker (verify) | Fitur 01, verify milestone 2 pada `main` `0868e45`: PASS 17 dari 17 | `01-arsitektur-dan-build-awal.md` | centang `verify.md` bagian Milestone 2, `docs/reviews/2026-11-15-verify-f01-m2.md` | `claude/chk-f1-verify-4078a9` | `claude-fable-5-2 · high` | dipakai ulang, merged (`542db58`) |
 | `chk-f1-verify` | checker (verify) | Fitur 01, verify milestone 3 pada `main` `610cefb`: PASS 21 dari 21 | `01-arsitektur-dan-build-awal.md` | centang `verify.md` bagian Milestone 3, `docs/reviews/2026-11-15-verify-f01-m3.md` | `claude/chk-f1-verify-4078a9` | `claude-fable-5-2 · high` | dipakai ulang, merged (`495e931`), siaga |
