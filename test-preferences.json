@@ -1,0 +1,9 @@
+{
+  "tool": "cargo test",
+  "gate": null,
+  "additionalTools": ["bash"],
+  "e2eTool": "none",
+  "testDir": "Rust: di dalam crate (#[cfg(test)] atau crates/<crate>/tests/). Tes tingkat repo: tests/<grup>/",
+  "filePattern": "Rust: *.rs. Tes tingkat repo: *.test.sh",
+  "packageManager": "cargo"
+}

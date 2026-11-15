@@ -67,6 +67,19 @@ Yang terjadi pada tiap baris:
 
 Kedua skrip bisa dipanggil dari folder mana pun karena pindah ke akar repo lebih dulu. Bila prasyarat kurang, skrip berhenti sebelum build dengan pesan yang menyebut apa yang hilang dan cara memasangnya.
 
+## Menjalankan tes
+
+Tes tingkat repo ada di `tests/` dan dijalankan `scripts/test.sh`. Suite ini memeriksa batas crate, kunci versi, aturan commit, dan kontrak kedua skrip build. Ia tidak pernah membangun apa pun sendiri. Tes Rust tetap `cargo test --workspace --locked` di atas.
+
+```bash
+scripts/test.sh                              # grup repo dan build-scripts: cepat, tanpa build, tanpa jaringan
+scripts/test.sh artifacts                    # hasil build kedua platform; jalankan sesudah kedua skrip build
+scripts/test.sh artifacts/ipados             # satu file tes
+scripts/test.sh repo build-scripts artifacts # semuanya
+```
+
+Tiap kasus mencetak satu baris `ok` atau `not ok` dengan ID kasus dan AC spec yang dikuncinya. Baris terakhir merangkum jumlah file yang lulus dan gagal. Kode keluar `0` berarti semua lulus, `1` berarti ada yang gagal, dan `2` berarti argumen tidak dikenal. Grup `artifacts` gagal dengan pesan yang menyebut skrip build yang perlu kamu jalankan bila hasil build belum ada.
+
 ## Lokasi hasil build
 
 Semua hasil ada di folder yang diabaikan Git, jadi `git status --short` tetap kosong sesudah kedua skrip.
