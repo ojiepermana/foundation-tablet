@@ -1,0 +1,251 @@
+# 0001. Arsitektur dan build awal: alasan
+
+Catatan keputusan untuk [index.md](index.md). `/develop` tidak perlu membaca file ini.
+
+## Context
+
+Repo fondasi tablet baru berisi dokumen kebutuhan (`README.md`), scope, dan audit. Belum ada kode. Fitur 01 harus menghasilkan kerangka yang bisa dikompilasi dari clone bersih, dan tiga hal masih terbuka: versi alat yang saling cocok, target build, dan cara mengemas pustaka Rust untuk tiap platform.
+
+Kekuatan yang membentuk keputusan:
+
+- **README meminta versi stabil yang terbukti cocok**, bukan yang terbaru, dan melarang folder penanda tempat serta biner hasil generasi yang tidak perlu di-commit.
+- **Pendekatan Tracer Bullet** (indeks scope): bukti pertama adalah satu benang tipis dari Rust ke kedua layar. Fitur 01 menyiapkan benang itu sampai tahap kompilasi; `hello`, binding, dan penautan milik fitur 03 dan 04.
+- **Fitur 04 tidak punya langkah spec.** Semua keputusan pengemasan harus selesai di sini supaya fitur 04 bisa langsung dibangun.
+- **Fitur 03 dan 11 membaca matriks dukungan** untuk target binding, isi APK, build Release iPad, dan pemeriksaan 16 KB. Audit scaffold (baris "Pertama") meminta OS minimum, target, ABI, dan sikap terhadap 16 KB ditetapkan sekarang.
+- **Mesin lead** (M1 Max, macOS 27.0.1, disk bebas sekitar 35 GiB) menjalankan build repo lain bersamaan. Yang sudah terpasang: Xcode 27.1 dengan runtime iOS 26.5, 27.0, 27.1; Rust 1.99.1 (dan 1.100.0) dengan target host saja; Android SDK dengan `android-36`, `android-37.0`, Build Tools 36.0.0, NDK 28.2.13676358, satu image emulator `android-36` `arm64-v8a`; JBR 25.0.2 di Android Studio 2026.1; rustup 1.29.3. Tidak ada `gradle`, `cargo-ndk`, `xcodegen`, atau `java` di PATH.
+- **Pengembang berikutnya adalah agen.** Agen tidak bisa mengklik antarmuka Xcode, dan sunting tangan `project.pbxproj` rawan salah.
+- **Perangkat fisik tidak tersedia** untuk sub sesi, jadi janji matriks harus dipisah antara yang bisa dibuktikan di sini dan yang manual.
+
+Bila tidak diputuskan sekarang, tiap fitur berikutnya akan memilih versi dan lokasi artefak sendiri, dan kegagalan kompatibilitas baru muncul di CI fitur 11.
+
+## Options considered
+
+### Opsi 1: Kombinasi terdokumentasi cocok, skrip sebagai pintu build, XCFramework statis dan `jniLibs`
+
+Pilih versi dari irisan rentang yang disebut dokumentasi resmi tiap alat, utamakan yang sudah terpasang. Skrip repo menjalankan Cargo lalu `xcodebuild` atau Gradle. Hasil generasi tidak di-commit. Proyek Xcode di-commit dengan grup tersinkron.
+
+**Pros**:
+- Setiap pasangan versi punya rujukan resmi; hampir tidak ada yang perlu diunduh di mesin lead.
+- Jalur build lokal dan CI identik; binding selalu dari revisi yang sama dengan pustaka.
+
+**Cons**:
+- Bukan versi terbaru (AGP 9.3.3, Rust 1.99.1, NDK r28c); perlu jadwal naik versi.
+- Membangun dari IDE butuh skrip dijalankan dulu sesudah fitur 04.
+
+### Opsi 2: Semua versi terbaru
+
+Rust 1.100.0, AGP 9.5.1, Gradle 9.9.1, NDK r30 (LTS 2026), `targetSdk` 37, Xcode 27.2.
+
+**Pros**:
+- Umur dukungan terpanjang; tidak ada peringatan "versi lama".
+- NDK r30 adalah LTS yang disebut halaman dukungan Android milik Rust.
+
+**Cons**:
+- Tabel Kotlin 2.4.21 berhenti di AGP 9.3.1 dan Gradle 9.7.0, jadi AGP 9.5.1 dengan Gradle 9.9.1 berada di luar rentang yang terdokumentasi.
+- Rust 1.100.0 baru berumur tiga hari. NDK r30, Xcode 27.2, dan image API 37 harus diunduh ke disk yang sudah 92% terpakai.
+
+### Opsi 3: Build Rust dipanggil dari sistem build native
+
+Gradle memanggil Cargo lewat task `Exec` atau plugin, Xcode lewat fase skrip, proyek Xcode dihasilkan XcodeGen.
+
+**Pros**:
+- Tombol Run di IDE selalu membangun Rust terbaru.
+- `project.yml` lebih mudah ditinjau daripada `project.pbxproj`.
+
+**Cons**:
+- Paket Swift dengan target biner harus sudah ada saat resolusi paket, sebelum fase skrip berjalan, jadi iPad tetap butuh skrip pendahulu dan kedua platform menjadi tidak simetris.
+- IDE yang dibuka dari Dock tidak mewarisi PATH Cargo; sandbox skrip Xcode harus dimatikan; XcodeGen menambah alat yang harus dipasang dan dikunci.
+
+### Opsi 4: Binding hasil generasi di-commit
+
+Sumber Swift dan Kotlin hasil generasi masuk Git; CI membandingkannya dengan hasil generasi ulang.
+
+**Pros**:
+- Perubahan kontrak terlihat sebagai diff binding di pull request.
+- IDE bisa membuka proyek tanpa menjalankan generator.
+
+**Cons**:
+- Binding bisa basi terhadap pustaka (audit menyebut "binding lama" sebagai risiko utama) dan UniFFI baru menolaknya saat aplikasi berjalan.
+- Tetap butuh skrip untuk membangun pustaka, jadi tidak menghapus langkah apa pun.
+
+## Rationale
+
+Opsi 1 dipilih karena README menuntut kecocokan yang terverifikasi, dan satu satunya irisan yang disebut ketiga sumber (AGP, Kotlin, Gradle) adalah AGP 9.3.x dengan Gradle 9.5 sampai 9.7 dan Kotlin 2.4.21. Compose BOM 2026.09.00 mewajibkan `compileSdk` 37 dan AGP 9, yang dipenuhi AGP 9.3 dan platform `android-37.0` yang sudah terpasang. NDK 28.2.13676358 adalah NDK bawaan AGP 9.3 dan AGP 9.5, sudah terpasang, dan selaras 16 KB secara bawaan, sehingga matriks bisa menjanjikan 16 KB tanpa konfigurasi tambahan.
+
+Skrip sebagai pintu build menjawab audit ("perintah repo yang sama" untuk lokal dan CI) dan menghindari ketidaksimetrisan Opsi 3. Karena fitur 03 mensyaratkan binding berasal dari revisi yang sama dengan pustaka yang ditautkan, tidak meng-commit hasil generasi memenuhi syarat itu dengan sendirinya. Proyek Xcode yang di-commit dengan grup tersinkron dipilih karena agen cukup menulis `project.pbxproj` sekali; sesudah itu file baru tidak mengubahnya.
+
+Mode arsitektur skill `/architect` biasanya tidak menulis Build plan. Spec ini menulisnya karena fitur 01 terhubung ke scope dan alur koordinasi meminta AC ber-ID serta milestone.
+
+## Keputusan diambil
+
+Mode keputusan `auto`: opsi rekomendasi diambil. Semua bertanda `biasa` karena tidak ada format data, kontrak yang sudah dipakai, model keamanan, atau data user yang tersentuh, dan repo belum punya pengguna.
+
+| # | Pertanyaan | Diambil | Runner up | Tanda | Yang berubah bila runner up dipilih |
+|---|---|---|---|---|---|
+| K1 | Versi Rust | 1.99.1, edisi 2024 | 1.100.0 | biasa | `rust-toolchain.toml`, `rust-version`; AC-8 |
+| K2 | Versi UniFFI | 0.32.2, kunci persis | 0.31.x | biasa | `Cargo.toml`; AC-2 |
+| K3 | Batas crate | `tablet-core` tanpa `uniffi`, `tablet-ffi` satu satunya pemegang `uniffi`, tanpa fungsi di fitur 01 | `hello` sudah ada di inti sejak fitur 01 | biasa | AC-2, tugas 2; tumpang tindih dengan fitur 03 |
+| K4 | Target iPad | `aarch64-apple-ios`, `aarch64-apple-ios-sim` | Tambah `x86_64-apple-ios` | biasa | Matriks, AC-3, `ARCHS` simulator |
+| K5 | ABI Android | `arm64-v8a`, `x86_64` | Tambah `armeabi-v7a` | biasa | Matriks, AC-3, AC-4, tugas 8 |
+| K6 | Halaman 16 KB | Termasuk | Ditunda sampai fitur 11 | biasa | AC-4 hilang |
+| K7 | iPadOS minimum | 26.0 | 18.0 | biasa | `Base.xcconfig`, AC-5; perlu runtime iOS 18 |
+| K8 | `minSdk` Android | 29 | 31 | biasa | Katalog versi, AC-7 |
+| K9 | `targetSdk` dan `compileSdk` | 36 dan 37 | 37 dan 37 | biasa | Katalog versi, AC-7; perlu image API 37 |
+| K10 | Lini AGP, Gradle, Kotlin | 9.3.3, 9.5.1, 2.4.21 | AGP 9.5.1 dengan Gradle 9.6 atau lebih baru | biasa | Katalog versi, wrapper; AC-8 |
+| K11 | NDK | 28.2.13676358 (r28c) | 30.0.16248370 (r30 LTS) | biasa | Katalog versi; unduhan NDK |
+| K12 | JDK | 25, dikunci lewat kriteria JVM daemon Gradle | 21 | biasa | `gradle-daemon-jvm.properties`; cadangan sudah disetujui |
+| K13 | Xcode | 27.1, Swift 6, mode bahasa 6 | 27.2 | biasa | `.xcode-version`; unduhan Xcode |
+| K14 | Proyek Xcode | `.xcodeproj` di-commit dengan grup tersinkron | XcodeGen dari `project.yml` | biasa | Tugas 4, prasyarat panduan |
+| K15 | Proyek Android | Satu modul `:app`, Kotlin bawaan AGP, katalog versi | Modul pustaka terpisah untuk binding | biasa | Struktur, tugas 6 |
+| K16 | Pengemasan iPad | XCFramework statis lewat paket Swift lokal `bindings/swift` | Framework dinamis | biasa | Bagian pengemasan; fitur 04 |
+| K17 | Pengemasan Android | `jniLibs` lewat `cargo-ndk`, binding Kotlin sebagai folder sumber | AAR dari modul pustaka | biasa | Bagian pengemasan; fitur 04 |
+| K18 | Hasil generasi di Git | Tidak di-commit | Sumber binding di-commit, biner tidak | biasa | Aturan commit, AC-11; pemeriksaan selisih di fitur 10 |
+| K19 | Pemanggil Cargo | Hanya `scripts/` | Task Gradle dan fase skrip Xcode | biasa | Kontrak skrip, aturan dependensi 6 |
+| K20 | Identitas aplikasi | Sementara `com.example.tablet`, satu sumber per platform, `namespace` Kotlin `foundation.tablet` | Menunggu nilai dari user | biasa | `Base.xcconfig`, `gradle.properties` |
+| K21 | Lokasi dan bahasa dokumen | `docs/getting-started.md` dan lima file `docs/architecture/`, bahasa Indonesia | Satu file `docs/architecture/overview.md` | biasa | AC-9, AC-10, tugas 9 dan 10 |
+
+Catatan tambahan per keputusan:
+
+- **K3**: `hello` adalah langkah 4 README bagian 26, sedangkan fitur 01 mencakup langkah 1 sampai 3. Crate tanpa fungsi tetap membuktikan batas lewat manifest dan membuktikan UniFFI terkompilasi untuk keempat target.
+- **K9**: perilaku "target API" hanya aktif di perangkat dengan OS setinggi target. Dengan target 36, semua perilaku yang dijanjikan bisa diuji di image API 36 yang terpasang. Untuk aplikasi yang menargetkan 37, Android 17 menghapus pilihan keluar dari aturan orientasi dan ukuran jendela di layar besar; repo ini memang tidak memakai pilihan keluar itu, jadi kenaikan kelak tidak mengubah perilaku.
+- **K12**: Android Studio memakai kriteria JVM daemon Gradle secara bawaan untuk proyek baru. Angka 25 dipilih karena itu JDK yang sudah ada di mesin; Gradle 9.5 mendukung JVM 17 sampai 26.
+- **K4**: SDK simulator Xcode 27.1 masih mendaftarkan `x86_64` (dibaca dari `SDKSettings.json` di mesin lead), jadi `ARCHS[sdk=iphonesimulator*] = arm64` diperlukan supaya build generik hanya meminta irisan yang ada di matriks.
+- **K20**: `com.example` adalah ruang nama contoh, bukan tebakan identitas user. `namespace` Kotlin dipisah dari `applicationId` supaya mengganti identitas kelak hanya mengubah satu baris.
+
+Keputusan tambahan yang ditutup sesudah cross check (semua `biasa`, opsi rekomendasi diambil):
+
+| # | Pertanyaan | Diambil | Runner up | Yang berubah bila runner up dipilih |
+|---|---|---|---|---|
+| K22 | Nama modul binding | FFI `TabletFFI`, Swift `TabletBindings`, paket Kotlin `foundation.tablet.bindings` | Nama bawaan UniFFI (`tablet_ffiFFI`, `uniffi.tablet_ffi`) | Bagian pengemasan; `uniffi.toml` fitur 03 |
+| K23 | ABI di dalam APK | `abiFilters` dari `tablet.abis` sejak fitur 01 | Tanpa filter sampai fitur 04 | AC-7, `gradle.properties`, kontrak skrip Android |
+| K24 | Tempat generator binding | Fitur 03 boleh menambah crate tooling ke workspace | Binary di dalam `tablet-ffi` dengan fitur opsional | Aturan dependensi 2; AC-2 berlaku untuk fitur 01 saja |
+| K25 | Isolasi aktor Swift di target aplikasi | `MainActor` bawaan templat Xcode | Tanpa isolasi bawaan | `Base.xcconfig` |
+| K26 | Build Tools | Mengikuti bawaan AGP, tidak diset | Dikunci di katalog | Tabel stack, AC-8 |
+| K27 | iPadOS minimum di `Package.swift` | Salinan kedua yang dinyatakan, diperiksa fitur 10 | Tanpa `platforms` di paket | Tabel sumber nilai; kode `async` hasil generasi gagal dikompilasi tanpa `platforms` |
+| K28 | Unduhan SDK otomatis oleh AGP | Dimatikan (`android.builder.sdkDownload=false`) | Dibiarkan | `gradle.properties` |
+
+## Catatan cross check
+
+Dijalankan 2026-11-15 oleh model lain (`claude-opus-5-5`, hanya membaca) terhadap draf pertama. Vonisnya: arah desain kokoh, tetapi draf belum bisa dibangun tanpa bertanya. Semua perbaikan yang direkomendasikan diterapkan (mode `auto`).
+
+Empat celah pemblokir yang ditutup:
+
+1. `SDKROOT = iphoneos` tidak ada di `Base.xcconfig`, padahal spec melarang nilai lain di `project.pbxproj`. Ditambahkan, bersama daftar objek wajib `project.pbxproj`.
+2. Urutan "generasi binding lalu build Rust" salah untuk mode pustaka UniFFI, yang membaca metadata dari pustaka yang sudah dibangun. Urutan dibalik.
+3. Nama modul FFI, tata letak header XCFramework, dan isi `Package.swift` belum ditetapkan, sedangkan fitur 04 tidak punya spec. Ditetapkan (K22).
+4. `settings.gradle.kts` dan build file akar belum ditulis (repositori untuk `buildscript`, cara plugin dideklarasikan). Keduanya kini tertulis lengkap.
+
+Perbaikan lain yang diterapkan: baris Build Tools yang tidak cocok dengan katalog (K26); bentuk `compileSdk` dan larangan unduh SDK (K28); isi `gradle.properties`; pemeriksaan JDK lewat `$JAVA_HOME/bin/java`; langkah prasyarat di kedua skrip dan bukti AC-8; path alat dan keluaran yang diharapkan untuk AC-4 sampai AC-7; cara membuat wrapper tanpa memasang Gradle; mode berkas `100755`; pembersihan keluaran lama; `abiFilters` (K23); salinan kedua iPadOS minimum (K27); tambahan `.gitignore`; `scripts/generate-bindings.sh` milik fitur 03; pembagian bukti peluncuran (emulator `x86_64` di CI, `arm64` lokal); kata "bisa diuji" untuk OS minimum diperlunak menjadi runtime terdekat.
+
+Dua saran yang tidak diambil, dengan alasan:
+
+- `cargo rustc --crate-type` per platform untuk memangkas waktu tautan: menambah cabang di skrip demi penghematan kecil; dicatat di Consequences sebagai sifat netral.
+- `cargo ndk --platform` sebagai pengganti `CARGO_NDK_PLATFORM`: hanya variabel lingkungan yang tertulis di README cargo-ndk yang terbaca saat pemeriksaan.
+
+## Bukti pemeriksaan
+
+Diperiksa 2026-11-15 dari halaman resmi (lihat References) dan dari mesin lead.
+
+| Fakta | Nilai | Sumber |
+|---|---|---|
+| Rust stabil terbaru | 1.100.0 (2026-11-12); sebelumnya 1.99.1 (2026-10-15) | Catatan rilis Rust |
+| Tier target Rust | Keempat target matriks Tier 2 dengan `std` | Halaman dukungan platform rustc |
+| iOS minimum Rust | 10.0, dinaikkan lewat `IPHONEOS_DEPLOYMENT_TARGET` | Halaman `apple-ios` rustc |
+| UniFFI | 0.32.2 (2026-09-22), 0.32.1, 0.32.0 (2026-06-30) | crates.io, CHANGELOG |
+| JNA untuk UniFFI Kotlin | 5.12.0 atau lebih baru, bentuk `@aar` | Dokumentasi UniFFI |
+| cargo-ndk | 4.1.2, `rust-version` 1.86 | crates.io |
+| Xcode 27.1 | Swift 6.4, SDK iOS 27.1, butuh macOS 26.6+, simulator dan debug perangkat iOS 17+ | Halaman dukungan Xcode, catatan rilis |
+| Xcode 27 di Mac Intel | Tidak berjalan | Catatan rilis Xcode 27 |
+| Pangsa iPadOS 26 | 68% semua iPad (2026-06-07) | Apple, halaman App Store |
+| AGP 9.3 | Patch 9.3.3; Gradle minimal 9.5.0; API maksimal 37; NDK bawaan 28.2.13676358; JDK minimal 17; Build Tools 36.0.0 | Catatan rilis AGP 9.3.0 |
+| AGP 9.5 | Patch 9.5.1; Gradle minimal 9.6.0 | Catatan rilis AGP |
+| Kotlin | 2.4.21 (2026-10-08); rentang Gradle 7.6.3 sampai 9.7.0, AGP 8.5.2 sampai 9.3.1 | Dokumentasi Kotlin |
+| Gradle | 9.5.1 (2026-05-12); JVM 17 sampai 26; terbaru 9.9.1 | gradle.org, tabel kompatibilitas 9.5 |
+| Compose BOM | 2026.09.00; Compose 1.12 butuh `compileSdk` 37 dan AGP 9 | Halaman BOM dan compiler Compose |
+| `activity-compose` | 1.13.0 (2026-03-11) | Halaman rilis AndroidX |
+| `minSdk` bawaan AndroidX | 24 | Halaman versi AndroidX |
+| 16 KB | NDK r28+ selaras bawaan; AGP 8.5.1+; Play menolak pembaruan tanpa dukungan mulai 2027-02-01 | Panduan ukuran halaman Android |
+| NDK LTS | r30 (30.0.16248370) | Halaman unduhan NDK |
+| Target API Play | 36 sejak 2026-08-31 | Halaman syarat target SDK |
+| Pangsa API 29+ | 96,6% (data Oktober 2026) | apilevels.com (pihak ketiga) |
+| Platform `android-37.0` final | `Pkg.Revision=2`, `PreviewSdkInt=0` | `source.properties` di SDK mesin lead |
+| Arsitektur SDK simulator | `arm64` dan `x86_64`; target minimum 15.0 | `SDKSettings.json` Xcode 27.1 di mesin lead |
+| Crate UniFFI tanpa ekspor | `cargo build` dan `cargo test` lulus di host; `cargo tree` sesuai AC-2 | Uji coba di folder sementara, Rust 1.99.1, UniFFI 0.32.2 |
+| Alat NDK untuk AC-4 | `toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-objdump` ada | NDK 28.2.13676358 di mesin lead |
+
+**Yang tidak bisa dipastikan dari dokumentasi, dan cara spec menanganinya**:
+
+- Versi Kotlin Gradle Plugin bawaan AGP 9.3 tidak tercantum. Spec mengunci 2.4.21 lewat `classpath`, cara yang didokumentasikan catatan rilis AGP 9.0.
+- Tabel Kotlin berhenti di AGP 9.3.1, spec memakai patch 9.3.3 di lini yang sama.
+- Tabel uji Gradle 9.5 ditulis sebelum AGP 9.3 dan Kotlin 2.4 rilis. Kecocokan diambil dari sisi AGP (minimal 9.5.0) dan Kotlin (sampai 9.7.0).
+- MSRV UniFFI 0.32 tidak tertulis (0.31 menyebut 1.87). Rust 1.99.1 jauh di atasnya.
+- AGP dengan JDK 25 tidak disebut eksplisit. Build milestone 3 membuktikannya; cadangan JDK 21 sudah disetujui.
+- Isi TN3117 dan halaman XCFramework Apple tidak terbaca otomatis (hanya judul). Isinya dirujuk dari pengetahuan umum: simulator di Apple silicon butuh irisan arm64, dan XCFramework menggabungkan irisan perangkat dan simulator.
+- Pemetaan Material 3 adaptive di dalam BOM tidak terverifikasi; karena itu hanya dicatat sebagai kandidat untuk fitur 06.
+- Checksum Gradle 9.5.1 dibaca dari halaman checksum lewat alat ambil web; developer mencocokkannya lagi saat membuat wrapper.
+
+Penawaran pencarian Agent Skill dan server MCP untuk alat baru (langkah wajib tanya pada skill `/architect`) tidak dijalankan karena sesi koordinasi tidak boleh membuka panel pertanyaan. Tidak ada skill komunitas yang membentuk spec ini.
+
+## References
+
+**Project sources** (bisa diperiksa di repo ini):
+
+- `README.md` bagian 1 sampai 6, 16, 22, 24, 25 (AC 1 dan 2), 26 langkah 1 sampai 3
+- `docs/scope/index.md` (Tracer Bullet, tier Beta, "Ditunda") dan `docs/scope/01-arsitektur-dan-build-awal.md`
+- `docs/scope/03-kontrak-rust-untuk-kedua-aplikasi.md`, `04-salam-rust-pada-dua-tablet.md`, `11-build-dan-pengujian-otomatis.md` (pemakai matriks)
+- `docs/quality/audit-scaffold.md`, baris "Pertama"
+- `docs/scope/coordination/01-arsitektur-dan-build-awal.brief-umum.md` (keadaan mesin lead)
+
+**Practices & standards**:
+
+- Kunci versi di file repo, bukan di dokumentasi saja (toolchain file, wrapper dengan checksum, katalog versi, lockfile)
+- Hasil generasi selalu dari revisi sumber yang sama dengan pustaka yang ditautkan
+- XCFramework untuk menggabungkan irisan perangkat dan simulator arm64 (TN3117)
+- Satu sumber untuk tiap nilai konfigurasi
+
+**Links** (diverifikasi lewat web pada 2026-11-15):
+
+- Rust, catatan rilis: https://doc.rust-lang.org/stable/releases.html
+- Rust 1.100.0: https://blog.rust-lang.org/2026/11/12/Rust-1.100.0/
+- Rust, dukungan platform: https://doc.rust-lang.org/stable/rustc/platform-support.html
+- Rust, target iOS: https://doc.rust-lang.org/stable/rustc/platform-support/apple-ios.html
+- Rust, target Android: https://doc.rust-lang.org/stable/rustc/platform-support/android.html
+- rustup, file toolchain: https://rust-lang.github.io/rustup/overrides.html
+- UniFFI di crates.io: https://crates.io/api/v1/crates/uniffi
+- UniFFI CHANGELOG: https://raw.githubusercontent.com/mozilla/uniffi-rs/main/CHANGELOG.md
+- UniFFI, binding bahasa lain: https://mozilla.github.io/uniffi-rs/latest/tutorial/foreign_language_bindings.html
+- UniFFI, Kotlin dan Gradle: https://mozilla.github.io/uniffi-rs/latest/kotlin/gradle.html
+- UniFFI, Swift: https://mozilla.github.io/uniffi-rs/latest/swift/overview.html
+- cargo-ndk di crates.io: https://crates.io/api/v1/crates/cargo-ndk
+- cargo-ndk README: https://raw.githubusercontent.com/bbqsrc/cargo-ndk/main/README.md
+- Xcode, dukungan: https://developer.apple.com/support/xcode/
+- Xcode 27.1, catatan rilis: https://developer.apple.com/documentation/xcode-release-notes/xcode-27_1-release-notes.md
+- Xcode 27, catatan rilis: https://developer.apple.com/documentation/xcode-release-notes/xcode-27-release-notes.md
+- Apple, syarat unggah: https://developer.apple.com/news/upcoming-requirements/
+- Apple, pangsa versi OS: https://developer.apple.com/support/app-store/
+- TN3117 (hanya judul yang terbaca): https://developer.apple.com/documentation/technotes/tn3117-resolving-build-errors-for-apple-silicon
+- AGP, catatan rilis: https://developer.android.com/build/releases/gradle-plugin
+- AGP, tabel kompatibilitas: https://developer.android.com/build/releases/about-agp
+- AGP 9.3.0: https://developer.android.com/build/releases/agp-9-3-0-release-notes
+- AGP 9.0.0 (Kotlin bawaan): https://developer.android.com/build/releases/agp-9-0-0-release-notes
+- Android, Kotlin bawaan: https://developer.android.com/build/migrate-to-built-in-kotlin
+- Android, JDK untuk build: https://developer.android.com/build/jdks
+- Gradle, rilis: https://gradle.org/releases/
+- Gradle, checksum: https://gradle.org/release-checksums/
+- Gradle 9.5, kompatibilitas: https://docs.gradle.org/9.5.0/userguide/compatibility.html
+- Gradle, daemon dan kriteria JVM: https://docs.gradle.org/current/userguide/gradle_daemon.html
+- Kotlin, rilis: https://kotlinlang.org/docs/releases.html
+- Kotlin, kompatibilitas Gradle dan AGP: https://kotlinlang.org/docs/gradle-configure-project.html
+- Compose BOM: https://developer.android.com/develop/ui/compose/bom
+- Compose compiler: https://developer.android.com/develop/ui/compose/compiler
+- AndroidX, versi: https://developer.android.com/jetpack/androidx/versions
+- AndroidX activity: https://developer.android.com/jetpack/androidx/releases/activity
+- Material 3 adaptive: https://developer.android.com/jetpack/androidx/releases/compose-material3-adaptive
+- Android, ukuran halaman 16 KB: https://developer.android.com/guide/practices/page-sizes
+- Android NDK, unduhan: https://developer.android.com/ndk/downloads
+- Android, ABI: https://developer.android.com/ndk/guides/abis
+- Google Play, target SDK: https://developer.android.com/google/play/requirements/target-sdk
+- Android 16, perubahan perilaku: https://developer.android.com/about/versions/16/behavior-changes-16
+- Android 17, perubahan perilaku: https://developer.android.com/about/versions/17/behavior-changes-17
+- Android 17, penyiapan SDK: https://developer.android.com/about/versions/17/setup-sdk
+- Pangsa API level (pihak ketiga): https://apilevels.com/
