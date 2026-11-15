@@ -100,27 +100,27 @@ JBR="/Applications/Android Studio.app/Contents/jbr/Contents/Home"
 
 ### Commands
 
-- [ ] `cat apps/android-tablet/gradle/libs.versions.toml` → `agp = "9.3.3"`, `kotlin = "2.4.21"`, `composeBom = "2026.09.00"`, `activityCompose = "1.13.0"`, `compileSdk = "37"`, `minSdk = "29"`, `targetSdk = "36"`, `ndk = "28.2.13676358"`; `material3` tanpa versi; plugin `compose-compiler` memakai `version.ref = "kotlin"` → AC-8 (baris AGP, Kotlin, Compose compiler, Compose, Android SDK, NDK)
-- [ ] `cat apps/android-tablet/gradle/wrapper/gradle-wrapper.properties` → `distributionUrl` menunjuk `gradle-9.5.1-bin.zip` dan `distributionSha256Sum=bafc141b619ad6350fd975fc903156dd5c151998cc8b058e8c1044ab5f7b031f` → AC-8 (baris Gradle)
-- [ ] `shasum -a 256 apps/android-tablet/gradle/wrapper/gradle-wrapper.jar` → sama dengan isi https://services.gradle.org/distributions/gradle-9.5.1-wrapper.jar.sha256 (`497c8c2a7e5031f6aa847f88104aa80a93532ec32ee17bdb8d1d2f67a194a9c7` pada 2026-11-15) → AC-8
-- [ ] `cat apps/android-tablet/gradle/gradle-daemon-jvm.properties` → tepat `toolchainVersion=25` → AC-8 (baris JDK)
-- [ ] `cat apps/android-tablet/gradle.properties` → sama persis dengan blok `gradle.properties` di spec bagian "Proyek Android" → AC-8
-- [ ] `grep -nE 'compileSdk|minSdk|targetSdk|ndkVersion|abiFilters|applicationId|JVM_17|VERSION_17' apps/android-tablet/app/build.gradle.kts` → semua angka dibaca dari `libs.versions.*` atau `providers.gradleProperty(...)`, tanpa angka SDK literal; Java dan `jvmTarget` 17 → AC-8 (sumber nilai)
-- [ ] `E="$(mktemp -d)"; ANDROID_HOME="$E" scripts/build-android-tablet.sh; echo $?` → pesan menyebut platform Android 37 yang hilang dan perintah `sdkmanager` untuk memasangnya, kode keluar `1`, tanpa build → AC-8
-- [ ] `JAVA_HOME=/tidak/ada scripts/build-android-tablet.sh; echo $?` → pesan menyebut `JAVA_HOME` dan cara menyetelnya ke JDK 25, kode keluar `1`, tanpa build → AC-8
-- [ ] `scripts/build-android-tablet.sh; echo $?` → baris awal menyebut SDK `~/Library/Android/sdk`, NDK `28.2.13676358`, `minSdk 29`, ABI `arm64-v8a,x86_64`, dan `openjdk version "25.`; lalu `BUILD SUCCESSFUL`, baris terakhir `build-android-tablet: selesai`, kode keluar `0` → AC-7, AC-8
-- [ ] `ls target/aarch64-linux-android/release/libtablet_ffi.so target/x86_64-linux-android/release/libtablet_ffi.so` → kedua file ada → AC-3 (dua target Android)
-- [ ] `"$OBJDUMP" -p target/aarch64-linux-android/release/libtablet_ffi.so | grep LOAD` dan perintah yang sama untuk `x86_64-linux-android` → setiap baris berakhir `align 2**14` → AC-4
-- [ ] `"$SDK/build-tools/36.0.0/aapt2" dump badging "$APK" | grep -E 'SdkVersion|compileSdkVersion='` → `minSdkVersion:'29'`, `targetSdkVersion:'36'`, `compileSdkVersion='37'` (aapt2 36.0.0 menulis `minSdkVersion`, teks AC menyebut `sdkVersion`) → AC-7
-- [ ] `unzip -l "$APK" | grep 'lib/'` → hanya path di bawah `lib/arm64-v8a/` dan `lib/x86_64/` (saat ini `libandroidx.graphics.path.so` dari Compose) → AC-7
-- [ ] `unzip -l "$APK" | grep libtablet_ffi` → kosong (keluar 1) → AC-11
-- [ ] `(cd apps/android-tablet && JAVA_HOME="$JBR" ./gradlew -q buildEnvironment | grep 'kotlin-gradle-plugin:2.4.21')` → minimal satu baris `org.jetbrains.kotlin:kotlin-gradle-plugin:2.4.21`; tidak ada versi Kotlin lain yang menang (baris `2.2.10 -> 2.4.21` berarti dinaikkan ke versi katalog) → AC-8 (baris Kotlin)
-- [ ] `cat apps/android-tablet/app/src/main/kotlin/foundation/tablet/MainActivity.kt apps/android-tablet/app/src/main/AndroidManifest.xml apps/android-tablet/app/src/main/res/values/strings.xml` → `ComponentActivity` dengan `enableEdgeToEdge()` lalu `setContent { MaterialTheme { Text(...) } }`; satu activity `exported` dengan filter LAUNCHER, tema `@android:style/Theme.Material.Light.NoActionBar`, tanpa `screenOrientation` atau `resizeableActivity`; `strings.xml` hanya `app_name` = `Tablet`; tanpa navigasi, token, atau lokalisasi → AC-11
-- [ ] `git ls-files apps/android-tablet scripts/build-android-tablet.sh` → tepat 14 file yang tercantum di spec bagian "Struktur repo fitur 01" untuk Android dan skripnya, tanpa folder atau file penanda → AC-11
-- [ ] `git ls-files -s scripts apps/android-tablet/gradlew` → mode `100755` untuk `scripts/build-android-tablet.sh`, `scripts/build-ipados.sh`, dan `apps/android-tablet/gradlew` → AC-9 (bagian mode berkas)
-- [ ] `git ls-files | grep -E '\.(a|so|apk)$|xcframework|/build/|^target/'` → kosong; `git ls-files -z | xargs -0 file --mime-encoding | grep -w binary` → hanya `gradle-wrapper.jar` → AC-11
-- [ ] `git status --short` sesudah skrip → kosong → AC-11
-- [ ] Sesudah selesai: `(cd apps/android-tablet && JAVA_HOME="$JBR" ./gradlew --stop)`, lalu `cd / && rm -rf "$(dirname "$CLONE")"` → daemon mati, clone beserta `target/` dan folder `build/` di dalamnya terhapus
+- [x] `cat apps/android-tablet/gradle/libs.versions.toml` → `agp = "9.3.3"`, `kotlin = "2.4.21"`, `composeBom = "2026.09.00"`, `activityCompose = "1.13.0"`, `compileSdk = "37"`, `minSdk = "29"`, `targetSdk = "36"`, `ndk = "28.2.13676358"`; `material3` tanpa versi; plugin `compose-compiler` memakai `version.ref = "kotlin"` → AC-8 (baris AGP, Kotlin, Compose compiler, Compose, Android SDK, NDK)
+- [x] `cat apps/android-tablet/gradle/wrapper/gradle-wrapper.properties` → `distributionUrl` menunjuk `gradle-9.5.1-bin.zip` dan `distributionSha256Sum=bafc141b619ad6350fd975fc903156dd5c151998cc8b058e8c1044ab5f7b031f` → AC-8 (baris Gradle)
+- [x] `shasum -a 256 apps/android-tablet/gradle/wrapper/gradle-wrapper.jar` → sama dengan isi https://services.gradle.org/distributions/gradle-9.5.1-wrapper.jar.sha256 (`497c8c2a7e5031f6aa847f88104aa80a93532ec32ee17bdb8d1d2f67a194a9c7` pada 2026-11-15) → AC-8
+- [x] `cat apps/android-tablet/gradle/gradle-daemon-jvm.properties` → tepat `toolchainVersion=25` → AC-8 (baris JDK)
+- [x] `cat apps/android-tablet/gradle.properties` → sama persis dengan blok `gradle.properties` di spec bagian "Proyek Android" → AC-8
+- [x] `grep -nE 'compileSdk|minSdk|targetSdk|ndkVersion|abiFilters|applicationId|JVM_17|VERSION_17' apps/android-tablet/app/build.gradle.kts` → semua angka dibaca dari `libs.versions.*` atau `providers.gradleProperty(...)`, tanpa angka SDK literal; Java dan `jvmTarget` 17 → AC-8 (sumber nilai)
+- [x] `E="$(mktemp -d)"; ANDROID_HOME="$E" scripts/build-android-tablet.sh; echo $?` → pesan menyebut platform Android 37 yang hilang dan perintah `sdkmanager` untuk memasangnya, kode keluar `1`, tanpa build → AC-8
+- [x] `JAVA_HOME=/tidak/ada scripts/build-android-tablet.sh; echo $?` → pesan menyebut `JAVA_HOME` dan cara menyetelnya ke JDK 25, kode keluar `1`, tanpa build → AC-8
+- [x] `scripts/build-android-tablet.sh; echo $?` → baris awal menyebut SDK `~/Library/Android/sdk`, NDK `28.2.13676358`, `minSdk 29`, ABI `arm64-v8a,x86_64`, dan `openjdk version "25.`; lalu `BUILD SUCCESSFUL`, baris terakhir `build-android-tablet: selesai`, kode keluar `0` → AC-7, AC-8
+- [x] `ls target/aarch64-linux-android/release/libtablet_ffi.so target/x86_64-linux-android/release/libtablet_ffi.so` → kedua file ada → AC-3 (dua target Android)
+- [x] `"$OBJDUMP" -p target/aarch64-linux-android/release/libtablet_ffi.so | grep LOAD` dan perintah yang sama untuk `x86_64-linux-android` → setiap baris berakhir `align 2**14` → AC-4
+- [x] `"$SDK/build-tools/36.0.0/aapt2" dump badging "$APK" | grep -E 'SdkVersion|compileSdkVersion='` → `minSdkVersion:'29'`, `targetSdkVersion:'36'`, `compileSdkVersion='37'` (aapt2 36.0.0 menulis `minSdkVersion`, teks AC menyebut `sdkVersion`) → AC-7
+- [x] `unzip -l "$APK" | grep 'lib/'` → hanya path di bawah `lib/arm64-v8a/` dan `lib/x86_64/` (saat ini `libandroidx.graphics.path.so` dari Compose) → AC-7
+- [x] `unzip -l "$APK" | grep libtablet_ffi` → kosong (keluar 1) → AC-11
+- [x] `(cd apps/android-tablet && JAVA_HOME="$JBR" ./gradlew -q buildEnvironment | grep 'kotlin-gradle-plugin:2.4.21')` → minimal satu baris `org.jetbrains.kotlin:kotlin-gradle-plugin:2.4.21`; tidak ada versi Kotlin lain yang menang (baris `2.2.10 -> 2.4.21` berarti dinaikkan ke versi katalog) → AC-8 (baris Kotlin)
+- [x] `cat apps/android-tablet/app/src/main/kotlin/foundation/tablet/MainActivity.kt apps/android-tablet/app/src/main/AndroidManifest.xml apps/android-tablet/app/src/main/res/values/strings.xml` → `ComponentActivity` dengan `enableEdgeToEdge()` lalu `setContent { MaterialTheme { Text(...) } }`; satu activity `exported` dengan filter LAUNCHER, tema `@android:style/Theme.Material.Light.NoActionBar`, tanpa `screenOrientation` atau `resizeableActivity`; `strings.xml` hanya `app_name` = `Tablet`; tanpa navigasi, token, atau lokalisasi → AC-11
+- [x] `git ls-files apps/android-tablet scripts/build-android-tablet.sh` → tepat 14 file yang tercantum di spec bagian "Struktur repo fitur 01" untuk Android dan skripnya, tanpa folder atau file penanda → AC-11
+- [x] `git ls-files -s scripts apps/android-tablet/gradlew` → mode `100755` untuk `scripts/build-android-tablet.sh`, `scripts/build-ipados.sh`, dan `apps/android-tablet/gradlew` → AC-9 (bagian mode berkas)
+- [x] `git ls-files | grep -E '\.(a|so|apk)$|xcframework|/build/|^target/'` → kosong; `git ls-files -z | xargs -0 file --mime-encoding | grep -w binary` → hanya `gradle-wrapper.jar` → AC-11
+- [x] `git status --short` sesudah skrip → kosong → AC-11
+- [x] Sesudah selesai: `(cd apps/android-tablet && JAVA_HOME="$JBR" ./gradlew --stop)`, lalu `cd / && rm -rf "$(dirname "$CLONE")"` → daemon mati, clone beserta `target/` dan folder `build/` di dalamnya terhapus
 
 ### Acceptance-criteria coverage
 

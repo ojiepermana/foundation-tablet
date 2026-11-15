@@ -139,6 +139,16 @@ Keputusan tambahan dari hasil build milestone 2 (pembaruan spec 2026-11-15, saat
   - `diff` keluaran `xcodebuild -showBuildSettings` (Debug, simulator generik, 554 baris) sebelum dan sesudah hanya berbeda satu baris: `ALWAYS_SEARCH_USER_PATHS = YES` menjadi `NO`. `Info.plist` app simulator sama persis.
 - **Kenapa aman**: setting itu hanya mengatur cara kompilator C mencari header dari jalur pencarian milik user. Target `Tablet` hanya berisi Swift, dan modul binding fitur 04 adalah paket Swift lokal yang tidak membaca xcconfig proyek.
 
+Keputusan tambahan dari hasil build milestone 3 (pembaruan spec 2026-11-15, saat spec berstatus `In Progress`; diambil lead dalam mode `auto`):
+
+| # | Pertanyaan | Diambil | Runner up | Tanda | Yang berubah bila runner up dipilih |
+|---|---|---|---|---|---|
+| K30 | Nama field `aapt2` pada bukti AC-7 | Ikuti keluaran `aapt2` 36.0.0: `minSdkVersion:'29'` | Biarkan teks `sdkVersion:'29'` dan catat tafsiran di tiap laporan | biasa | Teks AC-7 tetap tidak cocok dengan keluaran alat, dan tiap laporan build, verify, dan test harus mengulang tafsiran yang sama. Tidak ada tugas Build plan yang berubah pada kedua opsi |
+
+- **Sumber K30**: laporan `dev-f1-m1` untuk milestone 3 ([bukti build](../../reviews/2026-11-15-build-f01-m3.md), butir "Tafsiran AC-7") dan build lead pada merge `610cefb`. `"$ANDROID_HOME/build-tools/36.0.0/aapt2" dump badging <apk>` mencetak `minSdkVersion:'29'`, `targetSdkVersion:'36'`, dan `compileSdkVersion='37'`. Draf AC-7 menulis nama field lama `sdkVersion`, yang tidak dicetak `aapt2` 36.0.0.
+- **Yang berubah**: hanya nama field pada teks bukti AC-7. ID AC, nilai `minSdk` 29 (K8), `targetSdk` 36 dan `compileSdk` 37 (K9), katalog versi, dan tugas Build plan tetap.
+- **Ikut dirapikan**: kalimat pembuka "Build plan" kini menyebut satu irisan file yang sudah tertulis di baris File milestone 4 sejak K29 (`apps/ipados/Config/Base.xcconfig`, tugas 11). Isi milestone dan tugas tidak berubah.
+
 ## Catatan cross check
 
 Dijalankan 2026-11-15 oleh model lain (`claude-opus-5-5`, hanya membaca) terhadap draf pertama. Vonisnya: arah desain kokoh, tetapi draf belum bisa dibangun tanpa bertanya. Semua perbaikan yang direkomendasikan diterapkan (mode `auto`).
