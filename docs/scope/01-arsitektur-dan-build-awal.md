@@ -1,4 +1,4 @@
-# 1. Arsitektur dan build awal · planned · needs a decision
+# 1. Arsitektur dan build awal · in-progress · needs a decision
 
 Tetapkan batas antara inti Rust, lapisan ekspor UniFFI, dua aplikasi native, serta sumber desain dan penunjangnya. Keputusan yang masih terbuka adalah versi stabil yang kompatibel, target build, dan cara mengemas pustaka untuk tiap platform.
 
