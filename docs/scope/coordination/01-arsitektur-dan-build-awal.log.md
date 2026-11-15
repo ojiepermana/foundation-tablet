@@ -5,7 +5,7 @@
 - **Mode keputusan:** `auto` · **Ketentuan tambahan:** tidak ada
 - **Aturan umum brief:** `01-arsitektur-dan-build-awal.brief-umum.md` · **Langkah manual:** `01-arsitektur-dan-build-awal.manual.md`
 - **Wave aktif:** 1, mulai 2026-11-15
-- **Diperbarui:** 2026-11-15 20:05
+- **Diperbarui:** 2026-11-15 20:15
 
 ## Sub sesi wave 1
 
@@ -17,7 +17,7 @@
 | `dev-f1-m1` | developer | Fitur 01, milestone 2. Build plan 4, 5 selesai. Pointer code in: `apps/ipados/`, `scripts/build-ipados.sh`. Commit `fda34d6`, bukti `b0590f3` | `01-arsitektur-dan-build-awal.md` | `apps/ipados/**`, `scripts/build-ipados.sh`, `.xcode-version`, `verify.md` bagian Milestone 2, `docs/reviews/2026-11-15-build-f01-m2.md` | `claude/dev-f1-m1-ee7069` | `claude-opus-5-5 · medium` | merged (`0868e45`) |
 | `dev-f1-m1` | developer | Fitur 01, milestone 3 (Build plan 6 sampai 8) | `01-arsitektur-dan-build-awal.md` | `apps/android-tablet/**`, `scripts/build-android-tablet.sh`, `verify.md` bagian Milestone 3, `docs/reviews/2026-11-15-build-f01-m3.md` | `claude/dev-f1-m1-ee7069` | `claude-opus-5-5 · medium` | dipakai ulang, aktif |
 | `chk-f1-verify` | checker (verify) | Fitur 01, verify milestone 1 pada `main` `578e3b7`: PASS 15 dari 15 | `01-arsitektur-dan-build-awal.md` | centang `verify.md` bagian Milestone 1, `docs/reviews/2026-11-15-verify-f01-m1.md` | `claude/chk-f1-verify-4078a9` | `claude-fable-5-2 · high` | merged (`bd8f2ca`) |
-| `chk-f1-verify` | checker (verify) | Fitur 01, verify milestone 2 pada `main` `0868e45` | `01-arsitektur-dan-build-awal.md` | centang `verify.md` bagian Milestone 2, `docs/reviews/2026-11-15-verify-f01-m2.md` | `claude/chk-f1-verify-4078a9` | `claude-fable-5-2 · high` | dipakai ulang, aktif |
+| `chk-f1-verify` | checker (verify) | Fitur 01, verify milestone 2 pada `main` `0868e45` | `01-arsitektur-dan-build-awal.md` | centang `verify.md` bagian Milestone 2, `docs/reviews/2026-11-15-verify-f01-m2.md` | `claude/chk-f1-verify-4078a9` | `claude-fable-5-2 · high` | dipakai ulang, merged (`542db58`), siaga |
 | `tst-f1-test` | tester | Fitur 01, `Test it` | `01-arsitektur-dan-build-awal.md` | ditetapkan setelah build di-merge | `claude/tst-f1-test-949ed6` | `claude-opus-5-5 · high` | standby |
 
 ## Keputusan
@@ -86,6 +86,7 @@ Keputusan spec yang diambil dari opsi rekomendasi atas nama user (SKILL.md bagia
 
 - Fitur 01 · `Putuskan arsitektur awal (spec)` · `69d40da` · spec `Proposed` dengan AC-1 sampai AC-11, Decision, Build plan 1 sampai 10, Consequences · gerbang desain lead lulus (cross check diterapkan, Done when tercakup, tidak ada spec bertentangan) · merge `27f1283` (main sebelum merge `d9a0a38`).
 - Fitur 01 AC-1, AC-2, AC-8 (bagian Rust, Target Rust, UniFFI), AC-11 (bagian `.gitignore` dan biner) · `Milestone 1: Workspace Rust dan batas crate` · diuji pada `578e3b7` · host `aarch64-apple-darwin`, macOS 27.0.1 (26A434) · 15 langkah `verify.md` bagian Milestone 1 dari clone bersih (`cargo build --workspace --locked`, `cargo test --workspace --locked`, `cargo metadata`, dua `cargo tree`, `git check-ignore` 21 path) · PASS 15 dari 15, log di `docs/reviews/2026-11-15-verify-f01-m1.md` · integrasi `bd8f2ca`. Tafsiran checker: "clone bersih" berarti `git clone` baru tanpa `target/`; pemasangan toolchain dari nol di mesin kosong belum teramati (kandidat bukti CI fitur 11).
+- Fitur 01 AC-5, AC-6, AC-3 (dua target Apple), AC-8 (bagian iPad), AC-11 (sisi iPad) · `Milestone 2: Proyek iPad minimal dan skrip build` · diuji pada `0868e45` · simulator iPad generik (Debug, `aarch64-apple-ios-sim`) dan iPad generik (Release tanpa tanda tangan, `aarch64-apple-ios`), Xcode 27.1 (27A9275), SDK iOS 27.1, macOS 27.0.1 (26A434) · 17 langkah `verify.md` bagian Milestone 2 dari clone bersih (`scripts/build-ipados.sh` tanpa argumen, `--simulator`, `--device`; `lipo`, `plutil`, `codesign -dv`, `nm`, `DEVELOPER_DIR=/tidak/ada`) · PASS 17 dari 17, log di `docs/reviews/2026-11-15-verify-f01-m2.md` · integrasi `542db58`. iPad fisik `NOT_RUN` (F01-1), bukan syarat AC-6. Jalur prasyarat skrip selain `DEVELOPER_DIR` tidak teramati; AC-8 tidak memintanya.
 
 ## Riwayat wave
 
