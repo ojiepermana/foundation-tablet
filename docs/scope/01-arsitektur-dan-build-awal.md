@@ -1,4 +1,4 @@
-# 1. Arsitektur dan build awal · in-progress · needs a decision
+# 1. Arsitektur dan build awal · in-progress
 
 Tetapkan batas antara inti Rust, lapisan ekspor UniFFI, dua aplikasi native, serta sumber desain dan penunjangnya. Keputusan yang masih terbuka adalah versi stabil yang kompatibel, target build, dan cara mengemas pustaka untuk tiap platform.
 
@@ -6,6 +6,15 @@ Dokumentasikan versi alat, OS minimum iPadOS dan Android, target simulator dan p
 
 **Done when:** kontributor dapat mengompilasi workspace Rust dan kedua proyek native minimal dari clone bersih dengan perintah repo pada panduan mulai singkat. Versi yang dipilih cocok dengan dokumentasi resmi. Catatan arsitektur memuat matriks dukungan, pemilik tiap bagian, arah dependensi, dan alasan penyimpangan dari struktur README bila ada. AC 1, 2.
 
-* [ ] Putuskan arsitektur awal (spec): `/architect arsitektur dan build awal`
+**Pointer:** spec [0001](../specs/0001-arsitektur-dan-build-awal/index.md)
+
+* [x] Putuskan arsitektur awal (spec): `/architect arsitektur dan build awal`
+* [ ] Build it: `/develop arsitektur dan build awal`
+  * [ ] Milestone 1: Workspace Rust dan batas crate. Build plan 1 sampai 3. AC-1, AC-2, AC-8, AC-11. Tanpa build native.
+  * [ ] Milestone 2: Proyek iPad minimal dan skrip build. Build plan 4, 5. AC-3, AC-5, AC-6, AC-8, AC-11. Needs milestone 1. Build Xcode.
+  * [ ] Milestone 3: Proyek Android minimal dan skrip build. Build plan 6 sampai 8. AC-3, AC-4, AC-7, AC-8, AC-11. Needs milestone 1, after milestone 2 (satu build native pada satu waktu). Build Gradle.
+  * [ ] Milestone 4: Panduan mulai singkat dan catatan arsitektur. Build plan 9, 10. AC-9, AC-10. Needs milestone 1, 2, 3. Build Xcode lalu Gradle dari clone bersih.
+* [ ] Verify it: `/check verify arsitektur dan build awal`
+* [ ] Test it: `/test arsitektur dan build awal`
 
 [Kembali ke indeks scope](index.md)

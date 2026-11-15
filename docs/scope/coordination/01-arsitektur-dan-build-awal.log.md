@@ -5,14 +5,14 @@
 - **Mode keputusan:** `auto` · **Ketentuan tambahan:** tidak ada
 - **Aturan umum brief:** `01-arsitektur-dan-build-awal.brief-umum.md` · **Langkah manual:** `01-arsitektur-dan-build-awal.manual.md`
 - **Wave aktif:** 1, mulai 2026-11-15
-- **Diperbarui:** 2026-11-15 18:10
+- **Diperbarui:** 2026-11-15 18:25
 
 ## Sub sesi wave 1
 
 | Nama | Peran | Item | Scope | Ownership | Branch | Model | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| `arc-f1-spec` | architect | Fitur 01, "Putuskan arsitektur awal (spec)" | `01-arsitektur-dan-build-awal.md` | `docs/specs/0001-arsitektur-dan-build-awal/` | `claude/arc-f1-spec-983432` | `claude-fable-5-2 · high` | aktif |
-| `dev-f1-m1` | developer | Fitur 01, milestone build pertama setelah spec 0001 diterima | `01-arsitektur-dan-build-awal.md` | ditetapkan dari Build plan spec 0001 | `claude/dev-f1-m1-ee7069` | `claude-opus-5-5 · medium` | standby |
+| `arc-f1-spec` | architect | Fitur 01, "Putuskan arsitektur awal (spec)" | `01-arsitektur-dan-build-awal.md` | `docs/specs/0001-arsitektur-dan-build-awal/` | `claude/arc-f1-spec-983432` | `claude-fable-5-2 · high` | merged (`27f1283`) |
+| `dev-f1-m1` | developer | Fitur 01, milestone 1 (Build plan 1 sampai 3) | `01-arsitektur-dan-build-awal.md` | `Cargo.toml`, `Cargo.lock`, `rust-toolchain.toml`, `.gitignore`, `crates/core/**`, `crates/tablet-ffi/**`, `docs/specs/0001-arsitektur-dan-build-awal/verify.md` dan baris Status `index.md` | `claude/dev-f1-m1-ee7069` | `claude-opus-5-5 · medium` | aktif |
 | `chk-f1-verify` | checker (verify) | Fitur 01, verify milestone lalu verify penuh | `01-arsitektur-dan-build-awal.md` | `docs/specs/0001-arsitektur-dan-build-awal/verify.md` (centang saja) | `claude/chk-f1-verify-4078a9` | `claude-fable-5-2 · high` | standby |
 | `tst-f1-test` | tester | Fitur 01, `Test it` | `01-arsitektur-dan-build-awal.md` | ditetapkan setelah build di-merge | `claude/tst-f1-test-949ed6` | `claude-opus-5-5 · high` | standby |
 
@@ -65,11 +65,14 @@ Keputusan spec yang diambil dari opsi rekomendasi atas nama user (SKILL.md bagia
 
 ## Blocker terbuka
 
-- Belum ada. Catatan lingkungan: perangkat fisik iPad dan tablet Android tidak tersedia untuk sub sesi; belum ada AVD tablet dan `java` tidak ada di PATH (rincian di file aturan umum brief).
+- F01-1, F01-2, F01-3 (iPad fisik, tablet Android fisik, perangkat 16 KB) · belum ada commit · `NOT_RUN` · perangkat tidak tersedia, penanggung jawab user, rincian di file manual. Bukan syarat kotak fitur 01.
+- Nilai dari user N1 sampai N4 (bundle ID, `applicationId`, Team ID, lisensi) belum ada; tidak menahan AC fitur 01.
+- Disk bebas 21 GiB pada 18:10 (turun dari 37 GiB); batas berhenti sub sesi 10 GiB. Milestone 2 dan 3 bisa terblokir.
+- Catatan lingkungan: perangkat fisik iPad dan tablet Android tidak tersedia untuk sub sesi; belum ada AVD tablet dan `java` tidak ada di PATH (rincian di file aturan umum brief).
 
 ## Dicentang pada wave ini
 
-- Belum ada.
+- Fitur 01 · `Putuskan arsitektur awal (spec)` · `69d40da` · spec `Proposed` dengan AC-1 sampai AC-11, Decision, Build plan 1 sampai 10, Consequences · gerbang desain lead lulus (cross check diterapkan, Done when tercakup, tidak ada spec bertentangan) · merge `27f1283` (main sebelum merge `d9a0a38`).
 
 ## Riwayat wave
 
