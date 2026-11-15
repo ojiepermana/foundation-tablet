@@ -10,7 +10,7 @@ Dokumentasikan versi alat, OS minimum iPadOS dan Android, target simulator dan p
 
 * [x] Putuskan arsitektur awal (spec): `/architect arsitektur dan build awal`
 * [ ] Build it: `/develop arsitektur dan build awal`
-  * [ ] Milestone 1: Workspace Rust dan batas crate. Build plan 1 sampai 3. AC-1, AC-2, AC-8, AC-11. Tanpa build native.
+  * [x] Milestone 1: Workspace Rust dan batas crate. Build plan 1 sampai 3. AC-1, AC-2, AC-8, AC-11. Tanpa build native. Kode di [`crates/`](../../crates), [`Cargo.toml`](../../Cargo.toml), dan [`rust-toolchain.toml`](../../rust-toolchain.toml). Bukti: [verify milestone 1](../reviews/2026-11-15-verify-f01-m1.md), PASS pada `578e3b7`, host `aarch64-apple-darwin`, macOS 27.0.1.
   * [ ] Milestone 2: Proyek iPad minimal dan skrip build. Build plan 4, 5. AC-3, AC-5, AC-6, AC-8, AC-11. Needs milestone 1. Build Xcode.
   * [ ] Milestone 3: Proyek Android minimal dan skrip build. Build plan 6 sampai 8. AC-3, AC-4, AC-7, AC-8, AC-11. Needs milestone 1, after milestone 2 (satu build native pada satu waktu). Build Gradle.
   * [ ] Milestone 4: Panduan mulai singkat dan catatan arsitektur. Build plan 9, 10. AC-9, AC-10. Needs milestone 1, 2, 3. Build Xcode lalu Gradle dari clone bersih.

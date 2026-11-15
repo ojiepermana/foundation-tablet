@@ -5,7 +5,7 @@
 - **Mode keputusan:** `auto` · **Ketentuan tambahan:** tidak ada
 - **Aturan umum brief:** `01-arsitektur-dan-build-awal.brief-umum.md` · **Langkah manual:** `01-arsitektur-dan-build-awal.manual.md`
 - **Wave aktif:** 1, mulai 2026-11-15
-- **Diperbarui:** 2026-11-15 19:00
+- **Diperbarui:** 2026-11-15 19:20
 
 ## Sub sesi wave 1
 
@@ -14,7 +14,7 @@
 | `arc-f1-spec` | architect | Fitur 01, "Putuskan arsitektur awal (spec)" | `01-arsitektur-dan-build-awal.md` | `docs/specs/0001-arsitektur-dan-build-awal/` | `claude/arc-f1-spec-983432` | `claude-fable-5-2 · high` | merged (`27f1283`) |
 | `dev-f1-m1` | developer | Fitur 01, milestone 1. Build plan 1, 2, 3 selesai. Pointer code in: `crates/` (plus `Cargo.toml`, `rust-toolchain.toml`). Commit `b869eab` | `01-arsitektur-dan-build-awal.md` | `Cargo.toml`, `Cargo.lock`, `rust-toolchain.toml`, `.gitignore`, `crates/core/**`, `crates/tablet-ffi/**`, `verify.md` bagian Milestone 1, baris Status spec | `claude/dev-f1-m1-ee7069` | `claude-opus-5-5 · medium` | merged (`578e3b7`) |
 | `dev-f1-m1` | developer | Fitur 01, milestone 2 (Build plan 4, 5) | `01-arsitektur-dan-build-awal.md` | `apps/ipados/**`, `scripts/build-ipados.sh`, `.xcode-version`, `verify.md` bagian Milestone 2, `docs/reviews/2026-11-15-build-f01-m2.md` | `claude/dev-f1-m1-ee7069` | `claude-opus-5-5 · medium` | dipakai ulang, aktif |
-| `chk-f1-verify` | checker (verify) | Fitur 01, verify milestone 1 pada `main` `578e3b7` | `01-arsitektur-dan-build-awal.md` | centang `verify.md` bagian Milestone 1, `docs/reviews/2026-11-15-verify-f01-m1.md` | `claude/chk-f1-verify-4078a9` | `claude-fable-5-2 · high` | aktif |
+| `chk-f1-verify` | checker (verify) | Fitur 01, verify milestone 1 pada `main` `578e3b7` | `01-arsitektur-dan-build-awal.md` | centang `verify.md` bagian Milestone 1, `docs/reviews/2026-11-15-verify-f01-m1.md` | `claude/chk-f1-verify-4078a9` | `claude-fable-5-2 · high` | merged (`bd8f2ca`), siaga |
 | `tst-f1-test` | tester | Fitur 01, `Test it` | `01-arsitektur-dan-build-awal.md` | ditetapkan setelah build di-merge | `claude/tst-f1-test-949ed6` | `claude-opus-5-5 · high` | standby |
 
 ## Keputusan
@@ -77,6 +77,7 @@ Keputusan spec yang diambil dari opsi rekomendasi atas nama user (SKILL.md bagia
 ## Dicentang pada wave ini
 
 - Fitur 01 · `Putuskan arsitektur awal (spec)` · `69d40da` · spec `Proposed` dengan AC-1 sampai AC-11, Decision, Build plan 1 sampai 10, Consequences · gerbang desain lead lulus (cross check diterapkan, Done when tercakup, tidak ada spec bertentangan) · merge `27f1283` (main sebelum merge `d9a0a38`).
+- Fitur 01 AC-1, AC-2, AC-8 (bagian Rust, Target Rust, UniFFI), AC-11 (bagian `.gitignore` dan biner) · `Milestone 1: Workspace Rust dan batas crate` · diuji pada `578e3b7` · host `aarch64-apple-darwin`, macOS 27.0.1 (26A434) · 15 langkah `verify.md` bagian Milestone 1 dari clone bersih (`cargo build --workspace --locked`, `cargo test --workspace --locked`, `cargo metadata`, dua `cargo tree`, `git check-ignore` 21 path) · PASS 15 dari 15, log di `docs/reviews/2026-11-15-verify-f01-m1.md` · integrasi `bd8f2ca`. Tafsiran checker: "clone bersih" berarti `git clone` baru tanpa `target/`; pemasangan toolchain dari nol di mesin kosong belum teramati (kandidat bukti CI fitur 11).
 
 ## Riwayat wave
 
