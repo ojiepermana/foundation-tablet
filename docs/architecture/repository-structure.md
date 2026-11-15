@@ -35,6 +35,13 @@ apps/
 scripts/
   build-ipados.sh                  mode 100755
   build-android-tablet.sh          mode 100755
+  test.sh                          mode 100755, menjalankan tes tingkat repo
+tests/
+  lib/harness.sh                   helper tes: asersi, sandbox, alat tiruan
+  repo/                            crate-boundary.test.sh, version-locks.test.sh, commit-policy.test.sh
+  build-scripts/                   build-ipados.test.sh, build-android-tablet.test.sh
+  artifacts/                       ipados.test.sh, android-tablet.test.sh
+test-preferences.json              pilihan alat untuk skill /test, di-commit
 docs/
   getting-started.md               panduan mulai singkat
   architecture/                    lima dokumen ini
@@ -60,7 +67,10 @@ Folder yang dibuat build dan tidak di-commit: `target/`, `apps/ipados/build/`, `
 | Lima file `docs/architecture/` | Empat dari lima, ditambah `support-matrix.md`; `boundaries.md` belum ditulis | Matriks dirujuk fitur 03 dan 11 sehingga perlu alamat sendiri; batas lapisan di luar yang sudah dibangun belum punya isi |
 | Panduan di `README.md` | `docs/getting-started.md` | `README.md` adalah dokumen kebutuhan produk |
 | Tidak ada | `.xcode-version`, `Cargo.lock` di akar | Kunci versi |
-| `design-system/`, `shared/`, `tooling/`, `tests/`, `.github/`, skrip lain | Belum dibuat | README melarang folder penanda tempat; dibuat oleh fitur pemiliknya |
+| `tests/fixtures`, `tests/contracts` | `tests/lib`, `tests/repo`, `tests/build-scripts`, `tests/artifacts`; dua folder README belum dibuat | Fitur 01 hanya punya tes tingkat repo; fixture dan tes kontrak dibuat oleh fitur pemiliknya |
+| `scripts/test.sh` | Ada sejak fitur 01, menjalankan tes tingkat repo saja | `cargo test` tetap perintah tes Rust; fitur 03 memutuskan apakah runner mendapat grup Rust |
+| Tidak ada | `test-preferences.json` di akar | Skill `/test` membaca pilihan alat dari file ini, jadi tidak bertanya di tiap fitur |
+| `design-system/`, `shared/`, `tooling/`, `.github/`, skrip lain | Belum dibuat | README melarang folder penanda tempat; dibuat oleh fitur pemiliknya |
 
 Baris `apps/ipados/Tablet/` berlaku untuk folder di dalam target: saat ini hanya `Tablet/App/` yang ada. Folder `Presentation/`, `Platform/`, dan seterusnya dibuat di dalam `Tablet/` oleh fitur yang pertama mengisinya. Paket Kotlin `foundation.tablet.presentation` dan folder tes Android juga belum ada; saat ini hanya paket `foundation.tablet`.
 
