@@ -82,7 +82,11 @@ Semua hasil ada di folder yang diabaikan Git, jadi `git status --short` tetap ko
 | Aplikasi iPad perangkat, tanpa tanda tangan | `apps/ipados/build/DerivedData/Build/Products/Release-iphoneos/Tablet.app` |
 | APK Android debug | `apps/android-tablet/app/build/outputs/apk/debug/app-debug.apk` |
 
-Untuk mengosongkan lagi, kamu bisa menghapus `target/`, `apps/ipados/build/`, dan `apps/android-tablet/app/build/`, lalu mematikan daemon Gradle dengan `(cd apps/android-tablet && ./gradlew --stop)`.
+Untuk mengosongkan lagi, kamu bisa menghapus `target/`, `apps/ipados/build/`, dan `apps/android-tablet/app/build/`, lalu mematikan daemon Gradle dengan perintah di bawah. `./gradlew` yang dipanggil langsung tidak mencari JBR Android Studio, jadi perintah ini memakai `JAVA_HOME` milikmu bila diset dan JBR itu bila tidak.
+
+```bash
+(cd apps/android-tablet && JAVA_HOME="${JAVA_HOME:-/Applications/Android Studio.app/Contents/jbr/Contents/Home}" ./gradlew --stop)
+```
 
 ## Masalah umum
 
