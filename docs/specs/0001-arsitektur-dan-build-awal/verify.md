@@ -111,7 +111,7 @@ JBR="/Applications/Android Studio.app/Contents/jbr/Contents/Home"
 - [x] `scripts/build-android-tablet.sh; echo $?` → baris awal menyebut SDK `~/Library/Android/sdk`, NDK `28.2.13676358`, `minSdk 29`, ABI `arm64-v8a,x86_64`, dan `openjdk version "25.`; lalu `BUILD SUCCESSFUL`, baris terakhir `build-android-tablet: selesai`, kode keluar `0` → AC-7, AC-8
 - [x] `ls target/aarch64-linux-android/release/libtablet_ffi.so target/x86_64-linux-android/release/libtablet_ffi.so` → kedua file ada → AC-3 (dua target Android)
 - [x] `"$OBJDUMP" -p target/aarch64-linux-android/release/libtablet_ffi.so | grep LOAD` dan perintah yang sama untuk `x86_64-linux-android` → setiap baris berakhir `align 2**14` → AC-4
-- [x] `"$SDK/build-tools/36.0.0/aapt2" dump badging "$APK" | grep -E 'SdkVersion|compileSdkVersion='` → `minSdkVersion:'29'`, `targetSdkVersion:'36'`, `compileSdkVersion='37'` (aapt2 36.0.0 menulis `minSdkVersion`, teks AC menyebut `sdkVersion`) → AC-7
+- [x] `"$SDK/build-tools/36.0.0/aapt2" dump badging "$APK" | grep -E 'SdkVersion|compileSdkVersion='` → `minSdkVersion:'29'`, `targetSdkVersion:'36'`, `compileSdkVersion='37'` → AC-7
 - [x] `unzip -l "$APK" | grep 'lib/'` → hanya path di bawah `lib/arm64-v8a/` dan `lib/x86_64/` (saat ini `libandroidx.graphics.path.so` dari Compose) → AC-7
 - [x] `unzip -l "$APK" | grep libtablet_ffi` → kosong (keluar 1) → AC-11
 - [x] `(cd apps/android-tablet && JAVA_HOME="$JBR" ./gradlew -q buildEnvironment | grep 'kotlin-gradle-plugin:2.4.21')` → minimal satu baris `org.jetbrains.kotlin:kotlin-gradle-plugin:2.4.21`; tidak ada versi Kotlin lain yang menang (baris `2.2.10 -> 2.4.21` berarti dinaikkan ke versi katalog) → AC-8 (baris Kotlin)
