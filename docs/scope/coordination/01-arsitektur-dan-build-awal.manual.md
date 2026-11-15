@@ -8,9 +8,9 @@ Keputusan yang diambil atas namamu ada di `01-arsitektur-dan-build-awal.log.md` 
 
 | ID | Langkah | AC dan kotak yang menunggu | Commit | Target dan OS | Hasil | Bukti |
 | --- | --- | --- | --- | --- | --- | --- |
-| `F01-1` | Jalankan `Tablet` di iPad fisik (MAN-1 spec 0001) | Baris "iPad perangkat" matriks dukungan; melengkapi AC-6. Bukan syarat kotak fitur 01; diwarisi fitur 04, 11, 12 | belum ada (menunggu milestone 2) | iPad fisik, iPadOS 26.0 atau lebih baru | `NOT_RUN` | belum ada |
-| `F01-2` | Pasang dan buka APK di tablet Android fisik (MAN-2) | Baris "Tablet Android" matriks; melengkapi AC-7. Bukan syarat kotak fitur 01; diwarisi fitur 04, 11, 12 | belum ada (menunggu milestone 3) | tablet arm64, Android 10 atau lebih baru | `NOT_RUN` | belum ada |
-| `F01-3` | Ulangi F01-2 di perangkat halaman memori 16 KB (MAN-3) | Baris "Halaman memori 16 KB" matriks; melengkapi AC-4. Bukan syarat kotak fitur 01; diwarisi fitur 11, 12 | belum ada (menunggu milestone 3) | perangkat dengan `getconf PAGE_SIZE` = `16384` | `NOT_RUN` | belum ada |
+| `F01-1` | Jalankan `Tablet` di iPad fisik (MAN-1 spec 0001) | Baris "iPad perangkat" matriks dukungan; melengkapi AC-6. Bukan syarat kotak fitur 01; diwarisi fitur 04, 11, 12 | build terverifikasi pada `f3992db`; perangkat belum diuji | iPad fisik, iPadOS 26.0 atau lebih baru | `NOT_RUN` | belum ada |
+| `F01-2` | Pasang dan buka APK di tablet Android fisik (MAN-2) | Baris "Tablet Android" matriks; melengkapi AC-7. Bukan syarat kotak fitur 01; diwarisi fitur 04, 11, 12 | build terverifikasi pada `f3992db`; perangkat belum diuji | tablet arm64, Android 10 atau lebih baru | `NOT_RUN` | belum ada |
+| `F01-3` | Ulangi F01-2 di perangkat halaman memori 16 KB (MAN-3) | Baris "Halaman memori 16 KB" matriks; melengkapi AC-4. Bukan syarat kotak fitur 01; diwarisi fitur 11, 12 | build terverifikasi pada `f3992db`; perangkat belum diuji | perangkat dengan `getconf PAGE_SIZE` = `16384` | `NOT_RUN` | belum ada |
 
 ## Nilai dari user
 
