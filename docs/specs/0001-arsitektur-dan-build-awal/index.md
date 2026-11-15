@@ -1,7 +1,7 @@
 # 0001. Arsitektur dan build awal
 
 **Date**: 2026-11-15
-**Status**: Proposed
+**Status**: In Progress
 
 ## Summary
 

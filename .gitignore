@@ -1,0 +1,31 @@
+# Aturan commit spec 0001: hasil build, hasil generasi, dan file lokal tidak di-commit.
+
+# Rust
+/target/
+
+# iPad
+/apps/ipados/build/
+xcuserdata/
+/apps/ipados/Tablet.xcodeproj/project.xcworkspace/
+/apps/ipados/Config/Local.xcconfig
+.build/
+.swiftpm/
+
+# Android
+/apps/android-tablet/**/build/
+/apps/android-tablet/.gradle/
+/apps/android-tablet/.kotlin/
+/apps/android-tablet/local.properties
+/apps/android-tablet/app/.cxx/
+/apps/android-tablet/captures/
+/apps/android-tablet/app/src/main/jniLibs/
+
+# Binding hasil generasi
+/bindings/swift/TabletFFI.xcframework/
+/bindings/swift/Sources/
+/bindings/kotlin/
+
+# Editor dan sistem
+.DS_Store
+.idea/
+*.iml
