@@ -159,6 +159,7 @@ SUPPORTED_PLATFORMS = iphoneos iphonesimulator
 SUPPORTS_MACCATALYST = NO
 SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO
 SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO
+ALWAYS_SEARCH_USER_PATHS = NO
 ARCHS[sdk=iphonesimulator*] = arm64
 SWIFT_VERSION = 6.0
 SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor
@@ -176,6 +177,7 @@ INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = UIInterfaceOrientationPort
 #include? "Local.xcconfig"
 ```
 
+- `ALWAYS_SEARCH_USER_PATHS = NO` ada karena blok `buildSettings` di `project.pbxproj` kosong, sehingga nilai bawaan Xcode (`YES`) berlaku dan Xcode 27.1 mencetak peringatan "Traditional headermap style is no longer supported" pada tiap build. Nilai `NO` sama dengan yang ditulis templat proyek Xcode, dan target ini tidak punya header C, jadi hasil build tidak berubah (K29 di `rationale.md`).
 - `SWIFT_DEFAULT_ACTOR_ISOLATION` dan `SWIFT_APPROACHABLE_CONCURRENCY` mengikuti bawaan templat Xcode untuk aplikasi; nilainya hanya berlaku untuk target aplikasi, bukan untuk modul binding.
 - `Config/Local.xcconfig` tidak di-commit. Isinya nilai milik user (`DEVELOPMENT_TEAM`, dan `PRODUCT_BUNDLE_IDENTIFIER` asli bila sudah ada). File itu tidak boleh menimpa `IPHONEOS_DEPLOYMENT_TARGET`.
 - Tidak ada asset catalog, target tes, atau paket Swift di fitur 01.
@@ -430,10 +432,11 @@ File: `apps/android-tablet/**`, `scripts/build-android-tablet.sh`.
 
 **Milestone 4: Panduan mulai singkat dan catatan arsitektur** (butuh build Xcode lalu Gradle, berurutan; needs milestone 1, 2, 3)
 
-File: `docs/getting-started.md`, `docs/architecture/**`.
+File: `docs/getting-started.md`, `docs/architecture/**`, dan `apps/ipados/Config/Base.xcconfig` (file milestone 2 yang sudah selesai; hanya baris `ALWAYS_SEARCH_USER_PATHS = NO` yang ditambahkan, baris lain tidak berubah).
 
 9. Tulis `docs/getting-started.md`, lalu ikuti panduan itu pada `git clone` baru di folder sementara dan catat hasil tiap perintah, satisfies **AC-9**
 10. Tulis lima dokumen `docs/architecture/` sesuai "Catatan arsitektur yang ditulis developer", satisfies **AC-10**
+11. Tambahkan baris `ALWAYS_SEARCH_USER_PATHS = NO` ke `apps/ipados/Config/Base.xcconfig` di posisi yang sama dengan blok pada "Proyek iPad", dan pastikan `scripts/build-ipados.sh` tidak lagi mencetak peringatan headermap (`grep -c 'Traditional headermap'` pada log build menampilkan `0`). Kerjakan sebelum pengulangan clone bersih pada tugas 9 supaya build itu sekaligus menjadi buktinya, satisfies **AC-5**, **AC-6**, **AC-8**
 
 **Skenario uji penting**:
 
