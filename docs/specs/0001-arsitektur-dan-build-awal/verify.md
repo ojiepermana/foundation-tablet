@@ -196,3 +196,5 @@ Tugas 9 dan 10, isi dokumen terhadap tabel spec bagian "Catatan arsitektur yang 
 - AC-8: `Base.xcconfig` sama persis dengan blok spec, selisih satu baris (tugas 11)
 - AC-9: panduan memuat isi wajib, enam perintah persis, clone baru tanpa langkah lain, mode `100755`, `git status --short` kosong
 - AC-10: lima dokumen `docs/architecture/` dengan isi wajib tabel spec, tanda "ditetapkan, belum dibangun", tautan valid
+
+Bukti pengulangan clone bersih oleh developer: [docs/reviews/2026-11-15-build-f01-m4.md](../../reviews/2026-11-15-build-f01-m4.md).
