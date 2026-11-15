@@ -5,7 +5,7 @@
 - **Mode keputusan:** `auto` · **Ketentuan tambahan:** tidak ada
 - **Aturan umum brief:** `01-arsitektur-dan-build-awal.brief-umum.md` · **Langkah manual:** `01-arsitektur-dan-build-awal.manual.md`
 - **Wave aktif:** 1, mulai 2026-11-15
-- **Diperbarui:** 2026-11-15 23:50
+- **Diperbarui:** 2026-11-16 00:40
 
 ## Sub sesi wave 1
 
@@ -24,7 +24,7 @@
 | `chk-f1-verify` | checker (verify) | Fitur 01, verify milestone 2 pada `main` `0868e45`: PASS 17 dari 17 | `01-arsitektur-dan-build-awal.md` | centang `verify.md` bagian Milestone 2, `docs/reviews/2026-11-15-verify-f01-m2.md` | `claude/chk-f1-verify-4078a9` | `claude-fable-5-2 · high` | dipakai ulang, merged (`542db58`) |
 | `chk-f1-verify` | checker (verify) | Fitur 01, verify milestone 3 pada `main` `610cefb`: PASS 21 dari 21 | `01-arsitektur-dan-build-awal.md` | centang `verify.md` bagian Milestone 3, `docs/reviews/2026-11-15-verify-f01-m3.md` | `claude/chk-f1-verify-4078a9` | `claude-fable-5-2 · high` | dipakai ulang, merged (`495e931`), siaga |
 | `chk-f1-verify` | checker (verify) | Fitur 01, verify milestone 4 dan verify penuh (`Verify it`) pada `main` `065ed88` | `01-arsitektur-dan-build-awal.md` | centang `verify.md` bagian Milestone 4, `docs/reviews/2026-11-15-verify-f01.md` | `claude/chk-f1-verify-4078a9` | `claude-fable-5-2 · high` | dipakai ulang, merged (`99f2b9d`), siaga |
-| `tst-f1-test` | tester | Fitur 01, `Test it`, milestone 5 (Build plan 12 sampai 16) | `01-arsitektur-dan-build-awal.md` | `test-preferences.json`, `scripts/test.sh`, `tests/**`, tambahan pada `docs/getting-started.md`, `docs/architecture/ownership-matrix.md`, `docs/architecture/repository-structure.md`, `docs/reviews/2026-11-15-test-f01.md` | `claude/tst-f1-test-949ed6` | `claude-opus-5-5 · high` | aktif |
+| `tst-f1-test` | tester | Fitur 01, `Test it`, milestone 5 (Build plan 12 sampai 16) | `01-arsitektur-dan-build-awal.md` | `test-preferences.json`, `scripts/test.sh`, `tests/**`, tambahan pada `docs/getting-started.md`, `docs/architecture/ownership-matrix.md`, `docs/architecture/repository-structure.md`, `docs/reviews/2026-11-15-test-f01.md` | `claude/tst-f1-test-949ed6` | `claude-opus-5-5 · high` | merged (`00a55b9`) |
 
 ## Keputusan
 
@@ -116,6 +116,7 @@ Keputusan spec yang diambil dari opsi rekomendasi atas nama user (SKILL.md bagia
 - Fitur 01 AC-9, AC-10, dan AC-5, AC-6, AC-8 untuk tugas 11 · `Milestone 4: Panduan mulai singkat dan catatan arsitektur` · diuji pada `f3992db` · clone baru, host macOS 27.0.1, Xcode 27.1, JDK 25.0.2 · 27 langkah `verify.md` bagian Milestone 4 (enam perintah `docs/getting-started.md` apa adanya, `grep -c 'Traditional headermap'` = 0, `diff` dokumen terhadap tabel spec, tautan) · PASS 27 dari 27, log di `docs/reviews/2026-11-15-verify-f01.md` · integrasi `99f2b9d`.
 - Fitur 01 · `Build it` · semua milestone 1 sampai 4 dicentang, Build plan 1 sampai 11 selesai · integrasi `99f2b9d`.
 - Fitur 01 AC-1 sampai AC-11 dan tiap kalimat Done when · `Verify it` · diuji pada `f3992db` · AC-1, AC-2: host `aarch64-apple-darwin`; AC-3: empat target matriks; AC-4: dua `.so` Android, NDK 28.2.13676358; AC-5: simulator iPad generik Debug; AC-6: iPad generik Release tanpa tanda tangan; AC-7: APK debug `arm64-v8a` dan `x86_64`; AC-8: 16 baris stack, `buildEnvironment`, tiga percobaan prasyarat hilang; AC-9: panduan pada clone baru; AC-10: lima dokumen; AC-11: repo dan kedua aplikasi; semuanya macOS 27.0.1 (26A434), Xcode 27.1 (27A9275), AGP 9.3.3, Gradle 9.5.1, JDK 25.0.2 · PASS pada setiap AC dan target, log di `docs/reviews/2026-11-15-verify-f01.md` · integrasi `99f2b9d`. Batas bukti: mesin bukan mesin kosong (pemasangan prasyarat dari nol tidak teramati); aplikasi tidak diluncurkan (bukan janji fitur 01); perangkat fisik F01-1 sampai F01-3 `NOT_RUN`, bukan syarat AC (tafsiran checker dari teks AC-4, AC-6, AC-7).
+- Fitur 01 AC-1 sampai AC-11 (yang dikunci suite) · `Milestone 5: Tes tingkat repo` dan `Test it` · diuji tester pada `6e1fb8a` dan lead pada pohon integrasi (clone baru dari `4197de9`, isinya sama dengan merge `00a55b9`) · host macOS 27.0.1, `/bin/bash` 3.2.57; grup `artifacts` pada simulator iPad generik Debug, iPad generik Release tanpa tanda tangan, APK debug `arm64-v8a` dan `x86_64` · `scripts/test.sh` (43 kasus, keluar 0), `scripts/build-ipados.sh` (keluar 0), `scripts/build-android-tablet.sh` (keluar 0), `scripts/test.sh repo build-scripts artifacts` (`test: 7 file, 7 lulus, 0 gagal`, 52 `ok`, 0 `not ok`), `git status --short` kosong · PASS, bukti tester di `docs/reviews/2026-11-15-test-f01.md` termasuk lima perubahan sengaja yang memerahkan kasus yang diharapkan · integrasi `00a55b9` (main sebelumnya `8df65d2`). Linux `NOT_RUN` (fitur 11).
 
 ## Riwayat wave
 
