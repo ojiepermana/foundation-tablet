@@ -9,12 +9,12 @@ apps/android-tablet ┘
 scripts ──> cargo, xcodebuild, gradle (hanya saat build)
 ```
 
-Pada fitur 01 baru bagian kanan diagram yang ada: `crates/tablet-ffi` bergantung pada `crates/core`. Folder `bindings` dan tautan aplikasi ke binding ditetapkan, belum dibangun (fitur 03 dan 04), jadi kedua aplikasi saat ini belum bergantung pada apa pun di repo.
+Sampai fitur 03 baru bagian kanan diagram yang ada: `crates/tablet-ffi` bergantung pada `crates/core`, dan `bindings` dihasilkan dari pustaka `tablet-ffi` oleh `scripts/generate-bindings.sh` (tidak di-commit). Tautan aplikasi ke binding masih milik fitur 04, jadi kedua aplikasi saat ini belum bergantung pada apa pun di repo. Crate tooling `tooling/uniffi-bindgen` hanya dipakai skrip generasi di host; tidak ada crate atau aplikasi yang bergantung padanya.
 
 ## Tujuh aturan
 
 1. `tablet-core` tidak bergantung pada apa pun di repo ini, pada `uniffi`, atau pada kerangka UI dan platform.
-2. `tablet-ffi` hanya bergantung pada `tablet-core` dan `uniffi`. Di luar crate tooling generator binding, hanya crate ini yang boleh memuat `uniffi`.
+2. `tablet-ffi` hanya bergantung pada `tablet-core` dan `uniffi`. Di luar crate tooling generator binding (`tooling/uniffi-bindgen`), hanya crate ini yang boleh memuat `uniffi`. Pustaka mobile selalu dibangun dengan `-p tablet-ffi`, supaya fitur `cli` milik crate tooling tidak ikut.
 3. Aplikasi hanya memakai Rust lewat binding hasil generasi dan pustaka terkemas. Aplikasi tidak merujuk `crates/` atau `target/`.
 4. Kedua aplikasi tidak saling bergantung dan tidak berbagi kode sumber.
 5. Rust tidak bergantung pada aplikasi, token desain, atau sumber daya bersama.

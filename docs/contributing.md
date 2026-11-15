@@ -17,7 +17,7 @@ Jalankan semua perintah dari akar repo. Tandanya: **R** berarti pemeriksaan Rust
 | Yang kamu ubah | Platform terdampak | Pemeriksaan yang disarankan |
 | --- | --- | --- |
 | `crates/**`, `Cargo.toml`, `Cargo.lock`, `rust-toolchain.toml` | kedua aplikasi | R, T, I, A |
-| Kontrak yang diekspor `tablet-ffi`, binding, generator binding (mulai fitur 03) | kedua aplikasi | R, T, I, A, lalu `git status --short` harus kosong |
+| Kontrak yang diekspor `tablet-ffi`, `uniffi.toml`, generator binding (`tooling/uniffi-bindgen`, `scripts/generate-bindings.sh`) | kedua aplikasi | R, T, I, A, lalu `scripts/generate-bindings.sh` untuk `swift` dan `kotlin`, lalu `git status --short` harus kosong |
 | `apps/ipados/**`, `.xcode-version` | iPad | T, I |
 | `apps/android-tablet/**` | Android | T, A |
 | `scripts/build-*.sh` | platform skrip itu | T, lalu build skrip itu |
@@ -33,7 +33,7 @@ Bila kamu tidak bisa menjalankan satu pemeriksaan (alatnya tidak ada, perangkat 
 
 - Jangan menyunting hasil generasi dengan tangan dan jangan meng-commit-nya. Daftarnya ada di matriks pemilik (kolom "Hasil generasi") dan di `.gitignore` akar.
 - Bangun ulang hasil generasi lewat `scripts/` saja. Proyek Xcode dan Gradle tidak memanggil Cargo.
-- Sesudah mengubah API yang diekspor `tablet-ffi`, jalankan generator dan kedua skrip build pada commit yang sama, supaya binding kedua aplikasi berasal dari revisi pustaka yang sama. Generatornya (`scripts/generate-bindings.sh`) ditetapkan untuk fitur 03.
+- Sesudah mengubah API yang diekspor `tablet-ffi`, jalankan generator dan kedua skrip build pada commit yang sama, supaya binding kedua aplikasi berasal dari revisi pustaka yang sama. Generatornya `scripts/generate-bindings.sh`; aturan kontraknya (tipe, galat, nullability, kepemilikan nilai, kompatibilitas) ada di [konvensi kontrak FFI](contracts/ffi-conventions.md).
 - Bila build dimulai dari tree bersih, `git status --short` harus tetap kosong sesudahnya. Bila ada file baru di sana, berarti ada hasil generasi yang lolos dari `.gitignore`.
 - Bila kamu mengubah token desain kanonis, bangun ulang atau validasi keluaran kedua platform di perubahan yang sama (mulai fitur 08).
 

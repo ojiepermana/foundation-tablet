@@ -1,6 +1,6 @@
 # Struktur repo
 
-Struktur nyata repo sesudah fitur 01, dan setiap penyimpangan dari struktur dasar [README](../../README.md) bagian 5 beserta alasannya. README menyebut struktur itu sebagai baseline, bukan kewajiban membuat semua folder: folder hanya dibuat bila punya tanggung jawab nyata, tanpa file penanda tempat. Sumber keputusannya [spec 0001](../specs/0001-arsitektur-dan-build-awal/index.md) bagian "Struktur repo fitur 01" dan "Penyimpangan dari README bagian 5".
+Struktur nyata repo sesudah fitur 03, dan setiap penyimpangan dari struktur dasar [README](../../README.md) bagian 5 beserta alasannya. README menyebut struktur itu sebagai baseline, bukan kewajiban membuat semua folder: folder hanya dibuat bila punya tanggung jawab nyata, tanpa file penanda tempat. Sumber keputusannya [spec 0001](../specs/0001-arsitektur-dan-build-awal/index.md) bagian "Struktur repo fitur 01" dan "Penyimpangan dari README bagian 5".
 
 ## Struktur nyata
 
@@ -16,7 +16,9 @@ rust-toolchain.toml                channel 1.99.1, profile minimal, rustfmt, cli
 .gitignore                         aturan commit spec 0001
 crates/
   core/                            paket tablet-core (lib): Cargo.toml, src/lib.rs
-  tablet-ffi/                      paket tablet-ffi (lib, staticlib, cdylib): Cargo.toml, src/lib.rs
+  tablet-ffi/                      paket tablet-ffi (lib, staticlib, cdylib): Cargo.toml, src/lib.rs, uniffi.toml
+tooling/
+  uniffi-bindgen/                  paket tablet-uniffi-bindgen (bin uniffi-bindgen): Cargo.toml, src/main.rs
 apps/
   ipados/
     Tablet.xcodeproj/              project.pbxproj, xcshareddata/xcschemes/Tablet.xcscheme
@@ -35,6 +37,7 @@ apps/
 scripts/
   build-ipados.sh                  mode 100755
   build-android-tablet.sh          mode 100755
+  generate-bindings.sh             mode 100755, binding Swift atau Kotlin dari pustaka tablet-ffi
   test.sh                          mode 100755, menjalankan tes tingkat repo
 tests/
   lib/harness.sh                   helper tes: asersi, sandbox, alat tiruan
@@ -47,6 +50,7 @@ docs/
   getting-started.md               panduan mulai singkat
   contributing.md                  panduan kontribusi (fitur 02)
   architecture/                    lima dokumen ini
+  contracts/ffi-conventions.md     konvensi kontrak FFI (fitur 03)
   specs/                           spec keputusan (0001 dan seterusnya)
   scope/                           rencana fitur, termasuk coordination/
   reviews/                         bukti build, verify, dan review
@@ -54,7 +58,7 @@ docs/
 .claude/skills/coordinate/         alur koordinasi sesi agen
 ```
 
-Folder yang dibuat build dan tidak di-commit: `target/`, `apps/ipados/build/`, `apps/android-tablet/app/build/`, `apps/android-tablet/.gradle/`, `apps/android-tablet/.kotlin/`.
+Folder yang dibuat build atau generasi dan tidak di-commit: `bindings/swift/Sources/`, `bindings/kotlin/`, `target/` (termasuk `target/bindings/swift/headers/`), `apps/ipados/build/`, `apps/android-tablet/app/build/`, `apps/android-tablet/.gradle/`, `apps/android-tablet/.kotlin/`.
 
 ## Penyimpangan dari README bagian 5
 
@@ -70,10 +74,12 @@ Folder yang dibuat build dan tidak di-commit: `target/`, `apps/ipados/build/`, `
 | Panduan di `README.md` | `docs/getting-started.md` | `README.md` adalah dokumen kebutuhan produk |
 | Tidak ada | `.xcode-version`, `Cargo.lock` di akar | Kunci versi |
 | `tests/fixtures`, `tests/contracts` | `tests/lib`, `tests/repo`, `tests/build-scripts`, `tests/artifacts`; dua folder README belum dibuat | Fitur 01 hanya punya tes tingkat repo; fixture dan tes kontrak dibuat oleh fitur pemiliknya |
-| `scripts/test.sh` | Ada sejak fitur 01, menjalankan tes tingkat repo saja | `cargo test` tetap perintah tes Rust; fitur 03 memutuskan apakah runner mendapat grup Rust |
+| `scripts/test.sh` | Ada sejak fitur 01, menjalankan tes tingkat repo saja | `cargo test` tetap perintah tes Rust; spec 0002 (K12) memutuskan runner tidak mendapat grup Cargo |
 | Tidak ada | `test-preferences.json` di akar | Skill `/test` membaca pilihan alat dari file ini, jadi tidak bertanya di tiap fitur |
-| `design-system/`, `shared/`, `tooling/`, `.github/`, skrip lain | Belum dibuat | README melarang folder penanda tempat; dibuat oleh fitur pemiliknya |
+| `tooling/codegen/`, `tooling/validation/` | `tooling/uniffi-bindgen/` | Satu crate generator binding; folder validasi dibuat fitur 10 bila perlu |
+| `docs/contracts/ffi-conventions.md` | Sama | Ditulis fitur 03 |
+| `design-system/`, `shared/`, `.github/`, skrip lain | Belum dibuat | README melarang folder penanda tempat; dibuat oleh fitur pemiliknya |
 
 Baris `apps/ipados/Tablet/` berlaku untuk folder di dalam target: saat ini hanya `Tablet/App/` yang ada. Folder `Presentation/`, `Platform/`, dan seterusnya dibuat di dalam `Tablet/` oleh fitur yang pertama mengisinya. Paket Kotlin `foundation.tablet.presentation` dan folder tes Android juga belum ada; saat ini hanya paket `foundation.tablet`.
 
-Baris `bindings/` adalah keputusan yang ditetapkan, belum dibangun: folder itu belum ada sampai fitur 03 dan 04.
+Folder `bindings/` dibuat `scripts/generate-bindings.sh` sejak fitur 03 dan isinya tidak di-commit. `bindings/swift/Package.swift` (di-commit) dan XCFramework datang dari fitur 04.
