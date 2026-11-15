@@ -124,6 +124,21 @@ Keputusan tambahan yang ditutup sesudah cross check (semua `biasa`, opsi rekomen
 | K27 | iPadOS minimum di `Package.swift` | Salinan kedua yang dinyatakan, diperiksa fitur 10 | Tanpa `platforms` di paket | Tabel sumber nilai; kode `async` hasil generasi gagal dikompilasi tanpa `platforms` |
 | K28 | Unduhan SDK otomatis oleh AGP | Dimatikan (`android.builder.sdkDownload=false`) | Dibiarkan | `gradle.properties` |
 
+Keputusan tambahan dari hasil build milestone 2 (pembaruan spec 2026-11-15, saat spec berstatus `In Progress`; opsi rekomendasi developer diambil lead dalam mode `auto`):
+
+| # | Pertanyaan | Diambil | Runner up | Tanda | Yang berubah bila runner up dipilih |
+|---|---|---|---|---|---|
+| K29 | Peringatan headermap Xcode 27.1 pada target `Tablet` | Tambah `ALWAYS_SEARCH_USER_PATHS = NO` ke `Base.xcconfig` | Biarkan peringatan | biasa | Blok `Base.xcconfig` tetap tanpa baris itu dan tugas 11 Build plan hilang; peringatan tetap tercetak sekali per konfigurasi pada tiap build |
+
+- **Sumber K29**: laporan `dev-f1-m1` untuk milestone 2 ([bukti build](../../reviews/2026-11-15-build-f01-m2.md)) dan build lead pada merge `0868e45`. Xcode 27.1 mencetak dua kali (sekali untuk simulator, sekali untuk perangkat): `warning: Traditional headermap style is no longer supported; please migrate to using separate headermaps and set 'ALWAYS_SEARCH_USER_PATHS' to NO. (in target 'Tablet' from project 'Tablet')`. Spec menetapkan isi `Base.xcconfig` "tepat nilai ini", jadi developer tidak menambah baris itu sendiri.
+- **Penyebab**: blok `buildSettings` di `project.pbxproj` sengaja kosong, jadi nilai bawaan Xcode yang berlaku, yaitu `YES`. Templat proyek Xcode menulis `NO` di tingkat proyek; spec ini memindahkan semua nilai ke xcconfig dan baris itu terlewat.
+- **Uji K29** (2026-11-15, `git clone` worktree spec pada `0868e45` ke folder sementara di luar repo, Xcode 27.1, sesudah `pgrep -x xcodebuild` kosong; clone dihapus sesudahnya):
+  - Tanpa baris itu, `scripts/build-ipados.sh --simulator` keluar 0 dan mencetak peringatan headermap 1 kali.
+  - Dengan baris itu sesudah `SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD`, `scripts/build-ipados.sh` tanpa argumen keluar 0, `BUILD SUCCEEDED` 2 kali, peringatan headermap 0 kali, tanpa baris `error:`. Satu satunya peringatan yang tersisa adalah `Metadata extraction skipped, no AppIntents.framework dependency found` (informasi bawaan untuk aplikasi tanpa App Intents, sudah ada sebelumnya).
+  - Bukti AC-5 dan AC-6 tidak berubah: `lipo -archs` menampilkan `arm64`, `MinimumOSVersion` `26.0`, `UIDeviceFamily` `[2]` untuk kedua app; app Release tetap tanpa tanda tangan.
+  - `diff` keluaran `xcodebuild -showBuildSettings` (Debug, simulator generik, 554 baris) sebelum dan sesudah hanya berbeda satu baris: `ALWAYS_SEARCH_USER_PATHS = YES` menjadi `NO`. `Info.plist` app simulator sama persis.
+- **Kenapa aman**: setting itu hanya mengatur cara kompilator C mencari header dari jalur pencarian milik user. Target `Tablet` hanya berisi Swift, dan modul binding fitur 04 adalah paket Swift lokal yang tidak membaca xcconfig proyek.
+
 ## Catatan cross check
 
 Dijalankan 2026-11-15 oleh model lain (`claude-opus-5-5`, hanya membaca) terhadap draf pertama. Vonisnya: arah desain kokoh, tetapi draf belum bisa dibangun tanpa bertanya. Semua perbaikan yang direkomendasikan diterapkan (mode `auto`).
