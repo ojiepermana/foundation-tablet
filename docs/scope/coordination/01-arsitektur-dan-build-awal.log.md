@@ -5,7 +5,7 @@
 - **Mode keputusan:** `auto` · **Ketentuan tambahan:** tidak ada
 - **Aturan umum brief:** `01-arsitektur-dan-build-awal.brief-umum.md` · **Langkah manual:** `01-arsitektur-dan-build-awal.manual.md`
 - **Wave aktif:** 1, mulai 2026-11-15
-- **Diperbarui:** 2026-11-15 22:50
+- **Diperbarui:** 2026-11-15 23:30
 
 ## Sub sesi wave 1
 
@@ -52,6 +52,7 @@
 | 2026-11-15 | Verify milestone 4 dan `Verify it` digabung dalam satu item checker pada SHA yang sama: langkah Milestone 4 sudah mengulang seluruh build dari clone bersih, jadi verify penuh hanya menambah peta AC-1 sampai AC-11 dan langkah Milestone 1 sampai 3 yang jalurnya berubah (`Base.xcconfig`). | lead |
 | 2026-11-15 | Rekomendasi developer yang belum dijadwalkan: `scripts/build-android-tablet.sh` menolak lebih awal bila `$JAVA_HOME/release` tidak ada, supaya stub `java` macOS tidak menggantung. Bukan syarat AC-8; ditimbang sesudah verify penuh. | lead |
 | 2026-11-15 | `Test it` TERBLOKIR keputusan: spec 0001 menutup jalur tes yang lazim (tanpa target tes native, nol tes Rust sampai fitur 03, "hanya path berikut yang dibuat") dan skill `/test` butuh `test-preferences.json` yang tanpa itu bertanya lewat panel. Dibuka lewat item `architect (update)`; tester tetap standby sampai rancangan diterima. | lead |
+| 2026-11-15 | Pembaruan spec 0001 "Rancangan tes fitur 01" diterima lead (`accept`) pada draf di worktree architect. Tiga cek gerbang lulus: sebelas temuan cross check (`claude-opus-5-5`) diterapkan, ID dan teks AC-1 sampai AC-11 tidak berubah, tidak ada spec `Accepted` lain. K32 bertanda `berat` oleh architect; mode `auto` mengambil opsi rekomendasi dan lead tidak mengubah tanda itu. | lead |
 | 2026-11-15 | Satu build native penuh pada satu waktu: disk bebas sekitar 37 GiB (92% terpakai) dan sesi repo lain sedang membangun di mesin yang sama. | lead |
 
 ## Keputusan delegasi
@@ -60,6 +61,7 @@ Keputusan spec yang diambil dari opsi rekomendasi atas nama user (SKILL.md bagia
 
 | Tanggal | Spec · AC | Pertanyaan | Diambil | Runner-up | Berat | Cara membatalkan | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
+| 2026-11-15 | `0001` · AC-1 sampai AC-11 (tes) | K32 Alat tes tingkat repo | bash polos yang berjalan di bash 3.2, tanpa framework dan tanpa prasyarat baru; tes adalah salinan langsung langkah verify | Python `unittest` dengan `python3` bawaan Xcode | berat | `architect (update)` spec 0001; file `tests/**/*.test.sh` ditulis ulang sebagai `tests/**/test_*.py`, runner memanggil `python3 -m unittest`, `additionalTools` di `test-preferences.json` menjadi `["unittest"]`. Harga membalik naik tiap fitur karena fitur 10 dan 11 mengikuti konvensi ini | berlaku (diterima lead; commit spec menyusul) |
 | 2026-11-15 | `0001` · AC-1, AC-8 | K1 Versi Rust | 1.99.1 edisi 2024; rilis titik berumur satu bulan | 1.100.0 | - | `architect (update)` spec 0001; M1 dibangun ulang | berlaku |
 | 2026-11-15 | `0001` · AC-2 | K2 Versi UniFFI | 0.32.2 kunci persis; generator dan runtime harus sama | 0.31.x | - | `architect (update)` spec 0001; M1; binding fitur 03 | berlaku |
 | 2026-11-15 | `0001` · AC-2 | K3 Batas crate | dua crate (`tablet-core`, `tablet-ffi`) tanpa fungsi di fitur 01 | `hello` sudah di inti | - | `architect (update)` spec 0001; M1 | berlaku |
@@ -87,6 +89,15 @@ Keputusan spec yang diambil dari opsi rekomendasi atas nama user (SKILL.md bagia
 | 2026-11-15 | `0001` · AC-5, AC-7, AC-8 | K25 sampai K28 | isolasi aktor Swift bawaan templat; Build Tools ikut AGP; iPadOS minimum disalin di `Package.swift`; unduhan SDK otomatis dimatikan | lihat `rationale.md` bagian "Keputusan diambil" | - | `architect (update)` spec 0001; M2, M3 | berlaku |
 | 2026-11-15 | `0001` · AC-5, AC-6, AC-8 | K29 Peringatan headermap Xcode 27.1 pada kedua build iPad | tambah `ALWAYS_SEARCH_USER_PATHS = NO` ke `Base.xcconfig` (rekomendasi developer); architect membuktikannya di clone sementara: peringatan 1 kali tanpa baris, 0 kali dengan baris, dan `-showBuildSettings` hanya berbeda satu baris | biarkan peringatan | - | `architect (update)` spec 0001; hapus satu baris xcconfig dan tugas Build plan 11 | berlaku (spec `b53c388`, merge `3c80a91`); diterapkan di kode pada `bfe3ebb`, merge `065ed88` |
 | 2026-11-15 | `0001` · AC-7 | K30 Teks bukti AC-7 menulis `sdkVersion:'29'`, `aapt2` 36.0.0 mencetak `minSdkVersion:'29'` | ikuti keluaran alat; nilai dan keputusan tidak berubah | biarkan teks dan catat tafsiran di tiap laporan | - | `architect (update)` spec 0001; tidak ada tugas Build plan yang berubah | berlaku (spec `719324a`, merge `f13f456`) |
+| 2026-11-15 | `0001` · tes | K31 Lingkup tes fitur 01 | kunci hal yang tahan lama (batas crate, kunci versi, aturan commit, prasyarat dan bentuk perintah skrip, hasil build); potret fitur 01 tetap bukti verify | tidak ada tes otomatis, `Test it` diganti gerbang verify | - | `architect (update)` spec 0001; milestone 5 hilang | berlaku (diterima lead; commit spec menyusul) |
+| 2026-11-15 | `0001` · tes | K33 Lokasi tes | `tests/<grup>/*.test.sh` dan `scripts/test.sh` | tes integrasi di `crates/*/tests/` lewat `cargo test` | - | `architect (update)` spec 0001; tugas 12 sampai 14 | berlaku (diterima lead; commit spec menyusul) |
+| 2026-11-15 | `0001` · tes | K34 Build native dalam suite | dua tingkat: grup cepat tanpa build; grup `artifacts` hanya membaca hasil build dan harus disebut | cepat saja, hasil build ke fitur 11 | - | `architect (update)` spec 0001; tugas 14 | berlaku (diterima lead; commit spec menyusul) |
+| 2026-11-15 | `0001` · tes | K35 Cara menguji skrip build | sandbox dengan alat tiruan di PATH | tiga percobaan AC-8 pada lingkungan nyata | - | `architect (update)` spec 0001; tugas 13 | berlaku (diterima lead; commit spec menyusul) |
+| 2026-11-15 | `0001` · tes | K36 Kunci versi di tes | baca nilai dari sumbernya, bandingkan dengan pemakai dan dokumen | tabel nilai harapan di tes | - | `architect (update)` spec 0001; tugas 12 | berlaku (diterima lead; commit spec menyusul) |
+| 2026-11-15 | `0001` · tes | K37 `test-preferences.json` | `tool` = `cargo test`, `additionalTools` = `bash`; di-commit di akar | `tool` = `bash` | - | `architect (update)` spec 0001; tugas 12 | berlaku (diterima lead; commit spec menyusul) |
+| 2026-11-15 | `0001` · tes | K38 Biner ter-commit | daftar izin di tes | tegaskan hanya `gradle-wrapper.jar` | - | `architect (update)` spec 0001; tugas 12 | berlaku (diterima lead; commit spec menyusul) |
+| 2026-11-15 | `0001` · tes | K39 Tugas dokumen (15) | tester di branch yang sama | developer di branch terpisah | - | `architect (update)` spec 0001; tugas 15 | berlaku (diterima lead; commit spec menyusul) |
+| 2026-11-15 | `0001` · tes | K40 `scripts/test.sh` dan `cargo test` | runner tidak membungkus `cargo test` sampai fitur 03 | membungkus | - | `architect (update)` spec 0001; tugas 12 | berlaku (diterima lead; commit spec menyusul) |
 
 ## Blocker terbuka
 
