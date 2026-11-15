@@ -38,3 +38,46 @@ cd "$CLONE"
 - AC-2: `cargo metadata`, dua `cargo tree`, pustaka `.a` dan `.dylib`, `crate-type`
 - AC-8 (bagian Rust): `rustup toolchain install`, `rustc --version`, pemeriksaan kunci versi
 - AC-11 (bagian `.gitignore` dan biner): `git ls-files`, `git status --short`, `git check-ignore`
+
+## Milestone 2: Proyek iPad minimal dan skrip build
+
+Build plan 4 dan 5. Target simulator iPad generik (Debug, `aarch64-apple-ios-sim`) dan iPad generik (Release tanpa tanda tangan, `aarch64-apple-ios`), Xcode 27.1, macOS 27.0.1. Butuh milestone 1. Menjalankan aplikasi di iPad fisik bukan bagian milestone ini (MAN-1 di file manual).
+
+Periksa disk lebih dulu (`df -h .`, berhenti bila bebas di bawah 10 GiB), lalu siapkan clone bersih dan jalankan semua perintah dari akarnya:
+
+```bash
+CLONE="$(mktemp -d)/tablet"
+git clone <path worktree atau repo> "$CLONE"
+cd "$CLONE"
+P=apps/ipados/build/DerivedData/Build/Products
+```
+
+### Commands
+
+- [ ] `cat .xcode-version` → `27.1`; `xcodebuild -version` → `Xcode 27.1` → AC-8 (baris Xcode)
+- [ ] `grep -nE '^(IPHONEOS_DEPLOYMENT_TARGET|SWIFT_VERSION|TARGETED_DEVICE_FAMILY|ARCHS\[sdk=iphonesimulator\*\])' apps/ipados/Config/Base.xcconfig` → `26.0`, `6.0`, `2`, `arm64`; isi file sama persis dengan blok `Base.xcconfig` di spec bagian "Proyek iPad" → AC-8 (baris Xcode dan Swift, iPadOS minimum)
+- [ ] `plutil -lint apps/ipados/Tablet.xcodeproj/project.pbxproj` → `OK` → AC-5
+- [ ] `xcodebuild -list -project apps/ipados/Tablet.xcodeproj` → target `Tablet`, konfigurasi `Debug` dan `Release`, skema `Tablet` → AC-5
+- [ ] `grep -c 'buildSettings = {' apps/ipados/Tablet.xcodeproj/project.pbxproj` → `4`, dan `grep -A1 'buildSettings = {' apps/ipados/Tablet.xcodeproj/project.pbxproj | grep -vE 'buildSettings|^\s*};|^--'` → kosong (semua blok kosong, nilai hanya di xcconfig) → AC-8
+- [ ] `DEVELOPER_DIR=/tidak/ada scripts/build-ipados.sh; echo $?` → pesan menyebut `DEVELOPER_DIR` dan cara memperbaikinya, kode keluar `1`, tanpa build → AC-8
+- [ ] `scripts/build-ipados.sh; echo $?` (tanpa argumen) → `** BUILD SUCCEEDED **` dua kali, baris terakhir `build-ipados: selesai`, kode keluar `0` → AC-3, AC-5, AC-6
+- [ ] `ls target/aarch64-apple-ios/release/libtablet_ffi.a target/aarch64-apple-ios-sim/release/libtablet_ffi.a` → kedua file ada → AC-3 (dua target Apple)
+- [ ] Simulator: `lipo -archs $P/Debug-iphonesimulator/Tablet.app/Tablet` → `arm64`; `plutil -extract MinimumOSVersion raw $P/Debug-iphonesimulator/Tablet.app/Info.plist` → `26.0`; `plutil -extract UIDeviceFamily json -o - $P/Debug-iphonesimulator/Tablet.app/Info.plist` → `[2]` → AC-5
+- [ ] Perangkat: tiga perintah yang sama pada `$P/Release-iphoneos/Tablet.app` → `arm64`, `26.0`, `[2]`; `codesign -dv $P/Release-iphoneos/Tablet.app` → `code object is not signed at all` → AC-6
+- [ ] `nm $P/Release-iphoneos/Tablet.app/Tablet | grep -ci uniffi` → `0` (pustaka Rust belum ditautkan) → AC-11
+- [ ] `cat apps/ipados/Tablet/App/TabletApp.swift` → satu `@main` `App` dengan `WindowGroup` berisi satu `Text` statis, tanpa navigasi, token, atau lokalisasi → AC-11
+- [ ] `git ls-files apps/ipados scripts .xcode-version` → tepat enam file: `.xcode-version`, `apps/ipados/Config/Base.xcconfig`, `apps/ipados/Tablet.xcodeproj/project.pbxproj`, `apps/ipados/Tablet.xcodeproj/xcshareddata/xcschemes/Tablet.xcscheme`, `apps/ipados/Tablet/App/TabletApp.swift`, `scripts/build-ipados.sh` (tanpa folder atau file penanda) → AC-11
+- [ ] `git ls-files -s scripts/build-ipados.sh` → mode `100755` → AC-9 (bagian skrip iPad)
+- [ ] `git ls-files | grep -E '\.(a|so|apk)$|xcframework|/build/|^target/'` → kosong → AC-11
+- [ ] `git status --short` sesudah skrip → kosong → AC-11
+- [ ] Sesudah selesai: `cd / && rm -rf "$(dirname "$CLONE")"` → clone, `target/`, dan `apps/ipados/build/` di dalamnya terhapus
+
+### Acceptance-criteria coverage
+
+- AC-3 (dua target Apple): dua file `libtablet_ffi.a` sesudah skrip tanpa argumen
+- AC-5: `plutil -lint`, `xcodebuild -list`, build simulator, tiga bukti pada app Debug simulator
+- AC-6: build perangkat, tiga bukti pada app Release, `codesign` tanpa tanda tangan
+- AC-8 (bagian iPad): `.xcode-version`, isi `Base.xcconfig`, blok `buildSettings` kosong, percobaan `DEVELOPER_DIR=/tidak/ada`
+- AC-11 (sisi iPad): satu layar SwiftUI statis, tidak menautkan pustaka Rust, tanpa penanda tempat, tanpa biner ter-commit, `git status --short` kosong
+
+Bukti build dari clone bersih oleh developer: [docs/reviews/2026-11-15-build-f01-m2.md](../../reviews/2026-11-15-build-f01-m2.md).
