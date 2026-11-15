@@ -153,39 +153,39 @@ LOG_IPAD="$(dirname "$CLONE")/build-ipados.log"
 
 Tugas 11, satu baris `Base.xcconfig`:
 
-- [ ] `awk '/^SDKROOT = iphoneos/{f=1} f{print} /^#include\? "Local.xcconfig"/{if(f)exit}' docs/specs/0001-arsitektur-dan-build-awal/index.md | diff - apps/ipados/Config/Base.xcconfig; echo $?` → tanpa selisih, kode keluar `0` (isi file sama persis dengan blok spec bagian "Proyek iPad", termasuk `ALWAYS_SEARCH_USER_PATHS = NO` sesudah `SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO`) → AC-8
-- [ ] `git diff 610cefb -- apps/ipados/Config/Base.xcconfig` (`610cefb` adalah `main` sesudah milestone 3) → selisih hanya satu baris tambahan `+ALWAYS_SEARCH_USER_PATHS = NO`, tanpa baris lain yang berubah → AC-8
+- [x] `awk '/^SDKROOT = iphoneos/{f=1} f{print} /^#include\? "Local.xcconfig"/{if(f)exit}' docs/specs/0001-arsitektur-dan-build-awal/index.md | diff - apps/ipados/Config/Base.xcconfig; echo $?` → tanpa selisih, kode keluar `0` (isi file sama persis dengan blok spec bagian "Proyek iPad", termasuk `ALWAYS_SEARCH_USER_PATHS = NO` sesudah `SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO`) → AC-8
+- [x] `git diff 610cefb -- apps/ipados/Config/Base.xcconfig` (`610cefb` adalah `main` sesudah milestone 3) → selisih hanya satu baris tambahan `+ALWAYS_SEARCH_USER_PATHS = NO`, tanpa baris lain yang berubah → AC-8
 
 Tugas 9, perintah panduan pada clone baru (perintah persis dari `docs/getting-started.md` bagian "Perintah repo", berurutan):
 
-- [ ] `grep -A11 '^## Perintah repo' docs/getting-started.md` → blok `bash` berisi tepat enam baris yang sama dengan spec bagian "Perintah repo": `rustup toolchain install`, `cargo install cargo-ndk --version 4.1.2 --locked`, `cargo build --workspace --locked`, `cargo test --workspace --locked`, `scripts/build-ipados.sh`, `scripts/build-android-tablet.sh` → AC-9
-- [ ] `rustup toolchain install; echo $?` → kode keluar `0`; lalu `rustc --version` → diawali `rustc 1.99.1` → AC-1, AC-9
-- [ ] `cargo install cargo-ndk --version 4.1.2 --locked; echo $?` → kode keluar `0` (bila sudah terpasang, Cargo mencetak bahwa paket sudah terpasang dan tetap keluar `0`) → AC-9
-- [ ] `cargo build --workspace --locked; echo $?` → kode keluar `0` → AC-1, AC-9
-- [ ] `cargo test --workspace --locked; echo $?` → `test result: ok`, kode keluar `0` → AC-1, AC-9
-- [ ] `scripts/build-ipados.sh > "$LOG_IPAD" 2>&1; echo $?` → kode keluar `0`; `grep -c 'BUILD SUCCEEDED' "$LOG_IPAD"` → `2`; `tail -1 "$LOG_IPAD"` → `build-ipados: selesai` → AC-3, AC-5, AC-6, AC-9
-- [ ] `grep -c 'Traditional headermap' "$LOG_IPAD"` → `0` → AC-5, AC-6 (tugas 11)
-- [ ] Simulator: `lipo -archs $P/Debug-iphonesimulator/Tablet.app/Tablet` → `arm64`; `plutil -extract MinimumOSVersion raw $P/Debug-iphonesimulator/Tablet.app/Info.plist` → `26.0`; `plutil -extract UIDeviceFamily json -o - $P/Debug-iphonesimulator/Tablet.app/Info.plist` → `[2]` → AC-5
-- [ ] Perangkat: tiga perintah yang sama pada `$P/Release-iphoneos/Tablet.app` → `arm64`, `26.0`, `[2]`; `codesign -dv $P/Release-iphoneos/Tablet.app` → `code object is not signed at all` → AC-6
-- [ ] `scripts/build-android-tablet.sh; echo $?` (sesudah build iPad selesai, tidak bersamaan) → `BUILD SUCCESSFUL`, baris terakhir `build-android-tablet: selesai`, kode keluar `0` → AC-7, AC-9
-- [ ] `ls target/aarch64-apple-ios/release/libtablet_ffi.a target/aarch64-apple-ios-sim/release/libtablet_ffi.a target/aarch64-linux-android/release/libtablet_ffi.so target/x86_64-linux-android/release/libtablet_ffi.so` → keempat file ada → AC-3
-- [ ] `"$SDK/build-tools/36.0.0/aapt2" dump badging "$APK" | grep -E 'SdkVersion|compileSdkVersion='` → `minSdkVersion:'29'`, `targetSdkVersion:'36'`, `compileSdkVersion='37'`; `unzip -l "$APK" | grep 'lib/'` → hanya `lib/arm64-v8a/` dan `lib/x86_64/` → AC-7
-- [ ] `git ls-files -s scripts apps/android-tablet/gradlew` → mode `100755` untuk `apps/android-tablet/gradlew`, `scripts/build-android-tablet.sh`, dan `scripts/build-ipados.sh` → AC-9
-- [ ] `git status --short` sesudah kedua skrip → kosong → AC-9, AC-11
-- [ ] Tidak ada langkah di luar panduan yang ternyata diperlukan (catat di bukti bila ada; itu berarti panduan harus diperbaiki) → AC-9
+- [x] `grep -A11 '^## Perintah repo' docs/getting-started.md` → blok `bash` berisi tepat enam baris yang sama dengan spec bagian "Perintah repo": `rustup toolchain install`, `cargo install cargo-ndk --version 4.1.2 --locked`, `cargo build --workspace --locked`, `cargo test --workspace --locked`, `scripts/build-ipados.sh`, `scripts/build-android-tablet.sh` → AC-9
+- [x] `rustup toolchain install; echo $?` → kode keluar `0`; lalu `rustc --version` → diawali `rustc 1.99.1` → AC-1, AC-9
+- [x] `cargo install cargo-ndk --version 4.1.2 --locked; echo $?` → kode keluar `0` (bila sudah terpasang, Cargo mencetak bahwa paket sudah terpasang dan tetap keluar `0`) → AC-9
+- [x] `cargo build --workspace --locked; echo $?` → kode keluar `0` → AC-1, AC-9
+- [x] `cargo test --workspace --locked; echo $?` → `test result: ok`, kode keluar `0` → AC-1, AC-9
+- [x] `scripts/build-ipados.sh > "$LOG_IPAD" 2>&1; echo $?` → kode keluar `0`; `grep -c 'BUILD SUCCEEDED' "$LOG_IPAD"` → `2`; `tail -1 "$LOG_IPAD"` → `build-ipados: selesai` → AC-3, AC-5, AC-6, AC-9
+- [x] `grep -c 'Traditional headermap' "$LOG_IPAD"` → `0` → AC-5, AC-6 (tugas 11)
+- [x] Simulator: `lipo -archs $P/Debug-iphonesimulator/Tablet.app/Tablet` → `arm64`; `plutil -extract MinimumOSVersion raw $P/Debug-iphonesimulator/Tablet.app/Info.plist` → `26.0`; `plutil -extract UIDeviceFamily json -o - $P/Debug-iphonesimulator/Tablet.app/Info.plist` → `[2]` → AC-5
+- [x] Perangkat: tiga perintah yang sama pada `$P/Release-iphoneos/Tablet.app` → `arm64`, `26.0`, `[2]`; `codesign -dv $P/Release-iphoneos/Tablet.app` → `code object is not signed at all` → AC-6
+- [x] `scripts/build-android-tablet.sh; echo $?` (sesudah build iPad selesai, tidak bersamaan) → `BUILD SUCCESSFUL`, baris terakhir `build-android-tablet: selesai`, kode keluar `0` → AC-7, AC-9
+- [x] `ls target/aarch64-apple-ios/release/libtablet_ffi.a target/aarch64-apple-ios-sim/release/libtablet_ffi.a target/aarch64-linux-android/release/libtablet_ffi.so target/x86_64-linux-android/release/libtablet_ffi.so` → keempat file ada → AC-3
+- [x] `"$SDK/build-tools/36.0.0/aapt2" dump badging "$APK" | grep -E 'SdkVersion|compileSdkVersion='` → `minSdkVersion:'29'`, `targetSdkVersion:'36'`, `compileSdkVersion='37'`; `unzip -l "$APK" | grep 'lib/'` → hanya `lib/arm64-v8a/` dan `lib/x86_64/` → AC-7
+- [x] `git ls-files -s scripts apps/android-tablet/gradlew` → mode `100755` untuk `apps/android-tablet/gradlew`, `scripts/build-android-tablet.sh`, dan `scripts/build-ipados.sh` → AC-9
+- [x] `git status --short` sesudah kedua skrip → kosong → AC-9, AC-11
+- [x] Tidak ada langkah di luar panduan yang ternyata diperlukan (catat di bukti bila ada; itu berarti panduan harus diperbaiki) → AC-9
 
 Tugas 9 dan 10, isi dokumen terhadap tabel spec bagian "Catatan arsitektur yang ditulis developer":
 
-- [ ] `docs/getting-started.md` memuat: prasyarat dan versinya (macOS 26.6, Xcode 27.1, rustup dengan `rust-toolchain.toml`, Android SDK `platforms;android-37.0` `build-tools;36.0.0` `platform-tools` `ndk;28.2.13676358`, JDK 25, `cargo-ndk` 4.1.2), cara memasang tiap prasyarat, enam perintah "Perintah repo", lokasi hasil build, dan masalah umum (JDK, `ANDROID_HOME`, target Rust) → AC-9
-- [ ] `docs/architecture/overview.md` memuat: lapisan A sampai E README bagian 3 dengan keadaan yang sudah dibangun, tautan ke empat dokumen lain, dan daftar "Ditetapkan, belum dibangun" (pengemasan pustaka iPad dan Android, lokasi binding, nama modul) → AC-10
-- [ ] `docs/architecture/support-matrix.md` memuat: tabel "Proposed stack" dan "Matriks dukungan" spec dengan nilai yang sama, target yang tidak didukung beserta alasan, alasan OS minimum, status 16 KB, tanggal pemeriksaan `2026-11-15`, dan tautan sumber dari `rationale.md` bagian References → AC-10
-- [ ] `docs/architecture/ownership-matrix.md` memuat: setiap baris tabel spec "Pemilik tiap bagian" → AC-10
-- [ ] `docs/architecture/dependency-rules.md` memuat: diagram dan tujuh aturan spec "Arah dependensi" dengan teks yang sama → AC-10
-- [ ] `docs/architecture/repository-structure.md` memuat: struktur repo yang sama dengan `git ls-files` dan setiap baris tabel spec "Penyimpangan dari README bagian 5" → AC-10
-- [ ] Angka versi di dokumen sama dengan file repo: `cat rust-toolchain.toml .xcode-version apps/android-tablet/gradle/libs.versions.toml apps/android-tablet/gradle/wrapper/gradle-wrapper.properties apps/android-tablet/gradle/gradle-daemon-jvm.properties` lalu bandingkan dengan `support-matrix.md` dan `getting-started.md` → AC-9, AC-10
-- [ ] Setiap tautan relatif di keenam dokumen menunjuk file yang ada: `for f in docs/getting-started.md docs/architecture/*.md; do d=$(dirname "$f"); grep -o '](\([^)#h][^)]*\))' "$f" | sed 's/](\(.*\))/\1/; s/#.*//' | sort -u | while read -r p; do [ -e "$d/$p" ] || echo "HILANG $f -> $p"; done; done` → tanpa keluaran → AC-9, AC-10
-- [ ] `ls docs/architecture` → tepat lima file: `dependency-rules.md`, `overview.md`, `ownership-matrix.md`, `repository-structure.md`, `support-matrix.md` (tanpa `boundaries.md`, tanpa penanda) → AC-10, AC-11
-- [ ] Sesudah selesai: `(cd apps/android-tablet && JAVA_HOME="/Applications/Android Studio.app/Contents/jbr/Contents/Home" ./gradlew --stop)`, lalu `cd / && rm -rf "$(dirname "$CLONE")"` → daemon mati, clone dan log terhapus
+- [x] `docs/getting-started.md` memuat: prasyarat dan versinya (macOS 26.6, Xcode 27.1, rustup dengan `rust-toolchain.toml`, Android SDK `platforms;android-37.0` `build-tools;36.0.0` `platform-tools` `ndk;28.2.13676358`, JDK 25, `cargo-ndk` 4.1.2), cara memasang tiap prasyarat, enam perintah "Perintah repo", lokasi hasil build, dan masalah umum (JDK, `ANDROID_HOME`, target Rust) → AC-9
+- [x] `docs/architecture/overview.md` memuat: lapisan A sampai E README bagian 3 dengan keadaan yang sudah dibangun, tautan ke empat dokumen lain, dan daftar "Ditetapkan, belum dibangun" (pengemasan pustaka iPad dan Android, lokasi binding, nama modul) → AC-10
+- [x] `docs/architecture/support-matrix.md` memuat: tabel "Proposed stack" dan "Matriks dukungan" spec dengan nilai yang sama, target yang tidak didukung beserta alasan, alasan OS minimum, status 16 KB, tanggal pemeriksaan `2026-11-15`, dan tautan sumber dari `rationale.md` bagian References → AC-10
+- [x] `docs/architecture/ownership-matrix.md` memuat: setiap baris tabel spec "Pemilik tiap bagian" → AC-10
+- [x] `docs/architecture/dependency-rules.md` memuat: diagram dan tujuh aturan spec "Arah dependensi" dengan teks yang sama → AC-10
+- [x] `docs/architecture/repository-structure.md` memuat: struktur repo yang sama dengan `git ls-files` dan setiap baris tabel spec "Penyimpangan dari README bagian 5" → AC-10
+- [x] Angka versi di dokumen sama dengan file repo: `cat rust-toolchain.toml .xcode-version apps/android-tablet/gradle/libs.versions.toml apps/android-tablet/gradle/wrapper/gradle-wrapper.properties apps/android-tablet/gradle/gradle-daemon-jvm.properties` lalu bandingkan dengan `support-matrix.md` dan `getting-started.md` → AC-9, AC-10
+- [x] Setiap tautan relatif di keenam dokumen menunjuk file yang ada: `for f in docs/getting-started.md docs/architecture/*.md; do d=$(dirname "$f"); grep -o '](\([^)#h][^)]*\))' "$f" | sed 's/](\(.*\))/\1/; s/#.*//' | sort -u | while read -r p; do [ -e "$d/$p" ] || echo "HILANG $f -> $p"; done; done` → tanpa keluaran → AC-9, AC-10
+- [x] `ls docs/architecture` → tepat lima file: `dependency-rules.md`, `overview.md`, `ownership-matrix.md`, `repository-structure.md`, `support-matrix.md` (tanpa `boundaries.md`, tanpa penanda) → AC-10, AC-11
+- [x] Sesudah selesai: `(cd apps/android-tablet && JAVA_HOME="/Applications/Android Studio.app/Contents/jbr/Contents/Home" ./gradlew --stop)`, lalu `cd / && rm -rf "$(dirname "$CLONE")"` → daemon mati, clone dan log terhapus
 
 ### Acceptance-criteria coverage
 
