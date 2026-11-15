@@ -5,7 +5,7 @@
 - **Mode keputusan:** `auto` · **Ketentuan tambahan:** tidak ada
 - **Aturan umum brief:** `01-arsitektur-dan-build-awal.brief-umum.md` · **Langkah manual:** `01-arsitektur-dan-build-awal.manual.md`
 - **Wave aktif:** 1, mulai 2026-11-15
-- **Diperbarui:** 2026-11-15 21:00
+- **Diperbarui:** 2026-11-15 21:20
 
 ## Sub sesi wave 1
 
@@ -20,7 +20,7 @@
 | `dev-f1-m1` | developer | Fitur 01, milestone 4 (Build plan 9, 10, 11) | `01-arsitektur-dan-build-awal.md` | `docs/getting-started.md`, `docs/architecture/**`, satu baris `apps/ipados/Config/Base.xcconfig`, `verify.md` bagian Milestone 4, `docs/reviews/2026-11-15-build-f01-m4.md` | `claude/dev-f1-m1-ee7069` | `claude-opus-5-5 · medium` | dipakai ulang, aktif |
 | `chk-f1-verify` | checker (verify) | Fitur 01, verify milestone 1 pada `main` `578e3b7`: PASS 15 dari 15 | `01-arsitektur-dan-build-awal.md` | centang `verify.md` bagian Milestone 1, `docs/reviews/2026-11-15-verify-f01-m1.md` | `claude/chk-f1-verify-4078a9` | `claude-fable-5-2 · high` | merged (`bd8f2ca`) |
 | `chk-f1-verify` | checker (verify) | Fitur 01, verify milestone 2 pada `main` `0868e45`: PASS 17 dari 17 | `01-arsitektur-dan-build-awal.md` | centang `verify.md` bagian Milestone 2, `docs/reviews/2026-11-15-verify-f01-m2.md` | `claude/chk-f1-verify-4078a9` | `claude-fable-5-2 · high` | dipakai ulang, merged (`542db58`) |
-| `chk-f1-verify` | checker (verify) | Fitur 01, verify milestone 3 pada `main` `610cefb` | `01-arsitektur-dan-build-awal.md` | centang `verify.md` bagian Milestone 3, `docs/reviews/2026-11-15-verify-f01-m3.md` | `claude/chk-f1-verify-4078a9` | `claude-fable-5-2 · high` | dipakai ulang, aktif |
+| `chk-f1-verify` | checker (verify) | Fitur 01, verify milestone 3 pada `main` `610cefb`: PASS 21 dari 21 | `01-arsitektur-dan-build-awal.md` | centang `verify.md` bagian Milestone 3, `docs/reviews/2026-11-15-verify-f01-m3.md` | `claude/chk-f1-verify-4078a9` | `claude-fable-5-2 · high` | dipakai ulang, merged (`495e931`), siaga |
 | `tst-f1-test` | tester | Fitur 01, `Test it` | `01-arsitektur-dan-build-awal.md` | ditetapkan setelah build di-merge | `claude/tst-f1-test-949ed6` | `claude-opus-5-5 · high` | standby |
 
 ## Keputusan
@@ -94,6 +94,7 @@ Keputusan spec yang diambil dari opsi rekomendasi atas nama user (SKILL.md bagia
 - Fitur 01 · `Putuskan arsitektur awal (spec)` · `69d40da` · spec `Proposed` dengan AC-1 sampai AC-11, Decision, Build plan 1 sampai 10, Consequences · gerbang desain lead lulus (cross check diterapkan, Done when tercakup, tidak ada spec bertentangan) · merge `27f1283` (main sebelum merge `d9a0a38`).
 - Fitur 01 AC-1, AC-2, AC-8 (bagian Rust, Target Rust, UniFFI), AC-11 (bagian `.gitignore` dan biner) · `Milestone 1: Workspace Rust dan batas crate` · diuji pada `578e3b7` · host `aarch64-apple-darwin`, macOS 27.0.1 (26A434) · 15 langkah `verify.md` bagian Milestone 1 dari clone bersih (`cargo build --workspace --locked`, `cargo test --workspace --locked`, `cargo metadata`, dua `cargo tree`, `git check-ignore` 21 path) · PASS 15 dari 15, log di `docs/reviews/2026-11-15-verify-f01-m1.md` · integrasi `bd8f2ca`. Tafsiran checker: "clone bersih" berarti `git clone` baru tanpa `target/`; pemasangan toolchain dari nol di mesin kosong belum teramati (kandidat bukti CI fitur 11).
 - Fitur 01 AC-5, AC-6, AC-3 (dua target Apple), AC-8 (bagian iPad), AC-11 (sisi iPad) · `Milestone 2: Proyek iPad minimal dan skrip build` · diuji pada `0868e45` · simulator iPad generik (Debug, `aarch64-apple-ios-sim`) dan iPad generik (Release tanpa tanda tangan, `aarch64-apple-ios`), Xcode 27.1 (27A9275), SDK iOS 27.1, macOS 27.0.1 (26A434) · 17 langkah `verify.md` bagian Milestone 2 dari clone bersih (`scripts/build-ipados.sh` tanpa argumen, `--simulator`, `--device`; `lipo`, `plutil`, `codesign -dv`, `nm`, `DEVELOPER_DIR=/tidak/ada`) · PASS 17 dari 17, log di `docs/reviews/2026-11-15-verify-f01-m2.md` · integrasi `542db58`. iPad fisik `NOT_RUN` (F01-1), bukan syarat AC-6. Jalur prasyarat skrip selain `DEVELOPER_DIR` tidak teramati; AC-8 tidak memintanya.
+- Fitur 01 AC-4, AC-7, AC-3 (dua target Android), AC-8 (bagian Android), AC-11 (sisi Android) · `Milestone 3: Proyek Android minimal dan skrip build` · diuji pada `610cefb` · APK debug ABI `arm64-v8a` dan `x86_64`, `minSdk` 29, `targetSdk` 36, `compileSdk` 37, AGP 9.3.3, Gradle 9.5.1, JDK 25.0.2, NDK 28.2.13676358, host macOS 27.0.1 · 21 langkah `verify.md` bagian Milestone 3 dari clone bersih (`scripts/build-android-tablet.sh` dengan `ANDROID_HOME` dan `JAVA_HOME` tidak diset, `llvm-objdump -p`, `aapt2 dump badging`, `unzip -l`, `./gradlew -q buildEnvironment`, dua percobaan prasyarat hilang) · PASS 21 dari 21, log di `docs/reviews/2026-11-15-verify-f01-m3.md` · integrasi `495e931`. Tablet fisik dan perangkat 16 KB `NOT_RUN` (F01-2, F01-3), bukan syarat. Catatan di luar langkah: `JAVA_HOME=/usr` membuat stub `/usr/bin/java` macOS menggantung lebih dari dua menit sebelum skrip keluar 1; diteruskan ke developer untuk "masalah umum" di panduan.
 
 ## Riwayat wave
 
