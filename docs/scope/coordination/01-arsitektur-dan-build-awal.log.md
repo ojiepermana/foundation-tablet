@@ -5,16 +5,19 @@
 - **Mode keputusan:** `auto` · **Ketentuan tambahan:** tidak ada
 - **Aturan umum brief:** `01-arsitektur-dan-build-awal.brief-umum.md` · **Langkah manual:** `01-arsitektur-dan-build-awal.manual.md`
 - **Wave aktif:** 1, mulai 2026-11-15
-- **Diperbarui:** 2026-11-15 19:20
+- **Diperbarui:** 2026-11-15 19:45
 
 ## Sub sesi wave 1
 
 | Nama | Peran | Item | Scope | Ownership | Branch | Model | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | `arc-f1-spec` | architect | Fitur 01, "Putuskan arsitektur awal (spec)" | `01-arsitektur-dan-build-awal.md` | `docs/specs/0001-arsitektur-dan-build-awal/` | `claude/arc-f1-spec-983432` | `claude-fable-5-2 · high` | merged (`27f1283`) |
+| `arc-f1-spec` | architect (update) | Spec 0001: tambah `ALWAYS_SEARCH_USER_PATHS = NO` ke blok `Base.xcconfig`, tugas Build plan 11, K29 | `01-arsitektur-dan-build-awal.md` | `docs/specs/0001-arsitektur-dan-build-awal/index.md`, `rationale.md` | `claude/arc-f1-spec-983432` | `claude-fable-5-2 · high` | dipakai ulang, aktif |
 | `dev-f1-m1` | developer | Fitur 01, milestone 1. Build plan 1, 2, 3 selesai. Pointer code in: `crates/` (plus `Cargo.toml`, `rust-toolchain.toml`). Commit `b869eab` | `01-arsitektur-dan-build-awal.md` | `Cargo.toml`, `Cargo.lock`, `rust-toolchain.toml`, `.gitignore`, `crates/core/**`, `crates/tablet-ffi/**`, `verify.md` bagian Milestone 1, baris Status spec | `claude/dev-f1-m1-ee7069` | `claude-opus-5-5 · medium` | merged (`578e3b7`) |
-| `dev-f1-m1` | developer | Fitur 01, milestone 2 (Build plan 4, 5) | `01-arsitektur-dan-build-awal.md` | `apps/ipados/**`, `scripts/build-ipados.sh`, `.xcode-version`, `verify.md` bagian Milestone 2, `docs/reviews/2026-11-15-build-f01-m2.md` | `claude/dev-f1-m1-ee7069` | `claude-opus-5-5 · medium` | dipakai ulang, aktif |
-| `chk-f1-verify` | checker (verify) | Fitur 01, verify milestone 1 pada `main` `578e3b7` | `01-arsitektur-dan-build-awal.md` | centang `verify.md` bagian Milestone 1, `docs/reviews/2026-11-15-verify-f01-m1.md` | `claude/chk-f1-verify-4078a9` | `claude-fable-5-2 · high` | merged (`bd8f2ca`), siaga |
+| `dev-f1-m1` | developer | Fitur 01, milestone 2. Build plan 4, 5 selesai. Pointer code in: `apps/ipados/`, `scripts/build-ipados.sh`. Commit `fda34d6`, bukti `b0590f3` | `01-arsitektur-dan-build-awal.md` | `apps/ipados/**`, `scripts/build-ipados.sh`, `.xcode-version`, `verify.md` bagian Milestone 2, `docs/reviews/2026-11-15-build-f01-m2.md` | `claude/dev-f1-m1-ee7069` | `claude-opus-5-5 · medium` | merged (`0868e45`) |
+| `dev-f1-m1` | developer | Fitur 01, milestone 3 (Build plan 6 sampai 8) | `01-arsitektur-dan-build-awal.md` | `apps/android-tablet/**`, `scripts/build-android-tablet.sh`, `verify.md` bagian Milestone 3, `docs/reviews/2026-11-15-build-f01-m3.md` | `claude/dev-f1-m1-ee7069` | `claude-opus-5-5 · medium` | dipakai ulang, aktif |
+| `chk-f1-verify` | checker (verify) | Fitur 01, verify milestone 1 pada `main` `578e3b7`: PASS 15 dari 15 | `01-arsitektur-dan-build-awal.md` | centang `verify.md` bagian Milestone 1, `docs/reviews/2026-11-15-verify-f01-m1.md` | `claude/chk-f1-verify-4078a9` | `claude-fable-5-2 · high` | merged (`bd8f2ca`) |
+| `chk-f1-verify` | checker (verify) | Fitur 01, verify milestone 2 pada `main` `0868e45` | `01-arsitektur-dan-build-awal.md` | centang `verify.md` bagian Milestone 2, `docs/reviews/2026-11-15-verify-f01-m2.md` | `claude/chk-f1-verify-4078a9` | `claude-fable-5-2 · high` | dipakai ulang, aktif |
 | `tst-f1-test` | tester | Fitur 01, `Test it` | `01-arsitektur-dan-build-awal.md` | ditetapkan setelah build di-merge | `claude/tst-f1-test-949ed6` | `claude-opus-5-5 · high` | standby |
 
 ## Keputusan
@@ -33,6 +36,9 @@
 | 2026-11-15 | Milestone 1 di-merge (`578e3b7`, main sebelumnya `984ffb5`) sesudah pemeriksaan lead pada hasil merge: `cargo build --workspace --locked` dan `cargo test --workspace --locked` keluar 0 dengan `rustc 1.99.1`, dua `cargo tree` sesuai AC-2, `libtablet_ffi.a` dan `.dylib` ada, `git ls-files` tanpa biner, diff hanya 10 file di ownership. Kotak milestone 1 belum dicentang; menunggu verify checker. Milestone 2 dibuka karena prasyaratnya sudah di `main` dan pemeriksaan `main` hijau. | lead |
 | 2026-11-15 | `dev-f1-m1` dipakai ulang untuk milestone 2 sesudah `clear_session`; judul sesi diperbarui, nama dan branch tetap. | lead |
 | 2026-11-15 | Bukti yang bisa dibaca checkout lain disimpan di `docs/reviews/2026-11-15-<verify atau build>-f01-m<k>.md`; laporan developer milestone 1 menyebut log di "shared notes folder" yang tidak bisa dibaca lead. | lead |
+| 2026-11-15 | Milestone 2 di-merge (`0868e45`, main sebelumnya `21e26b1`) sesudah pemeriksaan lead pada hasil merge: `scripts/build-ipados.sh` keluar 0 dengan dua `** BUILD SUCCEEDED **` (Xcode 27.1), kedua `Tablet.app` `arm64`, `MinimumOSVersion` 26.0, `UIDeviceFamily` [2], dua `libtablet_ffi.a` Apple ada, `Base.xcconfig` sama persis dengan spec, diff hanya 8 file di ownership. Kotak milestone 2 menunggu verify checker. Milestone 3 dibuka. | lead |
+| 2026-11-15 | Giliran build native: checker (Xcode, verify milestone 2) lebih dulu; developer dan architect menunggu `pgrep -x xcodebuild` kosong sebelum build Gradle atau Xcode mereka. | lead |
+| 2026-11-15 | Tiga sesi dipakai ulang sesudah `clear_session`: `dev-f1-m1` (milestone 3), `chk-f1-verify` (verify milestone 2), `arc-f1-spec` (update spec). | lead |
 | 2026-11-15 | Satu build native penuh pada satu waktu: disk bebas sekitar 37 GiB (92% terpakai) dan sesi repo lain sedang membangun di mesin yang sama. | lead |
 
 ## Keputusan delegasi
@@ -66,6 +72,7 @@ Keputusan spec yang diambil dari opsi rekomendasi atas nama user (SKILL.md bagia
 | 2026-11-15 | `0001` · AC-7 | K23 ABI di APK | `abiFilters` sejak fitur 01 | tanpa filter | - | `architect (update)` spec 0001; M3 | berlaku |
 | 2026-11-15 | `0001` · AC-10 | K24 Generator binding | fitur 03 boleh menambah crate tooling | binary di `tablet-ffi` | - | `architect (update)` spec 0001; fitur 03 | berlaku |
 | 2026-11-15 | `0001` · AC-5, AC-7, AC-8 | K25 sampai K28 | isolasi aktor Swift bawaan templat; Build Tools ikut AGP; iPadOS minimum disalin di `Package.swift`; unduhan SDK otomatis dimatikan | lihat `rationale.md` bagian "Keputusan diambil" | - | `architect (update)` spec 0001; M2, M3 | berlaku |
+| 2026-11-15 | `0001` · AC-5, AC-6, AC-8 | K29 Peringatan headermap Xcode 27.1 pada kedua build iPad | tambah `ALWAYS_SEARCH_USER_PATHS = NO` ke `Base.xcconfig` (rekomendasi developer); architect membuktikan dulu lewat build simulator sebelum menulis | biarkan peringatan | - | `architect (update)` spec 0001; hapus satu baris xcconfig dan tugas Build plan 11 | menunggu laporan architect |
 
 ## Blocker terbuka
 
