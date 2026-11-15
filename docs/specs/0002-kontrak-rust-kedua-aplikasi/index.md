@@ -1,7 +1,7 @@
 # 0002. Kontrak Rust untuk kedua aplikasi
 
 **Date**: 2026-11-16
-**Status**: In Progress
+**Status**: Accepted
 
 ## Summary
 

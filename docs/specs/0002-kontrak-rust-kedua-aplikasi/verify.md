@@ -52,7 +52,7 @@ Jalankan dari akar repo. Disarankan pada clone baru (`git clone` ke folder semen
 - [x] `docs/contracts/ffi-conventions.md` punya bagian untuk tiap topik "Isi konvensi kontrak" spec 0002; topik yang belum dipakai ditandai "ditetapkan, belum dipakai"; tanpa entitas bisnis → AC-8
 - [x] Tiap baris "Kalimat dokumen yang diperbarui" spec 0002 sudah diperbarui; matriks pemilik memuat kelima baris AC-9; `docs/getting-started.md` punya bagian "Menghasilkan binding"; `docs/contributing.md` menautkan konvensi → AC-9
 - [x] `cargo fmt --all --check`, `cargo clippy --workspace --locked --all-targets -- -D warnings`, `cargo test --workspace --locked`, `scripts/test.sh` → semuanya keluar 0 → AC-10
-- [ ] Sesudah commit: `git ls-files -s scripts/generate-bindings.sh` → mode `100755` → AC-10
+- [x] Sesudah commit: `git ls-files -s scripts/generate-bindings.sh` → mode `100755` → AC-10
 
 ## Acceptance-criteria coverage
 
