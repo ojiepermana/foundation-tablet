@@ -125,9 +125,24 @@ case_ha5() {
   return 1
 }
 
+# covers F04 AC-2: kedua pustaka wajib ada, bukan hanya ABI diizinkan.
+case_ha6() {
+  local ok=0 listing abi
+  listing="$(unzip -Z1 "$APK" 2>/dev/null)" || { diag "APK tidak dapat dibaca; $FIX"; return 1; }
+  for abi in $(src_abi_list); do
+    for library in libtablet_ffi.so libjnidispatch.so; do
+      if ! printf '%s\n' "$listing" | grep -qx "lib/$abi/$library"; then
+        diag "lib/$abi/$library tidak ada dalam APK"; ok=1
+      fi
+    done
+  done
+  return $ok
+}
+
 check HA1 AC-3 "pustaka Rust Android ada untuk tiap ABI" case_ha1
 check HA2 AC-4 "pustaka Android selaras 16 KB" case_ha2
 check HA3 AC-7 "APK memakai SDK dari katalog" case_ha3
 check HA4 AC-7 "APK hanya memuat ABI matriks" case_ha4
 check HA5 AC-11 "pohon kerja bersih sesudah build" case_ha5
+check HA6 F04:AC-2 "APK memuat Rust dan JNA untuk setiap ABI" case_ha6
 finish

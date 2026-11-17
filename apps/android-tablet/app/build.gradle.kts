@@ -16,6 +16,7 @@ android {
         targetSdk = libs.versions.targetSdk.get().toInt()
         versionCode = 1
         versionName = "0.1.0"
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
         ndk {
             abiFilters += providers.gradleProperty("tablet.abis").get().split(",")
@@ -24,6 +25,10 @@ android {
 
     buildFeatures {
         compose = true
+    }
+
+    sourceSets.named("main") {
+        kotlin.directories += rootDir.resolve("../../bindings/kotlin").path
     }
 
     compileOptions {
@@ -42,4 +47,11 @@ dependencies {
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.activity.compose)
+    implementation(libs.jna) { artifact { type = "aar" } }
+
+    androidTestImplementation(platform(libs.androidx.compose.bom))
+    androidTestImplementation(libs.androidx.compose.ui.test.junit4)
+    androidTestImplementation(libs.androidx.test.runner)
+    androidTestImplementation(libs.androidx.test.junit)
+    debugImplementation(libs.androidx.compose.ui.test.manifest)
 }

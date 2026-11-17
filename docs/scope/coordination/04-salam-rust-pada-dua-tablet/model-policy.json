@@ -1,0 +1,70 @@
+{
+  "schema_version": 2,
+  "kind": "repository_orchestration_policy_not_native_runtime_config",
+  "runtime_selection": "executing_surface_evidence",
+  "allowed_model_sources": ["leader", "engineering", "routine", "economy", "contrast"],
+  "runtime_profiles": {
+    "codex": {
+      "source_families": {"engineering": "sol", "routine": "terra", "economy": "luna"},
+      "economy_selection": "gpt-6-luna",
+      "leader_selection": "exact_active_model_explicit_for_upstream_helpers",
+      "family_version_strategy": "latest_available_verified"
+    },
+    "claude_code": {
+      "source_families": {"engineering": "opus", "routine": "sonnet", "economy": "haiku"},
+      "leader_selection": "evidenced_equivalent_explicit_selection_for_upstream_helpers",
+      "family_version_strategy": "native_alias_unless_verified_pin",
+      "effort_above_high": {
+        "xhigh": "critical_or_insufficient_high_or_suitable_reviewer_weaker_than_author",
+        "max": "explicit_user_request"
+      }
+    }
+  },
+  "inline_execution": {"model": "active_session", "effort": "active_session", "recommendations_do_not_change_session": true},
+  "workflow_roles": [
+    {"agent_id": "scope-agent", "workflow_skill": "scope", "placement": "inline", "recommended_effort": "medium"},
+    {"agent_id": "audit-agent", "workflow_skill": "audit", "placement": "inline", "recommended_effort": "medium"},
+    {"agent_id": "architect-agent", "workflow_skill": "architect", "placement": "inline", "recommended_effort": "high"},
+    {"agent_id": "develop-agent", "workflow_skill": "develop", "placement": "inline", "recommended_effort": "high"},
+    {"agent_id": "verify-agent", "workflow_skill": "check verify", "placement": "native_worker", "delegation_scope": "permitted_helper", "preferred_model_source": "routine", "requested_effort": "medium"},
+    {"agent_id": "test-agent", "workflow_skill": "test", "placement": "inline", "recommended_effort": "medium"},
+    {"agent_id": "review-agent", "workflow_skill": "check review", "placement": "native_worker", "preferred_model_source": "contrast", "requested_effort": "high"},
+    {"agent_id": "document-agent", "workflow_skill": "document", "placement": "inline", "recommended_effort": "low"},
+    {"agent_id": "sync-agent", "workflow_skill": "sync", "placement": "inline", "recommended_effort": "low"},
+    {"agent_id": "debug-agent", "workflow_skill": "debug", "placement": "native_worker", "delegation_scope": "permitted_investigation", "preferred_model_source": "engineering", "requested_effort": "high"}
+  ],
+  "delegated_work": {
+    "read_only_scout": {"source": "economy", "effort": "low", "explicit_selection": true, "fallback_source": "routine", "record_substitution": true},
+    "spec_cross_check_another_model": {"source": "contrast", "effort": "high", "explicit_selection": true, "read_only": true},
+    "spec_cross_check_same_model": {"source": "leader", "effort": "high", "explicit_selection": true, "read_only": true},
+    "verify_helper": {"source": "routine", "source_for_high": "engineering", "effort": "medium", "explicit_selection": true},
+    "review": {"source": "contrast", "effort": "high", "explicit_selection": true},
+    "debug_investigation": {"source": "engineering", "effort": "high", "explicit_selection": true},
+    "leader_owned_helper": {"selection_policy": "task_complexity", "effort": "per_task", "verified_inheritance_permitted": true}
+  },
+  "sub_session": {
+    "decision_owner": "main_leader",
+    "architect_or_ga_or_beta_or_shared_contract": {"source": "leader", "effort": "high"},
+    "alpha": {"source": "engineering", "effort": "medium"},
+    "prototype_without_owed_decision": {"source": "routine", "effort": "medium"},
+    "never_economy": true,
+    "review_author_family": "session_actual_family",
+    "explicit_user_choice_wins": true
+  },
+  "contrast": {
+    "selection_order": ["installed_review_mode_runtime_contrast_table", "strongest_suitable_distinct_author_family_in_active_profile_or_explicit_user_policy"],
+    "review_excludes_economy_tier": true,
+    "weaker_reviewer_disclosure": "initial_plan_with_option_to_authorize_another_family",
+    "never_add_outside_family_or_second_runtime": true
+  },
+  "dynamic_override": {
+    "enabled": true,
+    "decision_owner": "main_leader",
+    "criteria": ["complexity", "reasoning", "risk", "ambiguity", "context_capacity", "integration_impact", "capability", "verification"],
+    "preserve_placement_and_upstream_contract": true
+  },
+  "review": {"source": "contrast", "independence_contract": "references/routing.md#reviewer-independence"},
+  "inheritance": {"allowed_for": ["leader_owned_helper_without_upstream_contract", "unidentified_runtime_only_offers_inheritance_with_disclosed_limit"], "never_satisfies_explicit_upstream_model_contract": true},
+  "fallback": {"require_compatibility_check": true, "record_substitution": true, "never_assume_other_runtime_access": true},
+  "concurrency": {"initial_worker_ceiling": 4, "respect_remaining_runtime_slots": true}
+}

@@ -1,9 +1,15 @@
 {
   "tool": "cargo test",
   "gate": null,
-  "additionalTools": ["bash"],
+  "additionalTools": [
+    "bash"
+  ],
   "e2eTool": "none",
   "testDir": "Rust: di dalam crate (#[cfg(test)] atau crates/<crate>/tests/). Tes tingkat repo: tests/<grup>/",
   "filePattern": "Rust: *.rs. Tes tingkat repo: *.test.sh",
-  "packageManager": "cargo"
+  "packageManager": "cargo",
+  "nativeUiTools": {
+    "ipados": "XCTest UI (Xcode)",
+    "android-tablet": "Compose UI test + AndroidX runner (catalog/BOM)"
+  }
 }

@@ -75,8 +75,23 @@ case_hi4() {
   return 1
 }
 
+# covers F04 AC-1: simbol Rust ada pada biner final kedua target.
+case_hi5() {
+  local ok=0 configuration binary
+  need_tool nm || return 1
+  for configuration in Debug-iphonesimulator Release-iphoneos; do
+    binary="$PRODUCTS/$configuration/Tablet.app/Tablet"
+    if [ ! -s "$binary" ]; then diag "$binary tidak ada; $FIX"; ok=1; continue; fi
+    if ! nm "$binary" 2>/dev/null | grep -q 'uniffi_tablet_ffi_fn_func_hello'; then
+      diag "$configuration tidak memuat simbol ekspor hello Rust"; ok=1
+    fi
+  done
+  return $ok
+}
+
 check HI1 AC-3 "pustaka Rust iPad perangkat dan simulator ada" case_hi1
 check HI2 AC-5 "Tablet.app simulator arm64, OS minimum, khusus iPad" case_hi2
 check HI3 AC-6 "Tablet.app perangkat Release tanpa tanda tangan" case_hi3
 check HI4 AC-11 "pohon kerja bersih sesudah build" case_hi4
+check HI5 F04:AC-1 "kedua aplikasi iPad menautkan simbol hello Rust" case_hi5
 finish

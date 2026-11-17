@@ -1,0 +1,96 @@
+{
+  "schema_version": 2,
+  "kind": "agent_flow_model_resolution",
+  "runtime_ref": "state.json#/runtime_kind",
+  "policy_ref": "model-policy.json",
+  "resolved_at": "2026-11-16T17:16:37+07:00",
+  "leader_snapshot": {
+    "selection": null,
+    "family": null,
+    "effort": null,
+    "evidence": [
+      "System identifies GPT-6 based agent without exact exposed model/effort; no inference from self-description."
+    ],
+    "confidence": "unknown exact settings"
+  },
+  "sources": {
+    "leader": {
+      "selection": null,
+      "family": null,
+      "concrete_id": null,
+      "supported_efforts": [],
+      "via": null,
+      "access_status": "unverified",
+      "evidence": [],
+      "confidence": null,
+      "substitution": null
+    },
+    "engineering": {
+      "selection": "gpt-6.1-sol",
+      "family": "sol",
+      "concrete_id": "gpt-6.1-sol",
+      "supported_efforts": [
+        "low",
+        "medium",
+        "high",
+        "xhigh",
+        "max",
+        "ultra"
+      ],
+      "via": "collaboration.spawn_agent",
+      "access_status": "spawn_accepted",
+      "evidence": [
+        "live spawn schema",
+        "Canonical child IDs returned for ipados/android/ci; source checks completed. Exact execution model/effort metadata not returned."
+      ],
+      "confidence": null,
+      "substitution": null
+    },
+    "routine": {
+      "selection": "gpt-6.1-terra",
+      "family": "terra",
+      "concrete_id": "gpt-6.1-terra",
+      "supported_efforts": [],
+      "via": "collaboration.spawn_agent",
+      "access_status": "advertised",
+      "evidence": [
+        "live spawn schema"
+      ],
+      "confidence": null,
+      "substitution": null
+    },
+    "economy": {
+      "selection": null,
+      "family": null,
+      "concrete_id": null,
+      "supported_efforts": [],
+      "via": null,
+      "access_status": "unverified",
+      "evidence": [],
+      "confidence": null,
+      "substitution": null
+    },
+    "contrast": {
+      "selection_rule": "installed_upstream_table_else_strongest_eligible_active_profile_family",
+      "task_resolutions": [
+        {
+          "task_id": "spec-crosscheck",
+          "requested_selection": "gpt-6.1-sol",
+          "requested_effort": "high",
+          "runtime_worker_id": "/root/spec_crosscheck",
+          "context_provenance": "fresh requested fork_turns none",
+          "independence": "unverified",
+          "reason": "Leader exact family unavailable; no assertion of distinct author/reviewer family."
+        }
+      ]
+    }
+  },
+  "configuration_precedence": [],
+  "refresh_triggers": [
+    "runtime_change",
+    "leader_model_change",
+    "relevant_configuration_change",
+    "access_change"
+  ],
+  "updated_at": "2026-11-16T17:16:37+07:00"
+}

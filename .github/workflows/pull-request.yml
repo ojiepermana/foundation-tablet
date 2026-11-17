@@ -1,0 +1,135 @@
+name: Tablet pull request
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: tablet-pr-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  ipados:
+    name: iPad simulator and unsigned device build
+    runs-on: xcode-27
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Rust and repository gates
+        id: gates
+        run: |
+          mkdir -p target/ci/ipados
+          scripts/ci-rust-gates.sh 2>&1 | tee target/ci/ipados/gates.log
+      - name: Select pinned Xcode and boot iPad
+        id: prepare
+        run: scripts/ci-prepare-ipados.sh 2>&1 | tee target/ci/ipados/prepare.log
+      - name: Build simulator and unsigned device slices
+        id: build
+        run: scripts/build-ipados.sh 2>&1 | tee target/ci/ipados/build.log
+      - name: Check packaged iPad artifacts
+        id: artifacts
+        run: scripts/test.sh artifacts/ipados 2>&1 | tee target/ci/ipados/artifacts.log
+      - name: Test greeting through iPad screen
+        id: ui
+        run: scripts/test-ipados.sh "$IPADOS_SIMULATOR_UDID" 2>&1 | tee target/ci/ipados/ui.log
+      - name: Check clean source tree
+        id: clean
+        run: |
+          git status --short | tee target/ci/ipados/git-status.log
+          test -z "$(git status --porcelain)"
+      - name: Record target result and tested SHA
+        if: always()
+        env:
+          CI_JOB_STATUS: ${{ job.status }}
+          CI_GATES_STATUS: ${{ steps.gates.outcome }}
+          CI_PREPARE_STATUS: ${{ steps.prepare.outcome }}
+          CI_BUILD_STATUS: ${{ steps.build.outcome }}
+          CI_ARTIFACTS_STATUS: ${{ steps.artifacts.outcome }}
+          CI_UI_STATUS: ${{ steps.ui.outcome }}
+          CI_CLEAN_STATUS: ${{ steps.clean.outcome }}
+        run: scripts/ci-summary.sh ipados
+      - name: Upload iPad evidence
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: ipados-${{ github.sha }}
+          path: |
+            target/ci/ipados/
+            apps/ipados/build/**/*.xcresult
+          if-no-files-found: warn
+
+  android-tablet:
+    name: Android tablet x86_64 emulator
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Read JDK from Gradle source
+        id: settings
+        run: scripts/ci-prepare-android-tablet.sh settings
+      - name: Install source-selected JDK
+        uses: actions/setup-java@d1374f8ac74474200d16ef8ecee22c7ae7a51880 # v6.3.0
+        with:
+          distribution: temurin
+          java-version: ${{ steps.settings.outputs.java-version }}
+      - name: Rust and repository gates
+        id: gates
+        run: |
+          mkdir -p target/ci/android-tablet
+          scripts/ci-rust-gates.sh 2>&1 | tee target/ci/android-tablet/gates.log
+      - name: Install source-selected Android tools and tablet AVD
+        id: prepare
+        run: scripts/ci-prepare-android-tablet.sh prepare 2>&1 | tee target/ci/android-tablet/prepare.log
+      - name: Build both Android ABIs and APK
+        id: build
+        run: scripts/build-android-tablet.sh 2>&1 | tee target/ci/android-tablet/build.log
+      - name: Check packaged Android artifacts
+        id: artifacts
+        run: scripts/test.sh artifacts/android-tablet 2>&1 | tee target/ci/android-tablet/artifacts.log
+      - name: Boot CI tablet and test greeting through screen
+        id: ui
+        run: |
+          scripts/ci-prepare-android-tablet.sh boot 2>&1 | tee target/ci/android-tablet/boot.log
+          scripts/test-android-tablet.sh emulator-5554 2>&1 | tee target/ci/android-tablet/ui.log
+      - name: Check clean source tree
+        id: clean
+        run: |
+          git status --short | tee target/ci/android-tablet/git-status.log
+          test -z "$(git status --porcelain)"
+      - name: Record target result and tested SHA
+        if: always()
+        env:
+          CI_JOB_STATUS: ${{ job.status }}
+          CI_GATES_STATUS: ${{ steps.gates.outcome }}
+          CI_PREPARE_STATUS: ${{ steps.prepare.outcome }}
+          CI_BUILD_STATUS: ${{ steps.build.outcome }}
+          CI_ARTIFACTS_STATUS: ${{ steps.artifacts.outcome }}
+          CI_UI_STATUS: ${{ steps.ui.outcome }}
+          CI_CLEAN_STATUS: ${{ steps.clean.outcome }}
+        run: scripts/ci-summary.sh android-tablet
+      - name: Stop CI emulator
+        if: always()
+        run: |
+          if command -v adb >/dev/null; then
+            adb -s emulator-5554 emu kill || true
+          fi
+      - name: Upload Android evidence
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: android-tablet-${{ github.sha }}
+          path: |
+            target/ci/android-tablet/
+            apps/android-tablet/app/build/reports/androidTests/
+            apps/android-tablet/app/build/outputs/androidTest-results/
+          if-no-files-found: warn

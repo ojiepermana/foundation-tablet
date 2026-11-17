@@ -6,7 +6,8 @@
 #   --device     aarch64-apple-ios, lalu Tablet.app Release untuk iPad generik tanpa tanda tangan
 #   tanpa argumen: keduanya
 #
-# Di dalam repo skrip ini hanya menulis ke target/ dan apps/ipados/build/.
+# Di dalam repo skrip ini hanya menulis ke target/, hasil generasi bindings/swift/,
+# dan apps/ipados/build/.
 # Kontraknya ada di docs/specs/0001-arsitektur-dan-build-awal/index.md bagian "Perintah repo".
 set -euo pipefail
 
@@ -118,15 +119,28 @@ for triple in "${triples[@]}"; do
   cargo build -p tablet-ffi --release --locked --target "$triple"
 done
 
-# 4. Simulator.
+# 4. Binding dan XCFramework hanya dari slice yang dibangun pada run ini.
+libraries=()
+xcframework_args=()
+for triple in "${triples[@]}"; do
+  library="target/$triple/release/libtablet_ffi.a"
+  libraries+=("$library")
+  xcframework_args+=( -library "$library" -headers target/bindings/swift/headers )
+done
+scripts/generate-bindings.sh swift "${libraries[@]}"
+rm -rf bindings/swift/TabletFFI.xcframework
+xcodebuild -create-xcframework "${xcframework_args[@]}" \
+  -output bindings/swift/TabletFFI.xcframework
+
+# 5. Simulator.
 if [[ $build_simulator -eq 1 ]]; then
   printf 'build-ipados: xcodebuild Debug untuk simulator iPad generik\n'
   xcodebuild -project "$PROJECT" -scheme Tablet -configuration Debug \
     -destination 'generic/platform=iOS Simulator' \
-    -derivedDataPath "$DERIVED_DATA" build
+    -derivedDataPath "$DERIVED_DATA" ARCHS=arm64 build
 fi
 
-# 5. Perangkat, tanpa tanda tangan kode.
+# 6. Perangkat, tanpa tanda tangan kode.
 if [[ $build_device -eq 1 ]]; then
   printf 'build-ipados: xcodebuild Release untuk iPad generik tanpa tanda tangan\n'
   xcodebuild -project "$PROJECT" -scheme Tablet -configuration Release \

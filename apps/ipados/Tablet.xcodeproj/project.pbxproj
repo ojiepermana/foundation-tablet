@@ -6,12 +6,23 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+        A20000000000000000000001 /* TabletBindings in Frameworks */ = {isa = PBXBuildFile; productRef = A20000000000000000000002 /* TabletBindings */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+        A20000000000000000000003 = {isa = PBXContainerItemProxy; containerPortal = A10000000000000000000001; proxyType = 1; remoteGlobalIDString = A10000000000000000000040; remoteInfo = Tablet; };
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
+        A20000000000000000000004 /* TabletUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TabletUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		A10000000000000000000002 /* Tablet.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Tablet.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A10000000000000000000003 /* Base.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Base.xcconfig; sourceTree = "<group>"; };
+        A20000000000000000000018 /* UITests.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = UITests.xcconfig; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
+        A20000000000000000000005 /* TabletUITests */ = {isa = PBXFileSystemSynchronizedRootGroup; path = TabletUITests; sourceTree = "<group>"; };
 		A10000000000000000000010 /* Tablet */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = Tablet;
@@ -20,10 +31,12 @@
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
+        A20000000000000000000006 /* Frameworks */ = {isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
 		A10000000000000000000020 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+                A20000000000000000000001 /* TabletBindings in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -35,6 +48,7 @@
 			children = (
 				A10000000000000000000031 /* Config */,
 				A10000000000000000000010 /* Tablet */,
+                A20000000000000000000005 /* TabletUITests */,
 				A10000000000000000000032 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -43,6 +57,7 @@
 			isa = PBXGroup;
 			children = (
 				A10000000000000000000003 /* Base.xcconfig */,
+                A20000000000000000000018 /* UITests.xcconfig */,
 			);
 			path = Config;
 			sourceTree = "<group>";
@@ -51,6 +66,7 @@
 			isa = PBXGroup;
 			children = (
 				A10000000000000000000002 /* Tablet.app */,
+                A20000000000000000000004 /* TabletUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -58,6 +74,19 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+        A20000000000000000000007 /* TabletUITests */ = {
+            isa = PBXNativeTarget;
+            buildConfigurationList = A20000000000000000000008;
+            buildPhases = (A20000000000000000000009, A20000000000000000000006, A20000000000000000000010);
+            buildRules = ();
+            dependencies = (A20000000000000000000011);
+            fileSystemSynchronizedGroups = (A20000000000000000000005);
+            name = TabletUITests;
+            packageProductDependencies = ();
+            productName = TabletUITests;
+            productReference = A20000000000000000000004;
+            productType = "com.apple.product-type.bundle.ui-testing";
+        };
 		A10000000000000000000040 /* Tablet */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = A10000000000000000000061 /* Build configuration list for PBXNativeTarget "Tablet" */;
@@ -75,6 +104,7 @@
 			);
 			name = Tablet;
 			packageProductDependencies = (
+                A20000000000000000000002 /* TabletBindings */,
 			);
 			productName = Tablet;
 			productReference = A10000000000000000000002 /* Tablet.app */;
@@ -90,6 +120,7 @@
 				LastSwiftUpdateCheck = 2710;
 				LastUpgradeCheck = 2710;
 				TargetAttributes = {
+                    A20000000000000000000007 = {CreatedOnToolsVersion = 27.1; TestTargetID = A10000000000000000000040; };
 					A10000000000000000000040 = {
 						CreatedOnToolsVersion = 27.1;
 					};
@@ -106,15 +137,18 @@
 			minimizedProjectReferenceProxies = 1;
 			preferredProjectObjectVersion = 77;
 			productRefGroup = A10000000000000000000032 /* Products */;
+            packageReferences = (A20000000000000000000012 /* TabletBindings */);
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
 				A10000000000000000000040 /* Tablet */,
+                A20000000000000000000007 /* TabletUITests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+        A20000000000000000000010 /* Resources */ = {isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
 		A10000000000000000000022 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -125,6 +159,7 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+        A20000000000000000000009 /* Sources */ = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
 		A10000000000000000000021 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -134,7 +169,17 @@
 		};
 /* End PBXSourcesBuildPhase section */
 
+/* Begin PBXTargetDependency section */
+        A20000000000000000000011 = {isa = PBXTargetDependency; target = A10000000000000000000040; targetProxy = A20000000000000000000003; };
+/* End PBXTargetDependency section */
+
 /* Begin XCBuildConfiguration section */
+        A20000000000000000000013 /* Debug */ = {isa = XCBuildConfiguration; baseConfigurationReference = A20000000000000000000018 /* UITests.xcconfig */; buildSettings = {
+        };
+        name = Debug; };
+        A20000000000000000000014 /* Release */ = {isa = XCBuildConfiguration; baseConfigurationReference = A20000000000000000000018 /* UITests.xcconfig */; buildSettings = {
+        };
+        name = Release; };
 		A10000000000000000000050 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = A10000000000000000000003 /* Base.xcconfig */;
@@ -164,6 +209,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+        A20000000000000000000008 = {isa = XCConfigurationList; buildConfigurations = (A20000000000000000000013, A20000000000000000000014); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
 		A10000000000000000000060 /* Build configuration list for PBXProject "Tablet" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -183,6 +229,13 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+/* Begin XCLocalSwiftPackageReference section */
+        A20000000000000000000012 /* TabletBindings */ = {isa = XCLocalSwiftPackageReference; relativePath = ../../bindings/swift; };
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+        A20000000000000000000002 /* TabletBindings */ = {isa = XCSwiftPackageProductDependency; productName = TabletBindings; };
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = A10000000000000000000001 /* Project object */;
 }

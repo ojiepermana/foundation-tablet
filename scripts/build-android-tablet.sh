@@ -7,7 +7,7 @@
 #   ANDROID_HOME  folder Android SDK; bila tidak diset, skrip mencoba ~/Library/Android/sdk
 #   JAVA_HOME     JDK 25; bila tidak diset, skrip mencoba JBR Android Studio
 #
-# Di dalam repo skrip ini hanya menulis ke target/ dan folder build/, .gradle/, serta .kotlin/ milik Gradle.
+# Hasil generasi berada di target/, bindings/kotlin/, jniLibs/, serta folder build Gradle.
 # Kontraknya ada di docs/specs/0001-arsitektur-dan-build-awal/index.md bagian "Perintah repo".
 set -euo pipefail
 
@@ -110,6 +110,7 @@ installed_targets="$(rustup target list --installed)" \
   || fail "rustup target list --installed gagal." \
     "Jalankan 'rustup toolchain install' dari akar repo untuk memasang toolchain di rust-toolchain.toml."
 ndk_targets=()
+libraries=()
 for abi in "${abis[@]}"; do
   case "$abi" in
     arm64-v8a) triple="aarch64-linux-android" ;;
@@ -121,6 +122,7 @@ for abi in "${abis[@]}"; do
       "Jalankan dari akar repo: rustup target add $triple" \
       "atau: rustup toolchain install (memasang semua target di rust-toolchain.toml)."
   ndk_targets+=(-t "$abi")
+  libraries+=("target/$triple/release/libtablet_ffi.so")
 done
 
 printf 'build-android-tablet: SDK %s, NDK %s, minSdk %s, ABI %s\n' "$ANDROID_HOME" "$ndk_version" "$min_sdk" "$abis_line"
@@ -130,7 +132,18 @@ printf 'build-android-tablet: %s\n' "$(head -n 1 <<<"$java_version_output")"
 printf 'build-android-tablet: cargo ndk build tablet-ffi untuk %s\n' "$abis_line"
 CARGO_NDK_PLATFORM="$min_sdk" cargo ndk "${ndk_targets[@]}" build -p tablet-ffi --release --locked
 
-# 3. APK debug.
+# 3. Binding dari tepat pustaka yang baru dibangun. Galat menghentikan build sebelum Gradle.
+scripts/generate-bindings.sh kotlin "${libraries[@]}"
+
+# 4. Ganti kemasan lama, termasuk ABI yang sudah dikeluarkan dari tablet.abis.
+jni_libs="$GRADLE_ROOT/app/src/main/jniLibs"
+rm -rf "$jni_libs"
+for index in "${!abis[@]}"; do
+  mkdir -p "$jni_libs/${abis[$index]}"
+  cp "${libraries[$index]}" "$jni_libs/${abis[$index]}/libtablet_ffi.so"
+done
+
+# 5. APK debug.
 printf 'build-android-tablet: gradlew :app:assembleDebug\n'
 (cd "$GRADLE_ROOT" && ./gradlew :app:assembleDebug)
 
