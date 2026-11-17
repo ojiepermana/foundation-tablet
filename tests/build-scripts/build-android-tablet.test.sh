@@ -240,6 +240,38 @@ case_a12() {
   return $ok
 }
 
+# F04, covers spec 0003 AC-2 dan AC-8.
+case_a13() {
+  local ok=0 calls generator abi triple
+  sandbox_new || return 1
+  sb_android_env
+  mkdir -p "$SB/repo/apps/android-tablet/app/src/main/jniLibs/obsolete"
+  echo old > "$SB/repo/apps/android-tablet/app/src/main/jniLibs/obsolete/libold.so"
+  sb_run "$SCRIPT"
+  expect_exit_zero "kemasan JNI" || return 1
+  calls="$(cat "$SB/calls.log")"
+  generator="$(awk -F'\t' '$1 == "generate-bindings" { print $3 }' "$SB/calls.log")"
+  expect_eq "kotlin target/aarch64-linux-android/release/libtablet_ffi.so target/x86_64-linux-android/release/libtablet_ffi.so" "$generator" "generator mendapat dua pustaka" || ok=1
+  contains_in_order "$calls" "cargo" "generate-bindings" "gradlew" || { diag "generasi harus mendahului Gradle"; ok=1; }
+  for abi in $(src_abi_list "$SB/repo"); do
+    triple="$(abi_triple "$abi")"
+    cmp "$SB/repo/target/$triple/release/libtablet_ffi.so" "$SB/repo/apps/android-tablet/app/src/main/jniLibs/$abi/libtablet_ffi.so" || { diag "pustaka $abi tidak disalin persis"; ok=1; }
+  done
+  [ ! -e "$SB/repo/apps/android-tablet/app/src/main/jniLibs/obsolete" ] || { diag "JNI lama tidak dibuang"; ok=1; }
+  return $ok
+}
+
+case_a14() {
+  local ok=0
+  sandbox_new || return 1
+  SB_ENV=("ANDROID_HOME=$SB/sdk" "JAVA_HOME=$SB/jdk" "STUB_GENERATE_FAIL=1")
+  sb_run "$SCRIPT"
+  expect_exit_nonzero "generator gagal" || ok=1
+  expect_err_has "generate-bindings: generasi gagal" "galat diteruskan" || ok=1
+  expect_eq "" "$(gradlew_line)" "Gradle tidak dijalankan" || ok=1
+  return $ok
+}
+
 check A1 AC-8 "SDK tanpa platform dihentikan" case_a1
 check A2 AC-8 "ANDROID_HOME yang tidak ada dihentikan" case_a2
 check A3 AC-8 "NDK yang hilang dihentikan" case_a3
@@ -252,4 +284,6 @@ check A9 AC-3,AC-7 "jalur lulus" case_a9
 check A10 AC-8 "nilai diteruskan dari sumbernya" case_a10
 check A11 AC-8 "ANDROID_HOME bawaan di HOME" case_a11
 check A12 AC-8 "argumen salah dihentikan" case_a12
+check A13 F04:AC-2 "JNI disalin sesuai ABI dan keluaran basi dibuang" case_a13
+check A14 F04:AC-8 "generator gagal menghentikan Gradle" case_a14
 finish

@@ -219,6 +219,8 @@ case_i11() {
   before="$(cd "$SB/repo" && find . | LC_ALL=C sort)"
   sb_run build-ipados.sh
   expect_exit_zero "jalur lulus" || return 1
+  # F04 menambah keluaran binding/XCFramework yang sah, tidak menyunting sumber.
+  rm -rf "$SB/repo/target" "$SB/repo/bindings"
   after="$(cd "$SB/repo" && find . | LC_ALL=C sort)"
   if [ "$before" = "$after" ]; then
     return 0
@@ -228,6 +230,39 @@ case_i11() {
   diag "file baru di repo sandbox: $(grep -Fxv -f "$SB/before.txt" "$SB/after.txt" | tr '\n' ' ')"
   diag "file yang hilang dari repo sandbox: $(grep -Fxv -f "$SB/after.txt" "$SB/before.txt" | tr '\n' ' ')"
   return 1
+}
+
+# F04, covers spec 0003 AC-1 dan AC-8.
+case_i12() {
+  local ok=0 calls generator framework line
+  sandbox_new || return 1
+  sb_run build-ipados.sh
+  expect_exit_zero "kemasan default" || return 1
+  calls="$(cat "$SB/calls.log")"
+  generator="$(printf '%s\n' "$calls" | awk -F'\t' '$1 == "generate-bindings" { print $3 }')"
+  expect_eq "swift target/$SIM/release/libtablet_ffi.a target/$DEV/release/libtablet_ffi.a" "$generator" "generator memakai tepat kedua pustaka yang dibangun" || ok=1
+  framework="$(printf '%s\n' "$calls" | awk -F'\t' '$1 == "xcodebuild" && $3 ~ /^-create-xcframework/ { print $3 }')"
+  for line in "-library target/$SIM/release/libtablet_ffi.a" "-library target/$DEV/release/libtablet_ffi.a" "-headers target/bindings/swift/headers"; do
+    expect_contains "$framework" "$line" "XCFramework" || ok=1
+  done
+  contains_in_order "$calls" "generate-bindings" "-create-xcframework" "-configuration Debug" "-configuration Release" || { diag "generasi dan kemasan harus mendahului kedua build aplikasi"; ok=1; }
+  sb_run build-ipados.sh --simulator
+  expect_exit_zero "kemasan simulator saja" || ok=1
+  generator="$(awk -F'\t' '$1 == "generate-bindings" { print $3 }' "$SB/calls.log")"
+  expect_eq "swift target/$SIM/release/libtablet_ffi.a" "$generator" "generator simulator saja" || ok=1
+  expect_not_contains "$(awk -F'\t' '$3 ~ /^-create-xcframework/ { print $3 }' "$SB/calls.log")" "target/$DEV/" "XCFramework simulator tidak memakai slice lama perangkat" || ok=1
+  return $ok
+}
+
+case_i13() {
+  local ok=0
+  sandbox_new || return 1
+  SB_ENV=("STUB_GENERATE_FAIL=1")
+  sb_run build-ipados.sh
+  expect_exit_nonzero "generator gagal" || ok=1
+  expect_err_has "generate-bindings: generasi gagal" "galat diteruskan" || ok=1
+  expect_eq "" "$(awk -F'\t' '$1 == "xcodebuild" && $3 != "-version" { print }' "$SB/calls.log")" "tidak ada pengemasan atau build Xcode setelah generator gagal" || ok=1
+  return $ok
 }
 
 check I1 AC-8 "DEVELOPER_DIR yang tidak ada dihentikan" case_i1
@@ -240,5 +275,7 @@ check I7 AC-3,AC-5,AC-6 "jalur lulus tanpa argumen" case_i7
 check I8 AC-8 "IPHONEOS_DEPLOYMENT_TARGET dibaca dari Base.xcconfig" case_i8
 check I9 AC-5,AC-6 "--simulator dan --device masing masing" case_i9
 check I10 AC-8 "argumen salah dan --help" case_i10
-check I11 AC-11 "skrip tidak membuat file di repo" case_i11
+check I11 AC-11 "skrip hanya membuat keluaran generasi yang sah" case_i11
+check I12 F04:AC-1 "binding dan XCFramework berasal dari slice run ini" case_i12
+check I13 F04:AC-8 "generator gagal menghentikan Xcode" case_i13
 finish

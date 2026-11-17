@@ -27,6 +27,8 @@ Bila kamu menaikkan versi, ubah dulu file di kolom "Dikunci di", lalu dokumen in
 
 **Cadangan yang sudah disetujui:** bila build Gradle gagal karena JDK 25, pakai JDK 21. Build milestone 3 menerima JDK 25, jadi cadangan ini belum dipakai.
 
+Dependensi penghubung dan pengujian fitur 04 memakai pin persis di katalog Gradle yang sama: `jna`, `androidxTestRunner`, dan `androidxTestJunit`. JNA diperlukan runtime binding Kotlin sesuai serah terima spec 0002; AndroidX Test diperlukan hanya oleh pengujian UI. Compose UI test mengikuti BOM Compose yang sudah ada. Spec 0003 mencatat alasan, pemelihara dan lisensinya. XCTest UI mengikuti Xcode terpilih dan tidak menambah paket luar.
+
 ## Target
 
 | Target | Triple Rust atau ABI | OS | Alasan | Bukti di fitur 01 | Bukti lanjutan |

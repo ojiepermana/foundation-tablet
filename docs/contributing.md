@@ -80,7 +80,7 @@ Repo ini mencatat keputusan sebagai spec di `docs/specs/NNNN-judul/`, bukan seba
 
 ## CI
 
-Belum ada workflow di `.github/`. Ketentuan ini berlaku sejak workflow pertama (fitur 04) dan diperluas oleh fitur 11. Dasarnya [panduan keamanan GitHub Actions](https://docs.github.com/en/actions/reference/security/secure-use).
+Workflow PR pertama di `.github/workflows/` mengikuti spec 0003. Ketentuan ini berlaku sejak fitur 04 dan diperluas oleh fitur 11. Dasarnya [panduan keamanan GitHub Actions](https://docs.github.com/en/actions/reference/security/secure-use).
 
 - **Izin token minimum.** Tulis `permissions: contents: read` di tingkat workflow, lalu beri izin tambahan hanya pada job yang memerlukannya.
 - **Revisi action dikunci.** Setiap `uses:` dari luar repo memakai SHA commit penuh (40 karakter) dengan komentar versinya, misalnya `uses: actions/checkout@<sha> # v5.0.0`. Tag dan branch tidak dipakai.

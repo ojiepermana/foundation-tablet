@@ -2,7 +2,7 @@
 
 Panduan ini membawa kamu dari clone baru sampai workspace Rust, aplikasi iPad, dan aplikasi Android tablet selesai dikompilasi. Semua perintah dijalankan dari akar repo. Keputusan di baliknya ada di [spec 0001](specs/0001-arsitektur-dan-build-awal/index.md); versi tiap alat dan alasannya ada di [matriks dukungan](architecture/support-matrix.md).
 
-Sampai fitur 03 kedua aplikasi baru menampilkan satu layar statis. Pustaka Rust sudah dibangun untuk tiap target dan binding Swift serta Kotlin bisa dihasilkan darinya (bagian "Menghasilkan binding"), tetapi keduanya belum ditautkan ke aplikasi (itu milik fitur 04).
+Kedua aplikasi memiliki layar `Salam Rust`. Nama dikirim melalui binding UniFFI ke satu fungsi Rust, lalu hasilnya tampil setelah tombol `Sapa` atau submit keyboard. Skrip build menghasilkan binding dan mengemas pustaka sebelum membangun aplikasi. Keputusan layar dan CI ada di [spec 0003](specs/0003-salam-rust-dua-tablet.md).
 
 ## Prasyarat
 
@@ -62,14 +62,14 @@ Yang terjadi pada tiap baris:
 2. `cargo install cargo-ndk --version 4.1.2 --locked` memasang `cargo-ndk`, yang menyiapkan linker NDK untuk Cargo.
 3. `cargo build --workspace --locked` mengompilasi `tablet-core`, `tablet-ffi`, dan generator binding `tablet-uniffi-bindgen` untuk Mac.
 4. `cargo test --workspace --locked` menjalankan tes Rust: tes unit `hello` di `tablet-core` dan tes asap ekspor di `tablet-ffi`. Tes tingkat repo ada di bagian "Menjalankan tes".
-5. `scripts/build-ipados.sh` membangun `tablet-ffi` untuk `aarch64-apple-ios-sim` dan `aarch64-apple-ios`, lalu `Tablet.app` Debug untuk simulator iPad generik dan `Tablet.app` Release untuk iPad generik tanpa tanda tangan kode. Kamu bisa membangun salah satunya saja dengan `--simulator` atau `--device`.
-6. `scripts/build-android-tablet.sh` membangun `tablet-ffi` untuk `arm64-v8a` dan `x86_64` lewat `cargo-ndk`, lalu `app-debug.apk` lewat `./gradlew :app:assembleDebug`. Build pertama mengunduh Gradle 9.5.1 (sekitar 151 MB) ke `~/.gradle/wrapper/dists` dan dependensi Maven ke `~/.gradle/caches`.
+5. `scripts/build-ipados.sh` membangun `tablet-ffi` untuk `aarch64-apple-ios-sim` dan `aarch64-apple-ios`, menghasilkan binding Swift, mengemas XCFramework, lalu `Tablet.app` Debug untuk simulator iPad generik dan `Tablet.app` Release untuk iPad generik tanpa tanda tangan kode. Kamu bisa membangun salah satunya saja dengan `--simulator` atau `--device`.
+6. `scripts/build-android-tablet.sh` membangun `tablet-ffi` untuk `arm64-v8a` dan `x86_64` lewat `cargo-ndk`, menghasilkan binding Kotlin, menyalin pustaka JNI, lalu membangun `app-debug.apk` lewat `./gradlew :app:assembleDebug`. Build pertama mengunduh Gradle 9.5.1 (sekitar 151 MB) ke `~/.gradle/wrapper/dists` dan dependensi Maven ke `~/.gradle/caches`.
 
 Kedua skrip bisa dipanggil dari folder mana pun karena pindah ke akar repo lebih dulu. Bila prasyarat kurang, skrip berhenti sebelum build dengan pesan yang menyebut apa yang hilang dan cara memasangnya.
 
 ## Menghasilkan binding
 
-Binding Swift dan Kotlin dihasilkan dari pustaka `tablet-ffi` yang sudah dibangun, jadi jalankan skrip build platform itu lebih dulu:
+Kedua skrip build sudah memanggil generator secara otomatis. Untuk memeriksa generasi secara tersendiri setelah build, gunakan:
 
 ```bash
 scripts/generate-bindings.sh swift target/aarch64-apple-ios/release/libtablet_ffi.a target/aarch64-apple-ios-sim/release/libtablet_ffi.a
@@ -79,6 +79,49 @@ scripts/generate-bindings.sh kotlin target/aarch64-linux-android/release/libtabl
 Perintah `swift` menulis `bindings/swift/Sources/TabletBindings/TabletBindings.swift`, serta `TabletFFI.h` dan `module.modulemap` di `target/bindings/swift/headers/TabletFFI/`. Perintah `kotlin` menulis `bindings/kotlin/foundation/tablet/bindings/tablet_ffi.kt`. Tidak ada yang di-commit, dan tidak ada yang boleh disunting tangan.
 
 Skrip menghasilkan binding dari tiap pustaka dan hanya menulis bila semuanya identik. Kamu boleh menyebut satu pustaka saja, misalnya sesudah `scripts/build-ipados.sh --simulator`. Bila skrip menyebut `pustaka basi`, ada file sumber Rust yang lebih baru dari pustakanya; jalankan skrip build platform itu lagi. Build pertama generatornya butuh sekitar 20 detik. Aturan kontraknya ada di [konvensi kontrak FFI](contracts/ffi-conventions.md).
+
+## Menjalankan salam pada iPad
+
+Pilih satu iPad tersedia dari `xcrun simctl list devices available`, lalu gunakan UDID itu secara eksplisit:
+
+```bash
+IPADOS_SIMULATOR_UDID='<UDID iPad dari daftar>'
+xcrun simctl boot "$IPADOS_SIMULATOR_UDID" # lewati bila sudah Booted
+xcrun simctl bootstatus "$IPADOS_SIMULATOR_UDID" -b
+xcrun simctl install "$IPADOS_SIMULATOR_UDID" apps/ipados/build/DerivedData/Build/Products/Debug-iphonesimulator/Tablet.app
+xcrun simctl launch "$IPADOS_SIMULATOR_UDID" com.example.tablet
+open -a Simulator
+scripts/test-ipados.sh "$IPADOS_SIMULATOR_UDID"
+```
+
+Bundle ID bawaan di atas berasal dari `Base.xcconfig`; bila konfigurasi lokal menggantinya, pakai nilai itu. Runner tes hanya menerima UDID eksplisit atau variabel `IPADOS_SIMULATOR_UDID`, dan menyimpan bukti di `apps/ipados/build/TestResults/`. Tes memakai target XCTest UI dan fungsi Rust asli.
+
+## Menjalankan salam pada tablet Android
+
+Pakai tablet terhubung yang telah mengizinkan adb, atau buat AVD khusus. Pada Mac Apple silicon, image dan profil berikut mengikuti target emulator pada [matriks dukungan](architecture/support-matrix.md). Jalankan `avdmanager` dengan JDK dari bagian prasyarat, dan sediakan ruang untuk partisi data bawaan profil tablet.
+
+```bash
+export ANDROID_HOME="${ANDROID_HOME:-$HOME/Library/Android/sdk}"
+export JAVA_HOME="${JAVA_HOME:-/Applications/Android Studio.app/Contents/jbr/Contents/Home}"
+TABLET_API="$(sed -n 's/^targetSdk *= *"\([^" ]*\)".*/\1/p' apps/android-tablet/gradle/libs.versions.toml)"
+"$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "system-images;android-$TABLET_API;google_apis;arm64-v8a"
+"$ANDROID_HOME/cmdline-tools/latest/bin/avdmanager" list device
+"$ANDROID_HOME/cmdline-tools/latest/bin/avdmanager" create avd --name Foundation_Tablet --package "system-images;android-$TABLET_API;google_apis;arm64-v8a" --device pixel_tablet
+"$ANDROID_HOME/emulator/emulator" -avd Foundation_Tablet
+```
+
+Sesudah boot, pilih serial dari `adb devices -l`, lalu install dan jalankan dari terminal lain:
+
+```bash
+TABLET_SERIAL='<serial dari adb devices>'
+"$ANDROID_HOME/platform-tools/adb" -s "$TABLET_SERIAL" install -r apps/android-tablet/app/build/outputs/apk/debug/app-debug.apk
+"$ANDROID_HOME/platform-tools/adb" -s "$TABLET_SERIAL" shell am start -n com.example.tablet/foundation.tablet.MainActivity
+scripts/test-android-tablet.sh "$TABLET_SERIAL"
+```
+
+Application ID dibaca dari `tablet.applicationId` di `gradle.properties`; pakai nilainya bila diubah. Runner memeriksa smallest width minimal tablet, lalu menjalankan tes Compose pada serial itu saja. Hasil ada di `apps/android-tablet/app/build/reports/androidTests/connected/debug/` dan `outputs/androidTest-results/`. CI memakai image `x86_64` pada Linux dan membaca API dari katalog.
+
+Pada kedua aplikasi, nama awal `Ayu` dan hasil awal kosong. Tekan `Sapa` untuk mendapat `Hello, Ayu!`. Ganti menjadi `Bima`; hasil lama tetap terlihat sampai `Sapa` atau submit keyboard, lalu menjadi `Hello, Bima!`. Nama kosong dan Unicode diteruskan persis tanpa trim.
 
 ## Menjalankan tes
 
@@ -127,5 +170,5 @@ Untuk mengosongkan lagi, kamu bisa menghapus `target/`, `apps/ipados/build/`, da
 
 ## Yang belum dicakup panduan ini
 
-- Menjalankan aplikasi di simulator atau emulator ditambahkan fitur 04.
+- Bukti hosted CI ada di run workflow PR dan artifact per target. Validasi YAML atau tes lokal tidak membuktikan job hosted sudah lulus.
 - Uji di iPad dan tablet Android fisik belum dijalankan. Langkahnya ada di [file manual koordinasi](scope/coordination/01-arsitektur-dan-build-awal.manual.md) sebagai `F01-1` sampai `F01-3`. iPad fisik butuh Team ID Apple dan bundle ID asli di `apps/ipados/Config/Local.xcconfig` (file itu tidak di-commit).

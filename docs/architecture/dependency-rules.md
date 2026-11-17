@@ -9,7 +9,7 @@ apps/android-tablet ┘
 scripts ──> cargo, xcodebuild, gradle (hanya saat build)
 ```
 
-Sampai fitur 03 baru bagian kanan diagram yang ada: `crates/tablet-ffi` bergantung pada `crates/core`, dan `bindings` dihasilkan dari pustaka `tablet-ffi` oleh `scripts/generate-bindings.sh` (tidak di-commit). Tautan aplikasi ke binding masih milik fitur 04, jadi kedua aplikasi saat ini belum bergantung pada apa pun di repo. Crate tooling `tooling/uniffi-bindgen` hanya dipakai skrip generasi di host; tidak ada crate atau aplikasi yang bergantung padanya.
+Kedua aplikasi sekarang bergantung pada binding dan pustaka Rust terkemas. iPad memakai produk paket Swift lokal `TabletBindings`, yang bergantung pada binary target `TabletFFI`. Android mengompilasi sumber di `bindings/kotlin` serta memuat Rust dan JNA dari APK. Crate tooling `tooling/uniffi-bindgen` hanya dipakai skrip generasi di host. Proyek native tidak bergantung pada generator atau crate sumber. Pengemasan mengikuti spec 0002 dan [spec 0003](../specs/0003-salam-rust-dua-tablet.md).
 
 ## Tujuh aturan
 

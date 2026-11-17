@@ -1,0 +1,5 @@
+// Hanya identitas target tes. Versi dan batas platform diwarisi dari Base.xcconfig proyek.
+PRODUCT_NAME = $(TARGET_NAME)
+PRODUCT_BUNDLE_IDENTIFIER = com.example.tablet.uitests
+SWIFT_DEFAULT_ACTOR_ISOLATION = nonisolated
+TEST_TARGET_NAME = Tablet

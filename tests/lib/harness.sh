@@ -308,6 +308,23 @@ sandbox_new() {
   cp "$REPO_ROOT/apps/android-tablet/gradle.properties" "$SB/repo/apps/android-tablet/gradle.properties"
   : > "$SB/calls.log"
 
+  _write_stub "$SB/repo/scripts/generate-bindings.sh" generate-bindings '
+if [ "${STUB_GENERATE_FAIL:-0}" = 1 ]; then
+  echo "generate-bindings: generasi gagal (fixture)" >&2
+  exit 1
+fi
+case "$1" in
+  swift)
+    mkdir -p bindings/swift/Sources/TabletBindings target/bindings/swift/headers/TabletFFI
+    echo "// fixture" > bindings/swift/Sources/TabletBindings/TabletBindings.swift
+    echo "// fixture" > target/bindings/swift/headers/TabletFFI/TabletFFI.h
+    echo "module TabletFFI {}" > target/bindings/swift/headers/TabletFFI/module.modulemap
+    ;;
+  kotlin)
+    mkdir -p bindings/kotlin/foundation/tablet/bindings
+    echo "// fixture" > bindings/kotlin/foundation/tablet/bindings/tablet_ffi.kt
+    ;;
+esac'
   _write_stub "$SB/repo/apps/android-tablet/gradlew" gradlew ''
   _write_stub "$SB/bin/cargo" cargo '
 if [ "$1" = ndk ] && [ "$2" = --version ]; then
@@ -316,6 +333,22 @@ if [ "$1" = ndk ] && [ "$2" = --version ]; then
     exit 1
   fi
   echo "cargo-ndk $STUB_CARGO_NDK_VERSION"
+fi
+if [ "$1" = build ]; then
+  previous=""
+  for argument in "$@"; do
+    if [ "$previous" = --target ]; then
+      mkdir -p "target/$argument/release"
+      echo "fixture $argument" > "target/$argument/release/libtablet_ffi.a"
+    fi
+    previous="$argument"
+  done
+fi
+if [ "$1" = ndk ] && [ "$2" != --version ]; then
+  for triple in aarch64-linux-android x86_64-linux-android; do
+    mkdir -p "target/$triple/release"
+    echo "fixture $triple" > "target/$triple/release/libtablet_ffi.so"
+  done
 fi'
   _write_stub "$SB/bin/rustup" rustup '
 if [ "$1" = target ] && [ "$2" = list ] && [ "$3" = --installed ]; then
@@ -327,6 +360,13 @@ if [ "$1" = -p ]; then echo "$STUB_DEVELOPER_DIR"; fi'
 if [ "$1" = -version ]; then
   echo "Xcode $STUB_XCODE_VERSION"
   echo "Build version 00A000"
+fi
+if [ "$1" = -create-xcframework ]; then
+  previous=""
+  for argument in "$@"; do
+    if [ "$previous" = -output ]; then mkdir -p "$argument"; fi
+    previous="$argument"
+  done
 fi'
   _write_stub "$SB/jdk/bin/java" java '
 if [ "$1" = -version ]; then echo "openjdk version \"$STUB_JAVA_VERSION\" 2026-01-20" >&2; fi'
@@ -379,7 +419,7 @@ sb_err() { cat "$SB/err"; }
 sb_build_calls() {
   awk -F'\t' '
     ($1 == "cargo" && ($3 ~ /^build( |$)/ || ($3 ~ /^ndk( |$)/ && $3 ~ / build( |$)/))) \
-      || ($1 == "xcodebuild" && $3 != "-version") \
+      || ($1 == "xcodebuild" && $3 != "-version" && $3 !~ /^-create-xcframework/) \
       || $1 == "gradlew" { print }
   ' "$SB/calls.log"
 }
