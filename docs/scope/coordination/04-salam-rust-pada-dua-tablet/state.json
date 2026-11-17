@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "kind": "agent_flow_run_state",
-  "revision": 6,
+  "revision": 11,
   "run_id": "f04-2026-11-16",
   "objective": "Salam Rust pada dua tablet",
   "repository": "/Users/ojiepermana/Development/ojiepermana/foundation/tablet",
@@ -37,7 +37,7 @@
       "workflow_skill": null,
       "execution_placement": "inline",
       "runtime_kind": "codex",
-      "status": "RUNNING",
+      "status": "COMPLETED",
       "owned_paths": [
         "docs/",
         "tests/"
@@ -100,6 +100,22 @@
         ".github/workflows/",
         "scripts/ci-*.sh"
       ]
+    },
+    {
+      "agent_id": "ci-preflight-20261117",
+      "workflow_skill": null,
+      "execution_placement": "native_worker",
+      "runtime_kind": "codex",
+      "runtime_worker_id": "/root/ci_preflight",
+      "native_runtime_id_kind": "canonical_task_path",
+      "parent": "/root",
+      "context_provenance": "fresh",
+      "context_evidence": [
+        "fork_turns none accepted; acknowledgment and completed return received"
+      ],
+      "current_task_id": "ci-preflight-20261117",
+      "status": "COMPLETED",
+      "owned_paths": []
     }
   ],
   "tasks": [
@@ -281,6 +297,56 @@
       "verification_results": [
         "No concrete CI readiness defects found by static inspection. Not runtime PASS or independent review."
       ]
+    },
+    {
+      "task_id": "hosted-verification-20261117",
+      "feature_id": "04",
+      "workflow_skill": "check verify",
+      "execution_placement": "inline",
+      "runtime_kind": "codex",
+      "status": "COMPLETED",
+      "complexity": "HIGH",
+      "decision_mode": "auto",
+      "decision_policy_source": "skill_default",
+      "owned_paths": [],
+      "dependencies": [
+        "ci",
+        "ipados",
+        "android",
+        "ci-preflight-20261117"
+      ],
+      "specification": "docs/specs/0003-salam-rust-dua-tablet.md",
+      "model": {
+        "source": null,
+        "family": null,
+        "requested": {
+          "selection": null,
+          "effort": null,
+          "via": "session"
+        },
+        "configured": null,
+        "observed": null
+      },
+      "verification_results": [
+        {
+          "criterion": "AC-7",
+          "target": "ipados",
+          "status": "passed",
+          "command": "pull_request hosted build and scripts/test-ipados.sh",
+          "observed_result": "job success; 2 tests, 0 failures; clean source",
+          "evidence": "https://github.com/ojiepermana/foundation-tablet/actions/runs/44120618653/job/134170773771"
+        },
+        {
+          "criterion": "AC-7",
+          "target": "android-tablet",
+          "status": "passed",
+          "command": "pull_request hosted build and scripts/test-android-tablet.sh",
+          "observed_result": "job success; 3 tests, 0 failures/errors/skips; clean source",
+          "evidence": "https://github.com/ojiepermana/foundation-tablet/actions/runs/44120618653/job/134170774310"
+        }
+      ],
+      "checkpoint": "docs/reviews/2026-11-17-verify-f04.md",
+      "next_action": "none within F04"
     }
   ],
   "sessions": [],
@@ -296,22 +362,14 @@
       "spec_ref": "docs/specs/0003-salam-rust-dua-tablet.md"
     }
   ],
-  "outstanding": [
-    {
-      "id": "hosted-ci",
-      "status": "NOT_RUN",
-      "criterion": "spec0003 AC-7; F04 Done when",
-      "reason": "Feature branch/PR not published; no hosted run exists. Local clean snapshot is not a new hosted runner.",
-      "next_action": "Publish scoped feature branch and draft PR, follow both hosted jobs and record tested SHA/run URL."
-    }
-  ],
-  "updated_at": "2026-11-17T22:42:14.339267+07:00",
+  "outstanding": [],
+  "updated_at": "2026-11-17T23:18:46.513855+07:00",
   "logical_registry": [
     {
       "role": "scope",
       "workflow_skill": "scope",
       "placement": "inline",
-      "result": "F04 reconciled, in-progress; hosted proof pending"
+      "result": "Scope 04 done, no remaining criteria. Scope 05 working changes preserved."
     },
     {
       "role": "audit",
@@ -335,7 +393,7 @@
       "role": "verify",
       "workflow_skill": "check verify",
       "placement": "inline",
-      "result": "local PASS, hosted NOT_RUN"
+      "result": "PASS: both hosted jobs completed success on source 6f1ce92, checkout b5ef18b."
     },
     {
       "role": "test",
@@ -359,13 +417,13 @@
       "role": "sync",
       "workflow_skill": "sync",
       "placement": "inline",
-      "result": "design pointer and F04 status reconciled"
+      "result": "Scope 04 verify ticked, scope/index done and spec 0003 Accepted. No new AGENTS facts or stale contracts."
     },
     {
       "role": "debug",
       "workflow_skill": "debug",
-      "placement": "native_worker",
-      "result": "not invoked; bounded compiler/test corrections and emulator helper resolved"
+      "placement": "inline",
+      "result": "Minimal AVD discovery fix by Leader; actual tool discovery experiment and CI boot/UI PASS on run 2"
     }
   ],
   "verification": {
@@ -376,10 +434,45 @@
       "Rust fmt/clippy and 5 tests PASS",
       "Clean snapshot both builds and iPad single-slice modes PASS",
       "81 script/artifact cases across 11 files PASS",
-      "2 iPad UI + 3 Android UI tests PASS"
+      "2 iPad UI + 3 Android UI tests PASS",
+      "Hosted run 44120618653: both jobs completed success for b5ef18b / source 6f1ce92",
+      "All AC-1 through AC-8 proved per target in 2026-11-17 report"
     ],
-    "report": "docs/reviews/2026-11-16-verify-f04.md",
-    "commit_push": "none in user repository"
+    "report": "docs/reviews/2026-11-17-verify-f04.md",
+    "commit_push": "Feature and AVD fix pushed to codex/f04-salam-rust, PR 1. Documentation closeout only, skip CI because tested source unchanged. No merge.",
+    "published_head": "6f1ce92c6b57df4bc9f3f9f7173ac6fb06bad70e",
+    "pull_request": "https://github.com/ojiepermana/foundation-tablet/pull/1",
+    "hosted_run": "https://github.com/ojiepermana/foundation-tablet/actions/runs/44120618653",
+    "hosted_checkout": "b5ef18beeb9388a6f7361efd2ffd9b08e13aa43a",
+    "hosted_tree": "81a85880f04c6d23368d1396cb6b5581be55907c",
+    "hosted_tree_comparison": "git diff --name-only HEAD FETCH_HEAD empty: hosted merge and feature head tree identical",
+    "local_resume_gates": {
+      "status": "PASS",
+      "command": "scripts/ci-rust-gates.sh",
+      "log": "/tmp/tablet-f04-resume-gates.log",
+      "result": "fmt, clippy, 5 Rust tests and 9 test files passed"
+    },
+    "hosted_attempts": [
+      {
+        "run_id": 44117426599,
+        "head": "d7252efc3435af3f0bbdbba8910b63ffb8964186",
+        "checkout": "6d2a2f01785b607dd14722774521ae0e8f8866f8",
+        "ipados": "PASS",
+        "android": "FAIL: AVD lookup mismatch before UI",
+        "report": "docs/reviews/2026-11-17-verify-f04.md"
+      },
+      {
+        "run_id": 44120618653,
+        "head": "6f1ce92c6b57df4bc9f3f9f7173ac6fb06bad70e",
+        "checkout": "b5ef18beeb9388a6f7361efd2ffd9b08e13aa43a",
+        "ipados": "PASS: 2 XCTest, Debug simulator, unsigned Release device, clean source",
+        "android": "PASS: 3 Compose tests, both ABI packaging and clean source",
+        "android_artifact": "https://github.com/ojiepermana/foundation-tablet/actions/runs/44120618653/artifacts/14345841476",
+        "ipados_artifact": "https://github.com/ojiepermana/foundation-tablet/actions/runs/44120618653/artifacts/14345328695",
+        "status": "COMPLETED",
+        "conclusion": "success"
+      }
+    ]
   },
   "cleanup": {
     "temporary_snapshot_build_outputs": "removed after evidence retained",
@@ -394,5 +487,13 @@
     "evidence": "Only /root live in collaboration.list_agents. Old completed workers are historical, no ownership reused.",
     "request": "User renewed scope 04 sampai selesai; proceed with necessary feature branch and draft PR for required hosted proof.",
     "source_boundary": "Existing tracked and untracked source changes match F04 or its governing design and documentation."
+  },
+  "resume_delivery": {
+    "scope_status": "done",
+    "spec_status": "Accepted",
+    "report": "docs/reviews/2026-11-17-verify-f04.md",
+    "unrelated_work": "Scope 05 changes appeared during CI and remain excluded from F04 commits; scope index staged from HEAD with only row 04 changed.",
+    "documentation_only_closeout": "[skip ci], no tested runtime/build/test/workflow changes after source 6f1ce92",
+    "merge": "not performed, no merge requirement in scope 04"
   }
 }

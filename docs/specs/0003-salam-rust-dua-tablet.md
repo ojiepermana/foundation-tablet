@@ -1,7 +1,7 @@
 # 0003. Salam Rust pada dua tablet
 
 **Date**: 2026-11-16
-**Status**: In Progress
+**Status**: Accepted
 
 ## Summary
 
