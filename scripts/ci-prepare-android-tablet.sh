@@ -28,6 +28,9 @@ esac
 export ANDROID_HOME="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-}}"
 [[ -d "$ANDROID_HOME" ]] || fail 'ANDROID_HOME tidak menunjuk Android SDK runner.'
 export ANDROID_SDK_ROOT="$ANDROID_HOME"
+# avdmanager dan emulator dapat memilih lokasi bawaan yang berbeda pada runner.
+# Satu lokasi eksplisit dipakai saat membuat AVD dan pada langkah boot berikutnya.
+export ANDROID_AVD_HOME="${ANDROID_AVD_HOME:-$PWD/target/android-avd}"
 sdk_bin="$ANDROID_HOME/cmdline-tools/latest/bin"
 [[ -x "$sdk_bin/sdkmanager" ]] || fail "sdkmanager tidak ada di $sdk_bin."
 export PATH="$ANDROID_HOME/platform-tools:$ANDROID_HOME/emulator:$sdk_bin:$PATH"
@@ -71,9 +74,16 @@ if [[ "$1" == prepare ]]; then
   avdmanager list device > target/ci/android-tablet/device-profiles.txt
   grep -Fq '"pixel_tablet"' target/ci/android-tablet/device-profiles.txt \
     || fail 'profil pixel_tablet tidak tersedia; perbarui Android SDK Command-line Tools lewat SDK Manager.'
+  mkdir -p "$ANDROID_AVD_HOME"
   printf 'no\n' | avdmanager create avd --force --name Foundation_Tablet_CI \
     --package "$image" --device pixel_tablet
+  [[ -f "$ANDROID_AVD_HOME/Foundation_Tablet_CI.ini" ]] \
+    || fail "AVD tidak dibuat di lokasi bersama $ANDROID_AVD_HOME."
+  emulator -list-avds > target/ci/android-tablet/available-avds.txt
+  grep -Fxq Foundation_Tablet_CI target/ci/android-tablet/available-avds.txt \
+    || fail 'emulator tidak menemukan AVD yang baru dibuat; lihat available-avds.txt.'
   printf 'ANDROID_HOME=%s\nANDROID_SDK_ROOT=%s\n' "$ANDROID_HOME" "$ANDROID_HOME" >> "$GITHUB_ENV"
+  printf 'ANDROID_AVD_HOME=%s\n' "$ANDROID_AVD_HOME" >> "$GITHUB_ENV"
   printf '%s\n' "$ANDROID_HOME/platform-tools" "$ANDROID_HOME/emulator" "$sdk_bin" >> "$GITHUB_PATH"
   exit 0
 fi
