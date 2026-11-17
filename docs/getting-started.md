@@ -4,6 +4,8 @@ Panduan ini membawa kamu dari clone baru sampai workspace Rust, aplikasi iPad, d
 
 Kedua aplikasi memiliki layar `Salam Rust`. Nama dikirim melalui binding UniFFI ke satu fungsi Rust, lalu hasilnya tampil setelah tombol `Sapa` atau submit keyboard. Skrip build menghasilkan binding dan mengemas pustaka sebelum membangun aplikasi. Keputusan layar dan CI ada di [spec 0003](specs/0003-salam-rust-dua-tablet.md).
 
+Pada iPad, sidebar kini menghubungkan salam dan informasi fondasi. Cara memakai window sempit, scene baru, dan kebijakan pemulihannya ada di [panduan navigasi iPad](tablet/navigation-ipados.md).
+
 ## Prasyarat
 
 | Prasyarat | Versi | Dikunci di |

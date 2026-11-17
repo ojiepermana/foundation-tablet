@@ -18,7 +18,7 @@ Pilih nama fitur untuk melihat tujuan, kriteria selesai, dan langkah pertamanya.
 | 02 | [Aturan kontribusi](02-aturan-kontribusi.md) | Fondasi | done |
 | 03 | [Kontrak Rust untuk kedua aplikasi](03-kontrak-rust-untuk-kedua-aplikasi.md) | Fondasi | done |
 | 04 | [Salam Rust pada dua tablet](04-salam-rust-pada-dua-tablet.md) | Alur pertama | done |
-| 05 | [Navigasi dan jendela iPad](05-navigasi-dan-jendela-ipad.md) | Ruang kerja tablet | planned |
+| 05 | [Navigasi dan jendela iPad](05-navigasi-dan-jendela-ipad.md) | Ruang kerja tablet | done |
 | 06 | [Navigasi dan jendela Android](06-navigasi-dan-jendela-android.md) | Ruang kerja tablet | planned |
 | 07 | [Input dan aksesibilitas](07-input-dan-aksesibilitas.md) | Ruang kerja tablet | planned |
 | 08 | [Tema dari token bersama](08-tema-dari-token-bersama.md) | Identitas bersama | planned |

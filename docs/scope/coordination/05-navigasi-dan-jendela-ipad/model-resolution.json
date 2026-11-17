@@ -1,0 +1,24 @@
+{
+  "runtime": "codex",
+  "leader": {
+    "selection": null,
+    "family": null,
+    "effort": null,
+    "evidence": "Exact active family/effort not exposed"
+  },
+  "sources": {
+    "contrast": {
+      "selection": "gpt-6.1-terra",
+      "access": "advertised, spawn accepted; execution identity unverified"
+    },
+    "engineering": {
+      "selection": "gpt-6.1-sol",
+      "access": "advertised"
+    },
+    "routine": {
+      "selection": "gpt-6.1-terra",
+      "access": "advertised"
+    }
+  },
+  "checked_at": "2026-11-17"
+}
